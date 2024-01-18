@@ -1,9 +1,5 @@
 #include "ServerInfo.hpp"
 
-#include <iostream>
-#include <sstream>
-#include <string>
-
 ServerInfo::ServerInfo() : portNumber(-1), serverPwd("") { return; }
 
 ServerInfo::ServerInfo(const ServerInfo& obj) {
@@ -65,3 +61,7 @@ ServerInfo::ServerInfo(int ac, char** av) {
 }
 
 ServerInfo::~ServerInfo() { return; }
+
+int ServerInfo::getPortNumber() { return portNumber; }
+
+std::string ServerInfo::getServerPwd() { return serverPwd; }

@@ -1,6 +1,8 @@
 #ifndef SERVERINFO_HPP
 #define SERVERINFO_HPP
 
+#include <iostream>
+#include <sstream>
 #include <string>
 
 class ServerInfo {
@@ -18,6 +20,9 @@ class ServerInfo {
  public:
   ServerInfo(int ac, char** av);
   ~ServerInfo();
+
+  int getPortNumber();
+  std::string getServerPwd();
 };
 
 #endif
