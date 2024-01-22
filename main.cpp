@@ -1,13 +1,6 @@
-#include "srcs/parse/ServerInfo.hpp"
-#include "srcs/socket/ServerSocket.hpp"
-#include "srcs/utils/utils.hpp"
+#include "srcs/server/Server.hpp"
 
 int main(int ac, char** av) {
-  ServerInfo serverInfo(ac, av);
-  ServerSocket serverSocket(serverInfo);
-
-  initSignal();
-  while (true)
-    ;
+  Server server(ac, av);
   return 0;
 }
