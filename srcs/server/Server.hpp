@@ -35,7 +35,6 @@ class Server {
 
  public:
   Server(int ac, char** av);
-  ServerParam& getServerParam() { return serverParam; };
   ~Server();
 };
 
