@@ -5,6 +5,10 @@
 #include <sstream>
 #include <string>
 
+#define MINPORT 49152
+#define MAXPORT 65535
+#define PWDLEN 4
+
 class Server {
  private:
   // ServerParam serverParam;
@@ -14,14 +18,11 @@ class Server {
   // void acceptClient();
   // void sendCommand(CommandResponseParam& responseParam);
 
-  int portNumber;
-  std::string serverPwd;
-
   Server();
   Server(const Server& obj);
   Server& operator=(const Server& obj);
 
-  void setPortNumber(char* portNum);
+  void checkServerPort(char* portNum);
   void setServerPwd(char* pwdNum);
 
  public:

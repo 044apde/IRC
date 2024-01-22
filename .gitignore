@@ -3,4 +3,4 @@
 *.o
 *.d
 main.cpp
-makefile
+Makefile
