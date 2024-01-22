@@ -6,7 +6,8 @@ Server::Server(const Server& obj) {
   if (this == &obj)
     return;
   else {
-    // serverParam commandInvoker 객체 초기화 필요
+    serverParam = obj.serverParam;
+    // commandInvoker 객체 초기화 필요
   };
   return;
 }
@@ -15,7 +16,8 @@ Server& Server::operator=(const Server& obj) {
   if (this == &obj)
     return *this;
   else {
-    // serverParam commandInvoker 객체 초기화 필요
+    serverParam = obj.serverParam;
+    // commandInvoker 객체 초기화 필요
   }
   return *this;
 }
@@ -68,7 +70,6 @@ Server::Server(int ac, char** av) {
     int serverPort = getServerPort(av[1]);
     std::string serverPassword = getServerPwd(av[2]);
     int serverFd = getSocket(serverPort);
-
     serverParam.setServerFd(serverFd);
     std::cout << "FD: " << serverFd << std::endl;
     serverParam.setServerPassword(serverPassword);
@@ -79,4 +80,15 @@ Server::Server(int ac, char** av) {
   return;
 }
 
-Server::~Server() { return; }
+Server::~Server() {
+  std::cout << "서버가 종료되었습니다." << std::endl;
+  return;
+}
+
+void Server::run() {
+  int kqueueFd = kqueue();
+
+  if (kqueueFd == -1)
+    throw std::runtime_error("kqueue 함수 호출에 실패했습니다.");
+  return;
+}

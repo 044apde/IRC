@@ -2,8 +2,10 @@
 #define SERVER_HPP
 
 #include <arpa/inet.h>
+#include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/types.h>
 
 #include <iostream>
 #include <sstream>
@@ -15,6 +17,7 @@
 #define MAXPORT 65535
 #define PWD_LEN 4
 #define PENDING_QUEUE_SIZE 10
+#define MAX_CLIENTS 100
 
 class Server {
  private:
@@ -36,6 +39,8 @@ class Server {
  public:
   Server(int ac, char** av);
   ~Server();
+
+  void run();
 };
 
 #endif
