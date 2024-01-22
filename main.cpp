@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "srcs/server/Server.hpp"
 
 int main(int ac, char** av) {

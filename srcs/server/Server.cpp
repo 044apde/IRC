@@ -70,6 +70,7 @@ Server::Server(int ac, char** av) {
     int serverFd = getSocket(serverPort);
 
     serverParam.setServerFd(serverFd);
+    std::cout << "FD: " << serverFd << std::endl;
     serverParam.setServerPassword(serverPassword);
   } catch (const std::exception& e) {
     std::cerr << e.what() << '\n';
