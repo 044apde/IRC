@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "../param/server_param/ServerParam.hpp"
 
@@ -18,10 +19,14 @@
 #define PWD_LEN 4
 #define PENDING_QUEUE_SIZE 10
 #define MAX_CLIENTS 100
+#define EVENTLIST_SIZE 10
 
 class Server {
  private:
   ServerParam serverParam;
+  std::vector<struct kevent> eventVec;
+  int kqueueFd;
+  struct timespec timeout;
   // CommandInvoker commandInvoker;
 
   // paredParam parse(std::string input);
@@ -35,6 +40,9 @@ class Server {
   int getSocket(int serverPort);
   int getServerPort(char* portNum);
   std::string getServerPwd(char* pwdNum);
+
+  void enrollEventToVec(uintptr_t ident, int16_t filter, uint16_t flags,
+                        uint32_t fflags, intptr_t data, void* udata);
 
  public:
   Server(int ac, char** av);

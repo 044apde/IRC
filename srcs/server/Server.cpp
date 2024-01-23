@@ -1,12 +1,24 @@
 #include "Server.hpp"
 
-Server::Server() { return; }
+Server::Server()
+    : serverParam(ServerParam()), eventVec(std::vector<struct kevent>()) {
+  kqueueFd = kqueue();
+  timeout.tv_sec = 5;
+  timeout.tv_nsec = 0;
+  if (kqueueFd == -1)
+    throw std::runtime_error("kqueue 함수 호출에 실패했습니다.");
+  return;
+}
 
 Server::Server(const Server& obj) {
   if (this == &obj)
     return;
   else {
+    eventVec = obj.eventVec;
     serverParam = obj.serverParam;
+    timeout.tv_sec = obj.timeout.tv_sec;
+    timeout.tv_nsec = obj.timeout.tv_nsec;
+    kqueueFd = obj.kqueueFd;
     // commandInvoker 객체 초기화 필요
   };
   return;
@@ -16,7 +28,11 @@ Server& Server::operator=(const Server& obj) {
   if (this == &obj)
     return *this;
   else {
+    eventVec = obj.eventVec;
     serverParam = obj.serverParam;
+    kqueueFd = obj.kqueueFd;
+    timeout.tv_sec = obj.timeout.tv_sec;
+    timeout.tv_nsec = obj.timeout.tv_nsec;
     // commandInvoker 객체 초기화 필요
   }
   return *this;
@@ -82,13 +98,41 @@ Server::Server(int ac, char** av) {
 
 Server::~Server() {
   std::cout << "서버가 종료되었습니다." << std::endl;
+  close(kqueue);
+  return;
+}
+
+void Server::enrollEventToVec(uintptr_t ident, int16_t filter, uint16_t flags,
+                              uint32_t fflags, intptr_t data, void* udata) {
+  struct kevent tempEvent;
+
+  EV_SET(&tempEvent, ident, filter, flags, fflags, data, udata);
+  eventVec.push_back(tempEvent);
   return;
 }
 
 void Server::run() {
-  int kqueueFd = kqueue();
+  int eventCount = 0;
+  struct kevent eventlist[EVENTLIST_SIZE];
 
-  if (kqueueFd == -1)
-    throw std::runtime_error("kqueue 함수 호출에 실패했습니다.");
+  enrollEventToVec(serverParam.getServerFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+  while (true) {
+    eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(),
+                        &eventlist[0], EVENTLIST_SIZE, &timeout);
+  }
+  if (eventCount == 0) {
+    std::cout << "timeout\n";
+    break;
+  } else if (eventCount == -1) {
+    throw std::runtime_error("error kevent()");
+  } else {
+    for (int i = 0; i < eventCount; i++) {
+      // 연결 요청
+      // parse()
+      // acceptClient()
+      // sendCommand()
+    }
+  }
+
   return;
 }
