@@ -11,16 +11,22 @@ PassCommand& PassCommand::operator=(const PassCommand& other) {
   return *this;
 }
 
-std::string PassCommand::execute(ServerParam& serverParam,
-                                 ParsedParam& parsedParam) {
+CommandResponseParam PassCommand::execute(ServerParam& serverParam,
+                                          ParsedParam& parsedParam) {
+  CommandResponseParam commandResponse;
+
+  commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
   if (serverParam.getClient(parsedParam.getSenderSocketFd()) != NULL) {
-    return this->replyMessage.errAlreadyRegistered(parsedParam);
+    commandResponse.addResponseMessage(
+        this->replyMessage.errAlreadyRegistered(parsedParam));
+  } else if (parsedParam.getPassword().empty() == true) {
+    commandResponse.addResponseMessage(
+        this->replyMessage.errNeedMoreParams(parsedParam));
+  } else if (parsedParam.getPassword() == serverParam.getServerPassword()) {
+    commandResponse.addResponseMessage("");
+  } else {
+    commandResponse.addResponseMessage(
+        this->replyMessage.errPasswdMismatch(parsedParam));
   }
-  if (parsedParam.getPassword().empty() == true) {
-    return this->replyMessage.errNeedMoreParams(parsedParam);
-  }
-  if (parsedParam.getPassword() == serverParam.getServerPassword()) {
-    return "";
-  }
-  return this->replyMessage.errPasswdMismatch(parsedParam);
+  return commandResponse;
 }
