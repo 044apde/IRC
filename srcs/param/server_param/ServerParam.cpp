@@ -76,6 +76,17 @@ Client* ServerParam::getClient(const int& clientFd) const {
   return this->clientMap.find(clientFd)->second;
 }
 
+Client* ServerParam::getClientByNickname(const std::string& nickname) const {
+  assert(nickname.empty() == false);
+  for (std::map<int, Client*>::const_iterator it = this->clientMap.begin();
+       it != this->clientMap.end(); ++it) {
+    if (it->second->getNickname() == nickname) {
+      return it->second;
+    }
+  }
+  return NULL;
+}
+
 Channel* ServerParam::getChannel(const std::string& channelName) const {
   assert(channelName.empty() == false);
   assert(this->channelMap.find(channelName) != this->channelMap.end());

@@ -33,6 +33,7 @@ class ServerParam {
   void removeClient(const int& clientFd);
   void removeChannel(const std::string& channelName);
   Client* getClient(const int& clientFd) const;
+  Client* getClientByNickname(const std::string& nickname) const;
   Channel* getChannel(const std::string& channelName) const;
 };
 
