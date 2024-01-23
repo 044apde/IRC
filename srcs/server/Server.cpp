@@ -119,20 +119,19 @@ void Server::run() {
   while (true) {
     eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(),
                         &eventlist[0], EVENTLIST_SIZE, &timeout);
-  }
-  if (eventCount == 0) {
-    std::cout << "timeout\n";
-    break;
-  } else if (eventCount == -1) {
-    throw std::runtime_error("error kevent()");
-  } else {
-    for (int i = 0; i < eventCount; i++) {
-      // 연결 요청
-      // parse()
-      // acceptClient()
-      // sendCommand()
+    if (eventCount == 0) {
+      std::cout << "timeout\n";
+      break;
+    } else if (eventCount == -1) {
+      throw std::runtime_error("error kevent()");
+    } else {
+      for (int i = 0; i < eventCount; i++) {
+        // 연결 요청
+        // parse()
+        // acceptClient()
+        // sendCommand()
+      }
     }
   }
-
   return;
 }
