@@ -1,6 +1,6 @@
 #pragma once
-#ifndef JOIN_COMMAND_HPP
-#define JOIN_COMMAND_HPP
+#ifndef INVITE_COMMAND_HPP
+#define INVITE_COMMAND_HPP
 
 #include <cassert>
 #include <string>

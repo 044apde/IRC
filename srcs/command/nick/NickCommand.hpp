@@ -23,7 +23,7 @@ class NickCommand : public ACommand {
   NickCommand();
   ~NickCommand();
   CommandResponseParam execute(ServerParam &serverParam,
-                               ParsedParam &parsedParam) = 0;
+                               ParsedParam &parsedParam);
 };
 
 #endif
