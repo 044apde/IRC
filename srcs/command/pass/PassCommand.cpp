@@ -14,20 +14,22 @@ PassCommand& PassCommand::operator=(const PassCommand& other) {
 CommandResponseParam PassCommand::execute(ServerParam& serverParam,
                                           ParsedParam& parsedParam) {
   CommandResponseParam commandResponse;
+  const int& senderSocketFd = parsedParam.getSenderSocketFd();
 
-  commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
-  if (serverParam.getClient(parsedParam.getSenderSocketFd()) != NULL) {
+  commandResponse.addTargetClientFd(senderSocketFd);
+  if (serverParam.getClient(senderSocketFd) != NULL) {
     commandResponse.setResponseMessage(
         this->replyMessage.errAlreadyRegistered(parsedParam));
   } else if (parsedParam.getPassword().empty() == true) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNeedMoreParams(parsedParam));
-  } else if (parsedParam.getPassword() == serverParam.getServerPassword()) {
-    serverParam.addClient(parsedParam.getSenderSocketFd(), new Client());
-    commandResponse.setResponseMessage("");
   } else {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errPasswdMismatch(parsedParam));
+    if (parsedParam.getPassword() != serverParam.getServerPassword()) {
+      commandResponse.setResponseMessage(
+          this->replyMessage.errPasswdMismatch(parsedParam));
+    } else {
+      serverParam.addClient(senderSocketFd);
+    }
   }
   return commandResponse;
 }

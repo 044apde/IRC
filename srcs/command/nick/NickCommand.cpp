@@ -48,5 +48,8 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
     commandResponse.setResponseMessage(
         this->replyMessage.errNicknameInUse(parsedParam));
   }
+  if (commandResponse.getResponseMessage().empty() == false) {
+    serverParam.removeClient(parsedParam.getSenderSocketFd());
+  }
   return commandResponse;
 }
