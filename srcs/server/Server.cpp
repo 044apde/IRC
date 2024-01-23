@@ -126,7 +126,6 @@ void Server::run() {
       throw std::runtime_error("error kevent()");
     } else {
       for (int i = 0; i < eventCount; i++) {
-        // 연결 요청
         // parse()
         // acceptClient()
         // sendCommand()
