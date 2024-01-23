@@ -32,54 +32,20 @@ void ServerParam::setServerPassword(const std::string& serverPassword) {
   this->serverPassword = serverPassword;
 }
 
-const int& ServerParam::getServerFd() const { return this->serverFd; }
+const int& ServerParam::getServerFd() const {
+  assert(this->serverFd != -1);
+  return this->serverFd;
+}
 
 const std::string& ServerParam::getServerPassword() const {
+  assert(this->serverPassword.empty() == false);
   return this->serverPassword;
 }
 
-bool ServerParam::addClient(const int& clientFd, Client* client) {
-  if (this->clientMap.find(clientFd) != this->clientMap.end()) {
-    return false;
-  }
-  this->clientMap[clientFd] = client;
-  return true;
+std::map<int, Client*> ServerParam::getClientMap() const {
+  return this->clientMap;
 }
 
-bool ServerParam::addChannel(const std::string& channelName, Channel* channel) {
-  if (this->channelMap.find(channelName) != this->channelMap.end()) {
-    return false;
-  }
-  this->channelMap[channelName] = channel;
-  return true;
-}
-
-bool ServerParam::removeClient(const int& clientFd) {
-  if (this->clientMap.find(clientFd) == this->clientMap.end()) {
-    return false;
-  }
-  this->clientMap.erase(clientFd);
-  return true;
-}
-
-bool ServerParam::removeChannel(const std::string& channelName) {
-  if (this->channelMap.find(channelName) == this->channelMap.end()) {
-    return false;
-  }
-  this->channelMap.erase(channelName);
-  return true;
-}
-
-Client* ServerParam::getClient(const int& clientFd) const {
-  if (this->clientMap.find(clientFd) == this->clientMap.end()) {
-    return NULL;
-  }
-  return this->clientMap.at(clientFd);
-}
-
-Channel* ServerParam::getChannel(const std::string& channelName) const {
-  if (this->channelMap.find(channelName) == this->channelMap.end()) {
-    return NULL;
-  }
-  return this->channelMap.at(channelName);
+std::map<std::string, Channel*> ServerParam::getChannelMap() const {
+  return this->channelMap;
 }

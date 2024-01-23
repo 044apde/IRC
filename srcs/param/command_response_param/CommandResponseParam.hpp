@@ -14,10 +14,10 @@ class CommandResponseParam {
  public:
   CommandResponseParam();
   ~CommandResponseParam();
-  CommandResponseParam(const CommandResponseParam&);
-  CommandResponseParam& operator=(const CommandResponseParam&);
+  CommandResponseParam(const CommandResponseParam& other);
+  CommandResponseParam& operator=(const CommandResponseParam& other);
   void addTargetClientFd(const int& targetClientFd);
-  void addResponseMessage(const std::string& responseMessage);
+  void setResponseMessage(const std::string& responseMessage);
   std::set<int> getTargetClientFdSet() const;
   std::string getResponseMessage() const;
 };
