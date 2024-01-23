@@ -4,15 +4,15 @@ CommandResponseParam::CommandResponseParam() {}
 
 CommandResponseParam::~CommandResponseParam() {}
 
-CommandResponseParam::CommandResponseParam(const CommandResponseParam& src) {
-  *this = src;
+CommandResponseParam::CommandResponseParam(const CommandResponseParam& other) {
+  *this = other;
 }
 
 CommandResponseParam& CommandResponseParam::operator=(
-    const CommandResponseParam& src) {
-  if (this != &src) {
-    this->targetClientFdSet = src.targetClientFdSet;
-    this->responseMessage = src.responseMessage;
+    const CommandResponseParam& other) {
+  if (this != &other) {
+    this->targetClientFdSet = other.targetClientFdSet;
+    this->responseMessage = other.responseMessage;
   }
   return *this;
 }
@@ -25,7 +25,7 @@ void CommandResponseParam::addTargetClientFd(const int& targetClientFd) {
   return;
 }
 
-void CommandResponseParam::addResponseMessage(
+void CommandResponseParam::setResponseMessage(
     const std::string& responseMessage) {
   this->responseMessage = responseMessage;
   return;
