@@ -4,6 +4,7 @@ ParsedParamBuilder::ParsedParamBuilder()
     : _senderSocketFd(-1),
       _fullMessage(""),
       _command(""),
+      _password(""),
       _username(""),
       _nickname(""),
       _channel(""),
@@ -39,6 +40,12 @@ ParsedParamBuilder& ParsedParamBuilder::fullMessage(
 ParsedParamBuilder& ParsedParamBuilder::command(const std::string& command) {
   assert(command.empty() == false);
   this->_command = command;
+  return *this;
+}
+
+ParsedParamBuilder& ParsedParamBuilder::password(const std::string& password) {
+  assert(password.empty() == false);
+  this->_password = password;
   return *this;
 }
 

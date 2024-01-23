@@ -139,6 +139,10 @@ std::string ReplyMessage::errAlreadyRegistered(ParsedParam& parsedParam) {
   return "462 " + parsedParam.getUsername() + " :You may not reregister\r\n";
 }
 
+std::string ReplyMessage::errPasswdMismatch(ParsedParam& parsedParam) {
+  return "464 " + parsedParam.getUsername() + " :Password incorrect\r\n";
+}
+
 std::string ReplyMessage::errKeySet(ParsedParam& parsedParam) {
   return "467 " + parsedParam.getUsername() + " " + parsedParam.getChannel() +
          " :Channel key already set\r\n";

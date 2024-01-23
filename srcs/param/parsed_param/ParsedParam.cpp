@@ -4,23 +4,23 @@ ParsedParam::ParsedParam()
     : senderSocketFd(-1),
       fullMessage(""),
       command(""),
+      password(""),
       username(""),
       nickname(""),
       channel(""),
       topic(""),
       modeChar('\0') {}
 
-ParsedParam::ParsedParam(const int& senderSocketFd,
-                         const std::string& fullMessage,
-                         const std::string& command,
-                         const std::string& username,
-                         const std::string& nickname,
-                         const std::string& channel, const std::string& topic,
-                         const char& modeChar)
+ParsedParam::ParsedParam(
+    const int& senderSocketFd, const std::string& fullMessage,
+    const std::string& command, const std::string& password,
+    const std::string& username, const std::string& nickname,
+    const std::string& channel, const std::string& topic, const char& modeChar)
     : senderSocketFd(senderSocketFd),
       fullMessage(fullMessage),
       command(command),
       username(username),
+      password(password),
       nickname(nickname),
       channel(channel),
       topic(topic),
@@ -30,13 +30,17 @@ ParsedParam::ParsedParam(const ParsedParam& src)
     : senderSocketFd(src.senderSocketFd),
       fullMessage(src.fullMessage),
       command(src.command),
+      password(src.password),
       username(src.username),
       nickname(src.nickname),
       channel(src.channel),
       topic(src.topic),
       modeChar(src.modeChar) {}
 
-ParsedParam& ParsedParam::operator=(const ParsedParam& src) { return *this; }
+ParsedParam& ParsedParam::operator=(const ParsedParam& src) {
+  static_cast<void>(src);
+  return *this;
+}
 
 ParsedParam::~ParsedParam() {}
 
@@ -53,6 +57,11 @@ const std::string& ParsedParam::getFullMessage() {
 const std::string& ParsedParam::getCommand() {
   assert(this->command.empty() == false);
   return this->command;
+}
+
+const std::string& ParsedParam::getPassword() {
+  assert(this->password.empty() == false);
+  return this->password;
 }
 
 const std::string& ParsedParam::getUsername() {
