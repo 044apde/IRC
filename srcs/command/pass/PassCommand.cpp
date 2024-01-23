@@ -17,15 +17,16 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
 
   commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
   if (serverParam.getClient(parsedParam.getSenderSocketFd()) != NULL) {
-    commandResponse.addResponseMessage(
+    commandResponse.setResponseMessage(
         this->replyMessage.errAlreadyRegistered(parsedParam));
   } else if (parsedParam.getPassword().empty() == true) {
-    commandResponse.addResponseMessage(
+    commandResponse.setResponseMessage(
         this->replyMessage.errNeedMoreParams(parsedParam));
   } else if (parsedParam.getPassword() == serverParam.getServerPassword()) {
-    commandResponse.addResponseMessage("");
+    serverParam.addClient(parsedParam.getSenderSocketFd(), new Client());
+    commandResponse.setResponseMessage("");
   } else {
-    commandResponse.addResponseMessage(
+    commandResponse.setResponseMessage(
         this->replyMessage.errPasswdMismatch(parsedParam));
   }
   return commandResponse;
