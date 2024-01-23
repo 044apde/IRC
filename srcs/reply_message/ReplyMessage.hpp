@@ -39,6 +39,7 @@ class ReplyMessage {
   std::string errUserNoChannel(ParsedParam& parsedParam);
   std::string errNeedMoreParams(ParsedParam& parsedParam);
   std::string errAlreadyRegistered(ParsedParam& parsedParam);
+  std::string errPasswdMismatch(ParsedParam& parsedParam);
   std::string errKeySet(ParsedParam& parsedParam);
   std::string errChannelIsFull(ParsedParam& parsedParam);
   std::string errUnknownMode(ParsedParam& parsedParam);
