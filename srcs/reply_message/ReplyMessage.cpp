@@ -131,7 +131,7 @@ std::string ReplyMessage::errNotOnChannel(ParsedParam& parsedParam) {
          " :You're not on that channel\r\n";
 }
 
-std::string ReplyMessage::errUserNoChannel(ParsedParam& parsedParam) {
+std::string ReplyMessage::errUserOnChannel(ParsedParam& parsedParam) {
   return "443 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
          " " + parsedParam.getChannel() + " :is already on channel\r\n";
 }

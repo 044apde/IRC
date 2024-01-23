@@ -37,7 +37,7 @@ class ReplyMessage {
   std::string errErroneusNickname(ParsedParam& parsedParam);
   std::string errNicknameInUse(ParsedParam& parsedParam);
   std::string errNotOnChannel(ParsedParam& parsedParam);
-  std::string errUserNoChannel(ParsedParam& parsedParam);
+  std::string errUserOnChannel(ParsedParam& parsedParam);
   std::string errNeedMoreParams(ParsedParam& parsedParam);
   std::string errAlreadyRegistered(ParsedParam& parsedParam);
   std::string errPasswdMismatch(ParsedParam& parsedParam);
