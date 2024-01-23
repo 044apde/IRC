@@ -10,6 +10,7 @@ class ParsedParam {
   const int senderSocketFd;
   const std::string fullMessage;
   const std::string command;
+  const std::string password;
   const std::string username;
   const std::string nickname;
   const std::string channel;
@@ -19,15 +20,17 @@ class ParsedParam {
 
  public:
   ParsedParam(const int& senderSocketFd, const std::string& fullMessage,
-              const std::string& command, const std::string& username,
-              const std::string& nickname, const std::string& channel,
-              const std::string& topic, const char& modeChar);
+              const std::string& command, const std::string& password,
+              const std::string& username, const std::string& nickname,
+              const std::string& channel, const std::string& topic,
+              const char& modeChar);
   ParsedParam(const ParsedParam&);
   ParsedParam& operator=(const ParsedParam&);
   ~ParsedParam();
   const int& getSenderSocketFd();
   const std::string& getFullMessage();
   const std::string& getCommand();
+  const std::string& getPassword();
   const std::string& getUsername();
   const std::string& getNickname();
   const std::string& getChannel();

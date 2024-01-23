@@ -11,6 +11,7 @@ class ParsedParamBuilder {
   int _senderSocketFd;
   std::string _fullMessage;
   std::string _command;
+  std::string _password;
   std::string _username;
   std::string _nickname;
   std::string _channel;
@@ -25,6 +26,7 @@ class ParsedParamBuilder {
   ParsedParamBuilder& senderSocketFd(const int senderSocketFd);
   ParsedParamBuilder& fullMessage(const std::string& fullMessage);
   ParsedParamBuilder& command(const std::string& command);
+  ParsedParamBuilder& password(const std::string& password);
   ParsedParamBuilder& username(const std::string& username);
   ParsedParamBuilder& nickname(const std::string& nickname);
   ParsedParamBuilder& channel(const std::string& channel);
