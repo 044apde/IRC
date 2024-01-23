@@ -64,4 +64,4 @@ ServerInfo::~ServerInfo() { return; }
 
 int ServerInfo::getPortNumber() { return portNumber; }
 
-std::string ServerInfo::getServerPwd() { return serverPwd; }
+std::string ServerInfo::parseServerPwd() { return serverPwd; }

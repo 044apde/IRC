@@ -37,9 +37,9 @@ class Server {
   Server(const Server& obj);
   Server& operator=(const Server& obj);
 
-  int getSocket(int serverPort);
-  int getServerPort(char* portNum);
-  std::string getServerPwd(char* pwdNum);
+  int makeServerListening(int serverPort);
+  int parseServerPort(char* portNum);
+  std::string parseServerPwd(char* pwdNum);
 
   void enrollEventToVec(uintptr_t ident, int16_t filter, uint16_t flags,
                         uint32_t fflags, intptr_t data, void* udata);

@@ -22,7 +22,7 @@ class ServerInfo {
   ~ServerInfo();
 
   int getPortNumber();
-  std::string getServerPwd();
+  std::string parseServerPwd();
 };
 
 #endif

@@ -38,7 +38,7 @@ Server& Server::operator=(const Server& obj) {
   return *this;
 }
 
-int Server::getServerPort(char* portNum) {
+int Server::parseServerPort(char* portNum) {
   std::istringstream iss(portNum);
   unsigned long temp;
 
@@ -49,7 +49,7 @@ int Server::getServerPort(char* portNum) {
   return static_cast<int>(temp);
 }
 
-std::string Server::getServerPwd(char* pwdNum) {
+std::string Server::parseServerPwd(char* pwdNum) {
   size_t pwdNumLen = strlen(pwdNum);
   if (pwdNumLen != PWD_LEN)
     throw std::runtime_error("비밀번호를 4자리로 설정하세요.");
@@ -61,7 +61,7 @@ std::string Server::getServerPwd(char* pwdNum) {
   return pwdNum;
 }
 
-int Server::getSocket(int serverPort) {
+int Server::makeServerListening(int serverPort) {
   int serverSocket;
   struct sockaddr_in serverAddr;
 
@@ -83,9 +83,9 @@ Server::Server(int ac, char** av) {
   try {
     if (ac != 3) throw std::runtime_error("포트와 비밀번호가 필요합니다.");
 
-    int serverPort = getServerPort(av[1]);
-    std::string serverPassword = getServerPwd(av[2]);
-    int serverFd = getSocket(serverPort);
+    int serverPort = parseServerPort(av[1]);
+    std::string serverPassword = parseServerPwd(av[2]);
+    int serverFd = makeServerListening(serverPort);
     serverParam.setServerFd(serverFd);
     std::cout << "FD: " << serverFd << std::endl;
     serverParam.setServerPassword(serverPassword);
@@ -113,6 +113,7 @@ void Server::enrollEventToVec(uintptr_t ident, int16_t filter, uint16_t flags,
 
 void Server::run() {
   int eventCount = 0;
+  int kqueueFd = initKqueueFd();
   struct kevent eventlist[EVENTLIST_SIZE];
 
   enrollEventToVec(serverParam.getServerFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
