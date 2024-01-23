@@ -21,7 +21,7 @@ class ACommand {
  public:
   virtual ~ACommand();
   virtual CommandResponseParam execute(ServerParam& serverParam,
-                                       const ParsedParam& parsedParam) = 0;
+                                       ParsedParam& parsedParam) = 0;
 };
 
 #endif
