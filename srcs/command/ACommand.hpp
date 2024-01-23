@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "../param/command_response_param/CommandResponseParam.hpp"
 #include "../param/parsed_param/ParsedParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
 #include "../reply_message/ReplyMessage.hpp"
@@ -19,8 +20,8 @@ class ACommand {
 
  public:
   virtual ~ACommand();
-  virtual std::string execute(ServerParam& serverParam,
-                              const ParsedParam& parsedParam) = 0;
+  virtual CommandResponseParam execute(ServerParam& serverParam,
+                                       const ParsedParam& parsedParam) = 0;
 };
 
 #endif
