@@ -44,11 +44,7 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
       channel = new Channel(channelName);
       serverParam.addChannel(channelName, client);
       commandResponse.setResponseMessage(
-          this->replyMessage.successJoin(parsedParam, client->getNickname()) +
-          (channel->getTopic().empty() == true
-               ? ""
-               : this->replyMessage.rplTopic(parsedParam,
-                                             channel->getTopic())));
+          this->replyMessage.successJoin(parsedParam, client->getNickname()));
     }
   } else if (channel->isSetKeyChannel() == true &&
              isInValidChannelKey(parsedParam.getChannelKey(),
