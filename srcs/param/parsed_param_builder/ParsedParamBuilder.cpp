@@ -11,13 +11,13 @@ ParsedParamBuilder::ParsedParamBuilder()
       _topic(""),
       _modeChar('\0') {}
 
-ParsedParamBuilder::ParsedParamBuilder(const ParsedParamBuilder& src) {
-  static_cast<void>(src);
+ParsedParamBuilder::ParsedParamBuilder(const ParsedParamBuilder& other) {
+  static_cast<void>(other);
 }
 
 ParsedParamBuilder& ParsedParamBuilder::operator=(
-    const ParsedParamBuilder& src) {
-  static_cast<void>(src);
+    const ParsedParamBuilder& other) {
+  static_cast<void>(other);
   return *this;
 }
 
@@ -46,6 +46,13 @@ ParsedParamBuilder& ParsedParamBuilder::command(const std::string& command) {
 ParsedParamBuilder& ParsedParamBuilder::password(const std::string& password) {
   assert(password.empty() == false);
   this->_password = password;
+  return *this;
+}
+
+ParsedParamBuilder& ParsedParamBuilder::channelKey(
+    const std::string& channelKey) {
+  assert(channelKey.empty() == false);
+  this->_channelKey = channelKey;
   return *this;
 }
 
@@ -88,6 +95,7 @@ ParsedParam ParsedParamBuilder::build() {
          this->_modeChar == 't' || this->_modeChar == 'k' ||
          this->_modeChar == 'o' || this->_modeChar == 'l');
   return ParsedParam(this->_senderSocketFd, this->_fullMessage, this->_command,
-                     this->_username, this->_nickname, this->_channel,
-                     this->_topic, this->_modeChar);
+                     this->_password, this->_channelKey, this->_username,
+                     this->_nickname, this->_channel, this->_topic,
+                     this->_modeChar);
 }
