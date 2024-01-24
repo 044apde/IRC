@@ -112,7 +112,7 @@ struct timespec Server::makeTimeout() {
   return timeout;
 }
 
-void Server::acceptClient(std::vector<struct kevent> eventVec) {
+void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   int clientSocket;
   struct sockaddr_in clientAddr;
   socklen_t clientAddrLen = sizeof(clientAddr);
@@ -126,8 +126,28 @@ void Server::acceptClient(std::vector<struct kevent> eventVec) {
   return;
 }
 
+void Server::echoCommand(int clientSocket,
+                         std::vector<struct kevent>& eventVec) {
+  char buffer[1024];
+  ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
+  buffer[bytesRead] = '\0';
+  std::cout << "Server recieve: " << buffer << "\n";
+
+  if (bytesRead <= 0) {
+    enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_DELETE, 0, 0,
+                     NULL);
+    std::cout << "Client [" << clientSocket << "] disconnet\n";
+    return;
+  }
+
+  // 수신한 데이터를 클라이언트에게 다시 전송 (에코)
+  send(clientSocket, buffer, bytesRead, 0);
+  std::cout << "Server echo: " << buffer << "\n";
+  return;
+}
+
 void Server::handleEvent(struct kevent* eventlist, int eventCount,
-                         std::vector<struct kevent> eventVec) {
+                         std::vector<struct kevent>& eventVec) {
   int targetFd;
 
   for (int i = 0; i < eventCount; i++) {
@@ -137,6 +157,8 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
       throw std::runtime_error("faild to make succcesfully eventlist");
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
+    } else {
+      echoCommand(targetFd, eventVec);
     }
   }
   return;

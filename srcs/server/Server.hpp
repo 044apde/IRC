@@ -42,9 +42,10 @@ class Server {
   int makeKqueueFd();
   struct timespec makeTimeout();
 
-  void acceptClient(std::vector<struct kevent> eventVec);
+  void acceptClient(std::vector<struct kevent>& eventVec);
   void handleEvent(struct kevent* eventlist, int eventCount,
-                   std::vector<struct kevent> eventVec);
+                   std::vector<struct kevent>& eventVec);
+  void echoCommand(int clientSocket, std::vector<struct kevent>& eventVec);
 
   void enrollEventToVec(std::vector<struct kevent>& eventVec, uintptr_t ident,
                         int16_t filter, uint16_t flags, uint32_t fflags,
