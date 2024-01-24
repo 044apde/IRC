@@ -14,9 +14,11 @@ UserCommand& UserCommand::operator=(const UserCommand& other) {
 CommandResponseParam UserCommand::execute(ServerParam& serverParam,
                                           ParsedParam& parsedParam) {
   CommandResponseParam commandResponse;
-  Client* client = serverParam.getClient(parsedParam.getSenderSocketFd());
+  int senderSocketFd = parsedParam.getSenderSocketFd();
+  Client* client = serverParam.getClient(senderSocketFd);
   bool isSuccess = false;
 
+  commandResponse.addTargetClientFd(senderSocketFd);
   if (parsedParam.getUsername().empty() == true) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNeedMoreParams(parsedParam));
@@ -33,7 +35,7 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
     isSuccess = true;
   }
   if (isSuccess == false) {
-    serverParam.removeClient(parsedParam.getSenderSocketFd());
+    serverParam.removeClient(senderSocketFd);
   }
   return commandResponse;
 }

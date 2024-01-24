@@ -16,10 +16,12 @@ InviteCommand& InviteCommand::operator=(const InviteCommand& other) {
 CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
                                             ParsedParam& parsedParam) {
   CommandResponseParam commandResponse;
-  Client* client = serverParam.getClient(parsedParam.getSenderSocketFd());
+  int senderSocketFd = parsedParam.getSenderSocketFd();
+  Client* client = serverParam.getClient(senderSocketFd);
   assert(client != NULL);
   Channel* channel = serverParam.getChannel(parsedParam.getChannel());
 
+  commandResponse.addTargetClientFd(senderSocketFd);
   if (parsedParam.getNickname().empty() == true ||
       parsedParam.getChannel().empty() == true) {
     commandResponse.setResponseMessage(

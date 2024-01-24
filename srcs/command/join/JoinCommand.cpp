@@ -29,10 +29,12 @@ bool JoinCommand::isClientChannelSizeOver(Client* client) const {
 CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
                                           ParsedParam& parsedParam) {
   CommandResponseParam commandResponse;
+  int senderSocketFd = parsedParam.getSenderSocketFd();
   std::string channelName = parsedParam.getChannel();
-  Client* client = serverParam.getClient(parsedParam.getSenderSocketFd());
+  Client* client = serverParam.getClient(senderSocketFd);
   Channel* channel = serverParam.getChannel(channelName);
 
+  commandResponse.addTargetClientFd(senderSocketFd);
   if (channelName.empty() == true) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNeedMoreParams(parsedParam));

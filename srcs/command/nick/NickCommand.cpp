@@ -38,6 +38,7 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
   CommandResponseParam commandResponse;
   std::string nickname = parsedParam.getNickname();
 
+  commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
   if (nickname.empty() == true) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNoNicknameGiven(parsedParam));
