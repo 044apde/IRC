@@ -12,13 +12,14 @@ class ParsedParamBuilder {
   std::string _fullMessage;
   std::string _command;
   std::string _password;
+  std::string _channelKey;
   std::string _username;
   std::string _nickname;
   std::string _channel;
   std::string _topic;
   char _modeChar;
-  ParsedParamBuilder(const ParsedParamBuilder&);
-  ParsedParamBuilder& operator=(const ParsedParamBuilder&);
+  ParsedParamBuilder(const ParsedParamBuilder& other);
+  ParsedParamBuilder& operator=(const ParsedParamBuilder& other);
 
  public:
   ParsedParamBuilder();
@@ -27,6 +28,7 @@ class ParsedParamBuilder {
   ParsedParamBuilder& fullMessage(const std::string& fullMessage);
   ParsedParamBuilder& command(const std::string& command);
   ParsedParamBuilder& password(const std::string& password);
+  ParsedParamBuilder& channelKey(const std::string& channelKey);
   ParsedParamBuilder& username(const std::string& username);
   ParsedParamBuilder& nickname(const std::string& nickname);
   ParsedParamBuilder& channel(const std::string& channel);
