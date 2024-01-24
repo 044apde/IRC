@@ -44,7 +44,7 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
         this->replyMessage.successKick(parsedParam));
     serverParam.removeClientAndChannelEachOther(kickTargetClient, channel);
   }
-  if (commandResponse.getTargetClientFdSet().size() == 0) {
+  if (commandResponse.getTargetClientFdSet().empty() == true) {
     commandResponse.addTargetClientFd(senderSocketFd);
   }
   return commandResponse;
