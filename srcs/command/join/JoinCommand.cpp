@@ -44,7 +44,7 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
           this->replyMessage.errTooManyChannels(parsedParam));
     } else {
       channel = new Channel(channelName);
-      serverParam.addChannel(channelName, client);
+      serverParam.addNewChannel(channelName, client);
       commandResponse.setResponseMessage(
           this->replyMessage.successJoin(parsedParam, client->getNickname()));
     }

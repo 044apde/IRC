@@ -28,7 +28,7 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
       commandResponse.setResponseMessage(
           this->replyMessage.errPasswdMismatch(parsedParam));
     } else {
-      serverParam.addClient(senderSocketFd);
+      serverParam.addNewClient(senderSocketFd);
     }
   }
   return commandResponse;
