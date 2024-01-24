@@ -6,7 +6,9 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h>
 
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -20,17 +22,14 @@
 #define PENDING_QUEUE_SIZE 10
 #define MAX_CLIENTS 100
 #define EVENTLIST_SIZE 10
+#define SEVER_WAIT_TIME 10
 
 class Server {
  private:
   ServerParam serverParam;
-  std::vector<struct kevent> eventVec;
-  int kqueueFd;
-  struct timespec timeout;
   // CommandInvoker commandInvoker;
 
   // paredParam parse(std::string input);
-  // void acceptClient();
   // void sendCommand(CommandResponseParam& responseParam);
 
   Server();
@@ -40,9 +39,16 @@ class Server {
   int makeServerListening(int serverPort);
   int parseServerPort(char* portNum);
   std::string parseServerPwd(char* pwdNum);
+  int makeKqueueFd();
+  struct timespec makeTimeout();
 
-  void enrollEventToVec(uintptr_t ident, int16_t filter, uint16_t flags,
-                        uint32_t fflags, intptr_t data, void* udata);
+  void acceptClient(std::vector<struct kevent> eventVec);
+  void handleEvent(struct kevent* eventlist, int eventCount,
+                   std::vector<struct kevent> eventVec);
+
+  void enrollEventToVec(std::vector<struct kevent> eventVec, uintptr_t ident,
+                        int16_t filter, uint16_t flags, uint32_t fflags,
+                        intptr_t data, void* udata);
 
  public:
   Server(int ac, char** av);

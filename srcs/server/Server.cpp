@@ -1,24 +1,12 @@
 #include "Server.hpp"
 
-Server::Server()
-    : serverParam(ServerParam()), eventVec(std::vector<struct kevent>()) {
-  kqueueFd = kqueue();
-  timeout.tv_sec = 5;
-  timeout.tv_nsec = 0;
-  if (kqueueFd == -1)
-    throw std::runtime_error("kqueue 함수 호출에 실패했습니다.");
-  return;
-}
+Server::Server() : serverParam(ServerParam()) { return; }
 
 Server::Server(const Server& obj) {
   if (this == &obj)
     return;
   else {
-    eventVec = obj.eventVec;
     serverParam = obj.serverParam;
-    timeout.tv_sec = obj.timeout.tv_sec;
-    timeout.tv_nsec = obj.timeout.tv_nsec;
-    kqueueFd = obj.kqueueFd;
     // commandInvoker 객체 초기화 필요
   };
   return;
@@ -28,11 +16,7 @@ Server& Server::operator=(const Server& obj) {
   if (this == &obj)
     return *this;
   else {
-    eventVec = obj.eventVec;
     serverParam = obj.serverParam;
-    kqueueFd = obj.kqueueFd;
-    timeout.tv_sec = obj.timeout.tv_sec;
-    timeout.tv_nsec = obj.timeout.tv_nsec;
     // commandInvoker 객체 초기화 필요
   }
   return *this;
@@ -98,40 +82,87 @@ Server::Server(int ac, char** av) {
 
 Server::~Server() {
   std::cout << "서버가 종료되었습니다." << std::endl;
-  close(kqueue);
   return;
 }
 
-void Server::enrollEventToVec(uintptr_t ident, int16_t filter, uint16_t flags,
+void Server::enrollEventToVec(std::vector<struct kevent> eventVec,
+                              uintptr_t ident, int16_t filter, uint16_t flags,
                               uint32_t fflags, intptr_t data, void* udata) {
   struct kevent tempEvent;
 
   EV_SET(&tempEvent, ident, filter, flags, fflags, data, udata);
   eventVec.push_back(tempEvent);
+  std::cout << "Enroll socket to event vector: " << ident << "\n";
+  return;
+}
+
+int Server::makeKqueueFd() {
+  int kqueueFd = kqueue();
+
+  if (kqueueFd == -1)
+    throw std::runtime_error("kqueue 함수 호출에 실패했습니다.");
+  return kqueueFd;
+}
+
+struct timespec Server::makeTimeout() {
+  struct timespec timeout;
+
+  timeout.tv_sec = SEVER_WAIT_TIME;
+  timeout.tv_nsec = 0;
+  return timeout;
+}
+
+void Server::acceptClient(std::vector<struct kevent> eventVec) {
+  int clientSocket;
+  struct sockaddr_in clientAddr;
+  socklen_t clientAddrLen = sizeof(clientAddr);
+
+  if ((clientSocket = accept(serverParam.getServerFd(),
+                             (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
+      -1)
+    throw std::runtime_error("faild to accpet client");
+  std::cout << "Accept client: " << clientSocket << "\n";
+  enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+  return;
+}
+
+void Server::handleEvent(struct kevent* eventlist, int eventCount,
+                         std::vector<struct kevent> eventVec) {
+  int targetFd;
+
+  for (int i = 0; i < eventCount; i++) {
+    targetFd = eventlist[i].ident;
+    if (eventlist[i].flags & EV_ERROR)
+      throw std::runtime_error("faild to make succcesfully eventlist");
+    if (targetFd == serverParam.getServerFd()) {
+      acceptClient(eventVec);
+    }
+  }
   return;
 }
 
 void Server::run() {
   int eventCount = 0;
-  int kqueueFd = initKqueueFd();
+  int kqueueFd = makeKqueueFd();
+  std::vector<struct kevent> eventVec;
+  struct timespec timeout = makeTimeout();
   struct kevent eventlist[EVENTLIST_SIZE];
 
-  enrollEventToVec(serverParam.getServerFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+  enrollEventToVec(eventVec, serverParam.getServerFd(), EVFILT_READ, EV_ADD, 0,
+                   0, NULL);
   while (true) {
-    eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(),
-                        &eventlist[0], EVENTLIST_SIZE, &timeout);
+    eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(), eventlist,
+                        EVENTLIST_SIZE, &timeout);
     if (eventCount == 0) {
       std::cout << "timeout\n";
       break;
     } else if (eventCount == -1) {
       throw std::runtime_error("error kevent()");
     } else {
-      for (int i = 0; i < eventCount; i++) {
-        // parse()
-        // acceptClient()
-        // sendCommand()
-      }
+      eventVec.clear();
+      handleEvent(eventlist, eventCount, eventVec);
     }
   }
+  close(kqueueFd);
   return;
 }
