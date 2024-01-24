@@ -60,6 +60,7 @@ int Server::makeServerListening(int serverPort) {
     throw std::runtime_error("서버 소캣 바인딩에 실패했습니다.");
   if (listen(serverSocket, PENDING_QUEUE_SIZE))
     throw std::runtime_error("서버 리슨에 실패했습니다.");
+  std::cout << "Server listen port: " << serverPort << "\n";
   return serverSocket;
 }
 
@@ -71,7 +72,6 @@ Server::Server(int ac, char** av) {
     std::string serverPassword = parseServerPwd(av[2]);
     int serverFd = makeServerListening(serverPort);
     serverParam.setServerFd(serverFd);
-    std::cout << "FD: " << serverFd << std::endl;
     serverParam.setServerPassword(serverPassword);
   } catch (const std::exception& e) {
     std::cerr << e.what() << '\n';
@@ -85,7 +85,7 @@ Server::~Server() {
   return;
 }
 
-void Server::enrollEventToVec(std::vector<struct kevent> eventVec,
+void Server::enrollEventToVec(std::vector<struct kevent>& eventVec,
                               uintptr_t ident, int16_t filter, uint16_t flags,
                               uint32_t fflags, intptr_t data, void* udata) {
   struct kevent tempEvent;
@@ -132,6 +132,7 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
 
   for (int i = 0; i < eventCount; i++) {
     targetFd = eventlist[i].ident;
+    std::cout << "target fd : " << targetFd << "\n";
     if (eventlist[i].flags & EV_ERROR)
       throw std::runtime_error("faild to make succcesfully eventlist");
     if (targetFd == serverParam.getServerFd()) {
@@ -145,14 +146,15 @@ void Server::run() {
   int eventCount = 0;
   int kqueueFd = makeKqueueFd();
   std::vector<struct kevent> eventVec;
-  struct timespec timeout = makeTimeout();
   struct kevent eventlist[EVENTLIST_SIZE];
 
   enrollEventToVec(eventVec, serverParam.getServerFd(), EVFILT_READ, EV_ADD, 0,
                    0, NULL);
   while (true) {
+    std::cout << "-- waiting..\n";
     eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(), eventlist,
-                        EVENTLIST_SIZE, &timeout);
+                        EVENTLIST_SIZE, NULL);
+    std::cout << "event count: " << eventCount << "\n";
     if (eventCount == 0) {
       std::cout << "timeout\n";
       break;
