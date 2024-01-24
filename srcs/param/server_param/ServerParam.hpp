@@ -28,8 +28,8 @@ class ServerParam {
   void setServerPassword(const std::string& serverPassword);
   const int& getServerFd() const;
   const std::string& getServerPassword() const;
-  void addClient(const int& clientFd, Client* client);
-  void addChannel(const std::string& channelName, Channel* channel);
+  void addClient(const int& clientFd);
+  void addChannel(const std::string& channelName, Client* firstClient);
   void removeClient(const int& clientFd);
   void removeChannel(const std::string& channelName);
   Client* getClient(const int& clientFd) const;
