@@ -20,7 +20,7 @@ bool JoinCommand::isInValidChannelKey(const std::string& parsedChannelKey,
 }
 
 bool JoinCommand::isClientChannelSizeOver(Client* client) const {
-  if (client->getChannelVecSize() >= 10) {
+  if (client->getChannelSetSize() >= 10) {
     return true;
   }
   return false;
