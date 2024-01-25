@@ -51,8 +51,10 @@ class Server {
                         intptr_t data, void* udata);
 
   // 1월 25일 추가한 멤버 함수
-  void manageRequest(int targetFd, std::vector<struct kevent>& eventvec);
-  std::string getMessage(int clientSocket);
+  void manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
+                     struct kevent& eventlist);
+  std::string getMessage(int clientSocket, struct kevent& eventlist);
+  void disconnectClient(int clientSocket, std::vector<struct kevent>& eventvec);
 
  public:
   Server(int ac, char** av);

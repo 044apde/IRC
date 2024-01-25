@@ -126,23 +126,35 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   return;
 }
 
-std::string Server::getMessage(int clientSocket) {
+std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
   char buffer[MESSAGE_MAX_LENGTH];
   ssize_t bytesRead;
 
   bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-  buffer[bytesRead] = '\0';
+  if (bytesRead == -1) throw std::runtime_error("failed to recv");
+  std::string receivedMessage(buffer, bytesRead);
 
   std::cout << "Server recieve: " << buffer << "\n";
-  return buffer;
+  std::cout << "Socker buffer remain: " << eventlist.data << "\n";
+  return receivedMessage;
 }
 
-void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec) {
+void Server::disconnectClient(int clientSocket,
+                              std::vector<struct kevent>& eventvec) {
+  struct kevent temp;
+  EV_SET(&temp, clientSocket, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+  eventvec.push_back(temp);
+  return;
+}
+
+void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
+                           struct kevent& eventlist) {
   // 1. tokenize를 통해 TokenParam을 생성한다.
   // 2. CommandInvoker를 만듦 execute -> CommandReseponseParam을 만듦
   // 3. 서버가 대상 클라이언트에게 커멘드를 보냄, sendCommand(responseParam);
 
-  std::string clientMessage = getMessage(targetFd);
+  std::string clientMessage = getMessage(targetFd, eventlist);
+  if (clientMessage.compare("") == 0) disconnectClient(targetFd, eventvec);
   return;
 }
 
@@ -158,7 +170,7 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
-      manageRequest(targetFd, eventVec);
+      manageRequest(targetFd, eventVec, eventlist[i]);
     }
   }
   return;
@@ -176,7 +188,6 @@ void Server::run() {
     std::cout << "-- waiting..\n";
     eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(), eventlist,
                         EVENTLIST_SIZE, NULL);
-    std::cout << "event count: " << eventCount << "\n";
     if (eventCount == 0) {
       std::cout << "timeout\n";
       break;
