@@ -19,7 +19,7 @@ class PingCommand : public ACommand {
   PingCommand();
   ~PingCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               ParsedParam& parsedParam);
+                               TokenParam& tokenParam);
 };
 
 #endif

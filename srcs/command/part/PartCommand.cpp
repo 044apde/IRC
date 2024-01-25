@@ -15,11 +15,11 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
                                           ParsedParam &parsedParam) {
   CommandResponseParam commandResponse;
   int senderSocketFd = parsedParam.getSenderSocketFd();
-  std::string channelName = parsedParam.getChannel();
+  std::string channelName = parsedParam.getChannelName();
   Channel *channel = serverParam.getChannel(channelName);
   Client *client = serverParam.getClient(senderSocketFd);
 
-  if (parsedParam.getChannel().empty() == true) {
+  if (parsedParam.getChannelName().empty() == true) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNeedMoreParams(parsedParam));
   } else if (channel == NULL) {

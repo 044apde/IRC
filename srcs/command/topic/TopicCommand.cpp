@@ -17,8 +17,8 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
                                            ParsedParam& parsedParam) {
   CommandResponseParam commandResponse;
 
-  std::string channel = parsedParam.getChannel();
-  std::string topic = parsedParam.getTopic();
+  std::string channel = parsedParam.getChannelName();
+  std::string topic = parsedParam.getTrailing();
   Client* client = serverParam.getClient(parsedParam.getSenderSocketFd());
 
   // 조건수정

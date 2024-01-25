@@ -20,7 +20,7 @@ class PartCommand : public ACommand {
   PartCommand();
   ~PartCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               ParsedParam& parsedParam);
+                               TokenParam& tokenParam);
 };
 
 #endif

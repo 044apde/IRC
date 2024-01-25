@@ -42,15 +42,15 @@ const std::string& ServerParam::getServerPassword() const {
   return this->serverPassword;
 }
 
-void ServerParam::addClient(const int& clientFd) {
+void ServerParam::addNewClient(const int& clientFd) {
   assert(clientFd > 2);
   assert(this->clientMap.find(clientFd) == this->clientMap.end());
   this->clientMap.insert(std::make_pair(clientFd, new Client(clientFd)));
   return;
 }
 
-void ServerParam::addChannel(const std::string& channelName,
-                             Client* firstClient) {
+void ServerParam::addNewChannel(const std::string& channelName,
+                                Client* firstClient) {
   assert(channelName.empty() == false);
   assert(this->channelMap.find(channelName) == this->channelMap.end());
   Channel* channel = new Channel(channelName);
@@ -98,4 +98,22 @@ Channel* ServerParam::getChannel(const std::string& channelName) const {
   assert(channelName.empty() == false);
   assert(this->channelMap.find(channelName) != this->channelMap.end());
   return this->channelMap.find(channelName)->second;
+}
+
+void ServerParam::addClientAndChannelEachOther(Client* client,
+                                               Channel* channel) {
+  assert(client != NULL);
+  assert(channel != NULL);
+  client->addChannel(channel);
+  channel->addClient(client);
+  return;
+}
+
+void ServerParam::removeClientAndChannelEachOther(Client* client,
+                                                  Channel* channel) {
+  assert(client != NULL);
+  assert(channel != NULL);
+  client->removeChannel(channel);
+  channel->removeClient(client);
+  return;
 }

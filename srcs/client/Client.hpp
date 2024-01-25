@@ -20,6 +20,7 @@ class Client {
   ~Client();
   Client(const Client& other);
   Client& operator=(const Client& other);
+  const int& getClientFd() const;
   const std::string& getNickname() const;
   const std::string& getUsername() const;
   std::set<Channel*>& getChannelSet();

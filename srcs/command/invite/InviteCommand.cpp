@@ -19,11 +19,11 @@ CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
   int senderSocketFd = parsedParam.getSenderSocketFd();
   Client* client = serverParam.getClient(senderSocketFd);
   assert(client != NULL);
-  Channel* channel = serverParam.getChannel(parsedParam.getChannel());
+  Channel* channel = serverParam.getChannel(parsedParam.getChannelName());
 
   commandResponse.addTargetClientFd(senderSocketFd);
   if (parsedParam.getNickname().empty() == true ||
-      parsedParam.getChannel().empty() == true) {
+      parsedParam.getChannelName().empty() == true) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNeedMoreParams(parsedParam));
   } else if (client == NULL || channel == NULL) {

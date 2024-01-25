@@ -16,7 +16,7 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
                                           ParsedParam &parsedParam) {
   CommandResponseParam commandResponse;
   // int senderSocketFd = parsedParam.getSenderSocketFd();
-  // std::string channelName = parsedParam.getChannel();
+  // std::string channelName = parsedParam.getChannelName();
   // std::string nickname = parsedParam.getNickname();
   // char modeChar = parsedParam.getModeChar();
   // Channel *channel = serverParam.getChannel(channelName);
@@ -62,7 +62,7 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
   //               this->replyMessage.errKeySet(parsedParam));
   //           break;
   //         }
-  //         channel->setKey(parsedParam.getPassword());
+  //         channel->setKey(parsedParam.getServerPassword());
   //         break;
   //       case 'o':
   //         if (targetClient == NULL) {

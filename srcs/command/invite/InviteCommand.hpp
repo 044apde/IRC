@@ -21,7 +21,7 @@ class InviteCommand : public ACommand {
   InviteCommand();
   ~InviteCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               ParsedParam& parsedParam);
+                               TokenParam& tokenParam);
 };
 
 #endif

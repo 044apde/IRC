@@ -2,44 +2,44 @@
 
 ParsedParam::ParsedParam()
     : senderSocketFd(-1),
-      fullMessage(""),
       command(""),
-      password(""),
+      serverPassword(""),
       channelKey(""),
       username(""),
       nickname(""),
-      channel(""),
-      topic(""),
-      modeChar('\0') {}
+      channelName(""),
+      trailing(""),
+      serverName(""),
+      modeString("") {}
 
 ParsedParam::ParsedParam(
-    const int& senderSocketFd, const std::string& fullMessage,
-    const std::string& command, const std::string& password,
-    const std::string& channelKey, const std::string& username,
-    const std::string& nickname, const std::string& channel,
-    const std::string& topic, const char& modeChar)
+    const int& senderSocketFd, const std::string& command,
+    const std::string& serverPassword, const std::string& channelKey,
+    const std::string& username, const std::string& nickname,
+    const std::string& channelName, const std::string& trailing,
+    const std::string& serverName, const std::string& modeString)
     : senderSocketFd(senderSocketFd),
-      fullMessage(fullMessage),
       command(command),
       username(username),
-      password(password),
+      serverPassword(serverPassword),
       channelKey(channelKey),
       nickname(nickname),
-      channel(channel),
-      topic(topic),
-      modeChar(modeChar) {}
+      channelName(channelName),
+      trailing(trailing),
+      serverName(serverName),
+      modeString(modeString) {}
 
 ParsedParam::ParsedParam(const ParsedParam& other)
     : senderSocketFd(other.senderSocketFd),
-      fullMessage(other.fullMessage),
       command(other.command),
-      password(other.password),
+      serverPassword(other.serverPassword),
       channelKey(other.channelKey),
       username(other.username),
       nickname(other.nickname),
-      channel(other.channel),
-      topic(other.topic),
-      modeChar(other.modeChar) {}
+      channelName(other.channelName),
+      trailing(other.trailing),
+      serverName(other.serverName),
+      modeString(other.modeString) {}
 
 ParsedParam& ParsedParam::operator=(const ParsedParam& other) {
   static_cast<void>(other);
@@ -48,52 +48,24 @@ ParsedParam& ParsedParam::operator=(const ParsedParam& other) {
 
 ParsedParam::~ParsedParam() {}
 
-const int& ParsedParam::getSenderSocketFd() {
-  assert(this->senderSocketFd > 2);
-  return this->senderSocketFd;
+const int& ParsedParam::getSenderSocketFd() { return this->senderSocketFd; }
+
+const std::string& ParsedParam::getCommand() { return this->command; }
+
+const std::string& ParsedParam::getServerPassword() {
+  return this->serverPassword;
 }
 
-const std::string& ParsedParam::getFullMessage() {
-  assert(this->fullMessage.empty() == false);
-  return this->fullMessage;
-}
+const std::string& ParsedParam::getChannelKey() { return this->channelKey; }
 
-const std::string& ParsedParam::getCommand() {
-  assert(this->command.empty() == false);
-  return this->command;
-}
+const std::string& ParsedParam::getUsername() { return this->username; }
 
-const std::string& ParsedParam::getPassword() {
-  assert(this->password.empty() == false);
-  return this->password;
-}
+const std::string& ParsedParam::getNickname() { return this->nickname; }
 
-const std::string& ParsedParam::getChannelKey() {
-  assert(this->channelKey.empty() == false);
-  return this->channelKey;
-}
+const std::string& ParsedParam::getChannelName() { return this->channelName; }
 
-const std::string& ParsedParam::getUsername() {
-  assert(this->username.empty() == false);
-  return this->username;
-}
+const std::string& ParsedParam::getTrailing() { return this->trailing; }
 
-const std::string& ParsedParam::getNickname() {
-  assert(this->nickname.empty() == false);
-  return this->nickname;
-}
+const std::string& ParsedParam::getServerName() { return this->serverName; }
 
-const std::string& ParsedParam::getChannel() {
-  assert(this->channel.empty() == false);
-  return this->channel;
-}
-
-const std::string& ParsedParam::getTopic() {
-  assert(this->topic.empty() == false);
-  return this->topic;
-}
-
-const char& ParsedParam::getModeChar() {
-  assert(this->modeChar != '\0');
-  return this->modeChar;
-}
+const std::string& ParsedParam::getModeString() { return this->modeString; }

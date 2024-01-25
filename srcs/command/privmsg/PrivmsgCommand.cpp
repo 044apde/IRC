@@ -17,7 +17,7 @@ CommandResponseParam PrivmsgCommand::execute(ServerParam &serverParam,
                                              ParsedParam &parsedParam) {
   CommandResponseParam commandResponse;
   int senderSocketFd = parsedParam.getSenderSocketFd();
-  std::string channelName = parsedParam.getChannel();
+  std::string channelName = parsedParam.getChannelName();
   std::string nickname = parsedParam.getNickname();
   Channel *channel = serverParam.getChannel(channelName);
   Client *client = serverParam.getClient(senderSocketFd);

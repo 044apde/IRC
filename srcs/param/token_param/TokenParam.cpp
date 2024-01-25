@@ -1,14 +1,24 @@
 #include "TokenParam.hpp"
 
 TokenParam::TokenParam()
-    : prefix(""), command(""), parameter(std::vector<std::string>()) {}
+    : senderSocketFd(-1),
+      prefix(""),
+      command(""),
+      parameter(std::vector<std::string>()) {}
 
-TokenParam::TokenParam(const std::string& prefix, const std::string& command,
+TokenParam::~TokenParam() {}
+
+TokenParam::TokenParam(const int& senderSocketFd, const std::string& prefix,
+                       const std::string& command,
                        const std::vector<std::string>& parameter)
-    : prefix(prefix), command(command), parameter(parameter) {}
+    : senderSocketFd(senderSocketFd),
+      prefix(prefix),
+      command(command),
+      parameter(parameter) {}
 
 TokenParam::TokenParam(const TokenParam& other)
-    : prefix(other.prefix),
+    : senderSocketFd(other.senderSocketFd),
+      prefix(other.prefix),
       command(other.command),
       parameter(other.parameter) {}
 
@@ -17,7 +27,9 @@ TokenParam& TokenParam::operator=(const TokenParam& other) {
   return *this;
 }
 
-TokenParam::~TokenParam() {}
+const int& TokenParam::getSenderSocketFd() const {
+  return this->senderSocketFd;
+}
 
 const std::string& TokenParam::getPrefix() const { return this->prefix; }
 

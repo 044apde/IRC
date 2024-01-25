@@ -18,8 +18,8 @@ class CommandResponseParam {
   CommandResponseParam& operator=(const CommandResponseParam& other);
   void addTargetClientFd(const int& targetClientFd);
   void setResponseMessage(const std::string& responseMessage);
-  std::set<int> getTargetClientFdSet() const;
-  std::string getResponseMessage() const;
+  std::set<int>& getTargetClientFdSet() const;
+  const std::string& getResponseMessage() const;
 };
 
 #endif

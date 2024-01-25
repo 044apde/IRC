@@ -9,31 +9,31 @@
 class ParsedParamBuilder {
  private:
   int _senderSocketFd;
-  std::string _fullMessage;
   std::string _command;
-  std::string _password;
+  std::string _serverPassword;
   std::string _channelKey;
   std::string _username;
   std::string _nickname;
-  std::string _channel;
-  std::string _topic;
-  char _modeChar;
+  std::string _channelName;
+  std::string _trailing;
+  std::string _serverName;
+  std::string _modeString;
   ParsedParamBuilder(const ParsedParamBuilder& other);
   ParsedParamBuilder& operator=(const ParsedParamBuilder& other);
 
  public:
   ParsedParamBuilder();
   ~ParsedParamBuilder();
-  ParsedParamBuilder& senderSocketFd(const int senderSocketFd);
-  ParsedParamBuilder& fullMessage(const std::string& fullMessage);
-  ParsedParamBuilder& command(const std::string& command);
-  ParsedParamBuilder& password(const std::string& password);
-  ParsedParamBuilder& channelKey(const std::string& channelKey);
-  ParsedParamBuilder& username(const std::string& username);
-  ParsedParamBuilder& nickname(const std::string& nickname);
-  ParsedParamBuilder& channel(const std::string& channel);
-  ParsedParamBuilder& topic(const std::string& topic);
-  ParsedParamBuilder& modeChar(const char& modeChar);
+  ParsedParamBuilder& senderSocketFd(const int _senderSocketFd);
+  ParsedParamBuilder& command(const std::string& _command);
+  ParsedParamBuilder& serverPassword(const std::string& _serverPassword);
+  ParsedParamBuilder& channelKey(const std::string& _channelKey);
+  ParsedParamBuilder& username(const std::string& _username);
+  ParsedParamBuilder& nickname(const std::string& _nickname);
+  ParsedParamBuilder& channelName(const std::string& _channelName);
+  ParsedParamBuilder& trailing(const std::string& _trailing);
+  ParsedParamBuilder& serverName(const std::string& _serverName);
+  ParsedParamBuilder& modeString(const std::string& _modeString);
   ParsedParam build();
 };
 

@@ -30,7 +30,7 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
                                           ParsedParam& parsedParam) {
   CommandResponseParam commandResponse;
   int senderSocketFd = parsedParam.getSenderSocketFd();
-  std::string channelName = parsedParam.getChannel();
+  std::string channelName = parsedParam.getChannelName();
   Client* client = serverParam.getClient(senderSocketFd);
   Channel* channel = serverParam.getChannel(channelName);
 

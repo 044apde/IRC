@@ -18,7 +18,7 @@ class UserCommand : public ACommand {
   UserCommand();
   ~UserCommand();
   CommandResponseParam execute(ServerParam &serverParam,
-                               ParsedParam &parsedParam);
+                               TokenParam &tokenParam);
 };
 
 #endif

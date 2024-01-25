@@ -20,7 +20,7 @@ class KickCommand : public ACommand {
   KickCommand();
   ~KickCommand();
   CommandResponseParam execute(ServerParam &serverParam,
-                               ParsedParam &parsedParam);
+                               TokenParam &tokenParam);
 };
 
 #endif
