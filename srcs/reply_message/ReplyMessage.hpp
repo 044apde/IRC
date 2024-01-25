@@ -26,7 +26,7 @@ class ReplyMessage {
   std::string rplInviting(ParsedParam& parsedParam);
   std::string errNoSuchNick(ParsedParam& parsedParam);
   std::string errNoSuchChannel(ParsedParam& parsedParam);
-  std::string errCanNotSendToChan(ParsedParam& parsedParam);
+  std::string errCannotSendToChan(ParsedParam& parsedParam);
   std::string errTooManyChannels(ParsedParam& parsedParam);
   std::string errTooManyTargets(ParsedParam& parsedParam);
   std::string errNoOrigin(ParsedParam& parsedParam);
@@ -36,6 +36,7 @@ class ReplyMessage {
   std::string errNoNicknameGiven(ParsedParam& parsedParam);
   std::string errErroneusNickname(ParsedParam& parsedParam);
   std::string errNicknameInUse(ParsedParam& parsedParam);
+  std::string errUserNotInChannel(ParsedParam& parsedParam);
   std::string errNotOnChannel(ParsedParam& parsedParam);
   std::string errUserOnChannel(ParsedParam& parsedParam);
   std::string errNeedMoreParams(ParsedParam& parsedParam);
@@ -49,6 +50,11 @@ class ReplyMessage {
   std::string errChaNoPrivsNeeded(ParsedParam& parsedParam);
   std::string successJoin(ParsedParam& parsedParam,
                           const std::string& nickname);
+  std::string successKick(ParsedParam& parsedParam);
+  std::string successPart(ParsedParam& parsedParam);
+  std::string successPrivmsg(ParsedParam& parsedParam);
+  std::string successPing(ParsedParam& parsedParam);
+  std::string successQuit(ParsedParam& parsedParam);
 };
 
 #endif
