@@ -2,14 +2,15 @@
 
 ParsedParamBuilder::ParsedParamBuilder()
     : _senderSocketFd(-1),
-      _fullMessage(""),
       _command(""),
-      _password(""),
+      _serverPassword(""),
+      _channelKey(""),
       _username(""),
       _nickname(""),
-      _channel(""),
-      _topic(""),
-      _modeChar('\0') {}
+      _channelName(""),
+      _trailing(""),
+      _serverName(""),
+      _modeString("") {}
 
 ParsedParamBuilder::ParsedParamBuilder(const ParsedParamBuilder& other) {
   static_cast<void>(other);
@@ -25,77 +26,63 @@ ParsedParamBuilder::~ParsedParamBuilder() {}
 
 ParsedParamBuilder& ParsedParamBuilder::senderSocketFd(
     const int senderSocketFd) {
-  assert(senderSocketFd > 2);
   this->_senderSocketFd = senderSocketFd;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::fullMessage(
-    const std::string& fullMessage) {
-  assert(fullMessage.empty() == false);
-  this->_fullMessage = fullMessage;
+ParsedParamBuilder& ParsedParamBuilder::command(const std::string& _command) {
+  this->_command = _command;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::command(const std::string& command) {
-  assert(command.empty() == false);
-  this->_command = command;
-  return *this;
-}
-
-ParsedParamBuilder& ParsedParamBuilder::password(const std::string& password) {
-  assert(password.empty() == false);
-  this->_password = password;
+ParsedParamBuilder& ParsedParamBuilder::serverPassword(
+    const std::string& _serverPassword) {
+  this->_serverPassword = _serverPassword;
   return *this;
 }
 
 ParsedParamBuilder& ParsedParamBuilder::channelKey(
-    const std::string& channelKey) {
-  assert(channelKey.empty() == false);
-  this->_channelKey = channelKey;
+    const std::string& _channelKey) {
+  this->_channelKey = _channelKey;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::username(const std::string& username) {
-  assert(username.empty() == false);
-  this->_username = username;
+ParsedParamBuilder& ParsedParamBuilder::username(const std::string& _username) {
+  this->_username = _username;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::nickname(const std::string& nickname) {
-  assert(nickname.empty() == false);
-  this->_nickname = nickname;
+ParsedParamBuilder& ParsedParamBuilder::nickname(const std::string& _nickname) {
+  this->_nickname = _nickname;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::channel(const std::string& channel) {
-  assert(channel.empty() == false);
-  this->_channel = channel;
+ParsedParamBuilder& ParsedParamBuilder::channelName(
+    const std::string& _channelName) {
+  this->_channelName = _channelName;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::topic(const std::string& topic) {
-  assert(topic.empty() == false);
-  this->_topic = topic;
+ParsedParamBuilder& ParsedParamBuilder::trailing(const std::string& _trailing) {
+  this->_trailing = _trailing;
   return *this;
 }
 
-ParsedParamBuilder& ParsedParamBuilder::modeChar(const char& modeChar) {
-  assert(modeChar == 'i' || modeChar == 't' || modeChar == 'k' ||
-         modeChar == 'o' || modeChar == 'l');
-  this->_modeChar = modeChar;
+ParsedParamBuilder& ParsedParamBuilder::serverName(
+    const std::string& _serverName) {
+  this->_serverName = _serverName;
+  return *this;
+}
+
+ParsedParamBuilder& ParsedParamBuilder::modeString(
+    const std::string& _modeString) {
+  this->_modeString = _modeString;
   return *this;
 }
 
 ParsedParam ParsedParamBuilder::build() {
-  assert(this->_senderSocketFd != -1 || this->_fullMessage.empty() == false ||
-         this->_command.empty() == false || this->_username.empty() == false ||
-         this->_nickname.empty() == false || this->_channel.empty() == false ||
-         this->_topic.empty() == false || this->_modeChar == 'i' ||
-         this->_modeChar == 't' || this->_modeChar == 'k' ||
-         this->_modeChar == 'o' || this->_modeChar == 'l');
-  return ParsedParam(this->_senderSocketFd, this->_fullMessage, this->_command,
-                     this->_password, this->_channelKey, this->_username,
-                     this->_nickname, this->_channel, this->_topic,
-                     this->_modeChar);
+  return ParsedParam(this->_senderSocketFd, this->_command,
+                     this->_serverPassword, this->_channelKey, this->_username,
+                     this->_nickname, this->_channelName, this->_trailing,
+                     this->_serverName, this->_modeString);
 }
