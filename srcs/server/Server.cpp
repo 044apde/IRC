@@ -126,31 +126,23 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   return;
 }
 
-void Server::echoCommand(int clientSocket,
-                         std::vector<struct kevent>& eventVec) {
-  char buffer[1024];
-  ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
+std::string Server::getMessage(int clientSocket) {
+  char buffer[MESSAGE_MAX_LENGTH];
+  ssize_t bytesRead;
+
+  bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
   buffer[bytesRead] = '\0';
+
   std::cout << "Server recieve: " << buffer << "\n";
-
-  if (bytesRead <= 0) {
-    enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_DELETE, 0, 0,
-                     NULL);
-    std::cout << "Client [" << clientSocket << "] disconnet\n";
-    return;
-  }
-
-  // 수신한 데이터를 클라이언트에게 다시 전송 (에코)
-  send(clientSocket, buffer, bytesRead, 0);
-  std::cout << "Server echo: " << buffer << "\n";
-  return;
+  return buffer;
 }
 
-void Server::manageRequest(int targetFd, std::vector<struct kevent> eventvec) {
-  // ParsedParam을 만듦
-  // CommandInvoker를 만듦 execute -> CommandReseponseParam을 만듦
-  // 서버가 대상 클라이언트에게 커멘드를 보냄, sendCommand(responseParam);
+void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec) {
+  // 1. tokenize를 통해 TokenParam을 생성한다.
+  // 2. CommandInvoker를 만듦 execute -> CommandReseponseParam을 만듦
+  // 3. 서버가 대상 클라이언트에게 커멘드를 보냄, sendCommand(responseParam);
 
+  std::string clientMessage = getMessage(targetFd);
   return;
 }
 
@@ -166,7 +158,7 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
-      echoCommand(targetFd, eventVec);
+      manageRequest(targetFd, eventVec);
     }
   }
   return;

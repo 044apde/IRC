@@ -23,6 +23,7 @@
 #define MAX_CLIENTS 100
 #define EVENTLIST_SIZE 10
 #define SEVER_WAIT_TIME 10
+#define MESSAGE_MAX_LENGTH 2000
 
 class Server {
  private:
@@ -45,13 +46,13 @@ class Server {
   void acceptClient(std::vector<struct kevent>& eventVec);
   void handleEvent(struct kevent* eventlist, int eventCount,
                    std::vector<struct kevent>& eventVec);
-  void echoCommand(int clientSocket, std::vector<struct kevent>& eventVec);
   void enrollEventToVec(std::vector<struct kevent>& eventVec, uintptr_t ident,
                         int16_t filter, uint16_t flags, uint32_t fflags,
                         intptr_t data, void* udata);
 
   // 1월 25일 추가한 멤버 함수
-  void manageRequest(int targetFd, std::vector<struct kevent> eventvec);
+  void manageRequest(int targetFd, std::vector<struct kevent>& eventvec);
+  std::string getMessage(int clientSocket);
 
  public:
   Server(int ac, char** av);
