@@ -53,9 +53,15 @@ std::string ReplyMessage::rplNoTopic(ParsedParam& parsedParam) {
          " :No topic is set\r\n";
 }
 
-std::string ReplyMessage::rplTopic(ParsedParam& parsedParam) {
+std::string ReplyMessage::rplTopic(ParsedParam& parsedParam,
+                                   const std::string& curerntTopic) {
+  assert(curerntTopic.empty() == false ||
+         parsedParam.getTopic().empty() == false);
   return "332 " + parsedParam.getUsername() + " " + parsedParam.getChannel() +
-         " :" + parsedParam.getTopic() + "\r\n";
+         " :" +
+         (curerntTopic.empty() == true ? parsedParam.getTopic()
+                                       : curerntTopic) +
+         "\r\n";
 }
 
 std::string ReplyMessage::rplInviting(ParsedParam& parsedParam) {
@@ -125,7 +131,7 @@ std::string ReplyMessage::errNotOnChannel(ParsedParam& parsedParam) {
          " :You're not on that channel\r\n";
 }
 
-std::string ReplyMessage::errUserNoChannel(ParsedParam& parsedParam) {
+std::string ReplyMessage::errUserOnChannel(ParsedParam& parsedParam) {
   return "443 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
          " " + parsedParam.getChannel() + " :is already on channel\r\n";
 }
@@ -171,4 +177,9 @@ std::string ReplyMessage::errBadChannelKey(ParsedParam& parsedParam) {
 std::string ReplyMessage::errChaNoPrivsNeeded(ParsedParam& parsedParam) {
   return "482 " + parsedParam.getUsername() + " " + parsedParam.getChannel() +
          " :You're not channel operator\r\n";
+}
+
+std::string ReplyMessage::successJoin(ParsedParam& parsedParam,
+                                      const std::string& nickname) {
+  return ":" + nickname + " JOIN " + parsedParam.getChannel() + "\r\n";
 }
