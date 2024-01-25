@@ -134,7 +134,8 @@ std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
   if (bytesRead == -1) throw std::runtime_error("failed to recv");
   std::string receivedMessage(buffer, bytesRead);
 
-  std::cout << "Server recieve: " << buffer << "\n";
+  std::cout << "byteRead: " << bytesRead << "\n";
+  std::cout << "Server recieve: [" << receivedMessage << "]\n";
   std::cout << "Socker buffer remain: " << eventlist.data << "\n";
   return receivedMessage;
 }
@@ -147,6 +148,44 @@ void Server::disconnectClient(int clientSocket,
   return;
 }
 
+std::string Server::makePrefix(std::string& clientMessage) {
+  std::string prefix = "";
+  int i = 0;
+
+  std::cout << "전: " << clientMessage << "\n";
+  if (clientMessage[0] != ':') {
+    std::cout << "no prefix\n";
+    prefix = "";
+  } else {
+    ++i;
+    while (clientMessage[i] != '\0') {
+      if (clientMessage[i] == ' ') {
+        ++i;
+        break;
+      } else if (clientMessage[i] == 13 || clientMessage[i] == 10)
+        break;
+      else
+        prefix += clientMessage[i];
+      ++i;
+    }
+    std::cout << "prefix: " << prefix << "\n";
+    clientMessage = clientMessage.substr(i, clientMessage.length() - i);
+    std::cout << "substr client message: [" << clientMessage << "]\n";
+  }
+  return prefix;
+}
+
+void Server::tokenize(std::string clientMessage) {
+  std::string prefix;
+  std::string command;
+  std::vector<std::string> params;
+
+  prefix = makePrefix(clientMessage);
+  // command = makeCommand(clientMessage);
+  // params = makeParams(clientMessage);
+  return;
+}
+
 void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
                            struct kevent& eventlist) {
   // 1. tokenize를 통해 TokenParam을 생성한다.
@@ -154,7 +193,11 @@ void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
   // 3. 서버가 대상 클라이언트에게 커멘드를 보냄, sendCommand(responseParam);
 
   std::string clientMessage = getMessage(targetFd, eventlist);
-  if (clientMessage.compare("") == 0) disconnectClient(targetFd, eventvec);
+  if (clientMessage.compare("") == 0) {
+    disconnectClient(targetFd, eventvec);
+    return;
+  }
+  tokenize(clientMessage);
   return;
 }
 

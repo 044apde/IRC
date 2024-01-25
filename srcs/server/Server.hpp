@@ -16,6 +16,9 @@
 
 #include "../param/server_param/ServerParam.hpp"
 
+// 클래스 임시 선언
+class CommandInvoker;
+
 #define MINPORT 49152
 #define MAXPORT 65535
 #define PWD_LEN 4
@@ -55,6 +58,10 @@ class Server {
                      struct kevent& eventlist);
   std::string getMessage(int clientSocket, struct kevent& eventlist);
   void disconnectClient(int clientSocket, std::vector<struct kevent>& eventvec);
+  void tokenize(std::string clientMessage);
+  std::string makePrefix(std::string& clientMesaage);
+  // std::string makeCommand(std::string clientMessage);
+  // std::vector<std::string> makeParams(std::string clientMessage);
 
  public:
   Server(int ac, char** av);
