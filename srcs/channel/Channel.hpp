@@ -52,8 +52,11 @@ class Channel {
   // 처음 추가되는 클라이언트일 시 op 권한 부여를 위해 값을 true로 넣음
   // 초대 목록에 있는 클라이언트일 시 초대 목록에서 제거
   void addClient(Client* client);
+  // 채널 목록과 초대 목록에서 모두 삭제
+  void removeClient(Client* client);
   const std::string& getChannelKey() const;
   const std::string& getTopic() const;
+  void setAllClientFd(std::set<int>& clientFdSet);
 };
 
 #endif
