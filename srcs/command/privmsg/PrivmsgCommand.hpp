@@ -20,7 +20,7 @@ class PrivmsgCommand : public ACommand {
   PrivmsgCommand();
   ~PrivmsgCommand();
   CommandResponseParam execute(ServerParam &serverParam,
-                               ParsedParam &parsedParam);
+                               TokenParam &tokenParam);
 };
 
 #endif

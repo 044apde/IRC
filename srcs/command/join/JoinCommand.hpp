@@ -23,7 +23,7 @@ class JoinCommand : public ACommand {
   JoinCommand();
   ~JoinCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               ParsedParam& parsedParam);
+                               TokenParam& tokenParam);
 };
 
 #endif

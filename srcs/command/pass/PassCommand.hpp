@@ -18,7 +18,7 @@ class PassCommand : public ACommand {
   PassCommand();
   ~PassCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               ParsedParam& parsedParam);
+                               TokenParam& tokenParam);
 };
 
 #endif

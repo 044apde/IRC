@@ -20,7 +20,7 @@ class ModeCommand : public ACommand {
   ModeCommand();
   ~ModeCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               ParsedParam& parsedParam);
+                               TokenParam& tokenParam);
 };
 
 #endif

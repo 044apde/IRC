@@ -15,7 +15,7 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
                                           ParsedParam &parsedParam) {
   CommandResponseParam commandResponse;
   int senderSocketFd = parsedParam.getSenderSocketFd();
-  std::string channelName = parsedParam.getChannel();
+  std::string channelName = parsedParam.getChannelName();
   Channel *channel = serverParam.getChannel(channelName);
   Client *senderClient = serverParam.getClient(senderSocketFd);
   Client *kickTargetClient =
