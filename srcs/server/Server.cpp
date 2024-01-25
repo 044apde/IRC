@@ -146,6 +146,10 @@ void Server::echoCommand(int clientSocket,
   return;
 }
 
+void Server::manageRequest(int targetFd, std::vector<struct kevent> eventvec) {
+  return;
+}
+
 void Server::handleEvent(struct kevent* eventlist, int eventCount,
                          std::vector<struct kevent>& eventVec) {
   int targetFd;
