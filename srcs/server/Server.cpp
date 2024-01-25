@@ -152,27 +152,27 @@ std::string Server::makePrefix(std::string& clientMessage) {
   std::string prefix = "";
   int i = 0;
 
-  std::cout << "전: " << clientMessage << "\n";
   if (clientMessage[0] != ':') {
-    std::cout << "no prefix\n";
     prefix = "";
   } else {
     ++i;
     while (clientMessage[i] != '\0') {
-      if (clientMessage[i] == ' ') {
-        ++i;
-        break;
-      } else if (clientMessage[i] == 13 || clientMessage[i] == 10)
-        break;
-      else
-        prefix += clientMessage[i];
+      if (clientMessage[i] == 10 | clientMessage[i] == 13) break;
+      prefix += clientMessage[i];
       ++i;
+      if (clientMessage[i - 1] == ' ' && clientMessage[i] != ' ') break;
     }
-    std::cout << "prefix: " << prefix << "\n";
+    std::cout << "prefix: [" << prefix << "]\n";
     clientMessage = clientMessage.substr(i, clientMessage.length() - i);
-    std::cout << "substr client message: [" << clientMessage << "]\n";
+    std::cout << "remain: [" << clientMessage << "]\n";
   }
   return prefix;
+}
+
+std::string Server::makeCommand(std::string& clientMessage) {
+  std::string command = "";
+
+  return command;
 }
 
 void Server::tokenize(std::string clientMessage) {
@@ -181,7 +181,7 @@ void Server::tokenize(std::string clientMessage) {
   std::vector<std::string> params;
 
   prefix = makePrefix(clientMessage);
-  // command = makeCommand(clientMessage);
+  command = makeCommand(clientMessage);
   // params = makeParams(clientMessage);
   return;
 }
