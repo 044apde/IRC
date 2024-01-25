@@ -147,6 +147,10 @@ void Server::echoCommand(int clientSocket,
 }
 
 void Server::manageRequest(int targetFd, std::vector<struct kevent> eventvec) {
+  // ParsedParam을 만듦
+  // CommandInvoker를 만듦 execute -> CommandReseponseParam을 만듦
+  // 서버가 대상 클라이언트에게 커멘드를 보냄, sendCommand(responseParam);
+
   return;
 }
 
