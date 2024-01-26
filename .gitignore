@@ -4,4 +4,4 @@
 *.d
 main.cpp
 Makefile
-./srcs/client/*
+srcs/client/*
