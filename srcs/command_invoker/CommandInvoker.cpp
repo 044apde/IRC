@@ -26,16 +26,11 @@ CommandInvoker::~CommandInvoker() {
 }
 
 CommandResponseParam CommandInvoker::execute(ServerParam& serverParam,
-                                             TokenParam& tokenParam) {
+                                             const TokenParam& tokenParam) {
   std::map<std::string, ACommand*>::iterator it =
       this->commandMap.find(tokenParam.getCommand());
   if (it == this->commandMap.end()) {
     CommandResponseParam commandResponse;
-    ParsedParam parsedParam =
-        ParsedParamBuilder()
-            .senderSocketFd(tokenParam.getSenderSocketFd())
-            .command(tokenParam.getCommand())
-            .build();
 
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand(parsedParam));
