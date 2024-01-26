@@ -23,7 +23,7 @@ class TopicCommand : public ACommand {
   TopicCommand();
   ~TopicCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               TokenParam& tokenParam);
+                               const TokenParam& tokenParam);
 };
 
 #endif

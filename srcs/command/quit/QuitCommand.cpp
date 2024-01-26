@@ -29,7 +29,7 @@ bool QuitCommand::isValidParamter(CommandResponseParam& commandResponse,
 }
 
 CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
-                                          TokenParam& tokenParam) {
+                                          const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
 
   if (isValidParamter(commandResponse, tokenParam) == false) {

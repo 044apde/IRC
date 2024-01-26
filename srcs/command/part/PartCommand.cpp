@@ -31,7 +31,7 @@ bool PartCommand::isValidParamter(CommandResponseParam &commandResponse,
 }
 
 CommandResponseParam PartCommand::execute(ServerParam &serverParam,
-                                          TokenParam &tokenParam) {
+                                          const TokenParam &tokenParam) {
   CommandResponseParam commandResponse;
 
   if (isValidParamter(commandResponse, tokenParam) == false) {

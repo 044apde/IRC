@@ -22,7 +22,7 @@ class QuitCommand : public ACommand {
   QuitCommand();
   ~QuitCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               TokenParam& tokenParam);
+                               const TokenParam& tokenParam);
 };
 
 #endif

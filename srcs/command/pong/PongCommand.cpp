@@ -31,7 +31,7 @@ bool PongCommand::isValidParamter(CommandResponseParam& commandResponse,
 }
 
 CommandResponseParam PongCommand::execute(ServerParam& serverParam,
-                                          TokenParam& tokenParam) {
+                                          const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
 
   if (isValidParamter(commandResponse, tokenParam) == false) {

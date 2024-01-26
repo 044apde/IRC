@@ -33,7 +33,7 @@ bool KickCommand::isValidParamter(CommandResponseParam &commandResponse,
 }
 
 CommandResponseParam KickCommand::execute(ServerParam &serverParam,
-                                          TokenParam &tokenParam) {
+                                          const TokenParam &tokenParam) {
   CommandResponseParam commandResponse;
 
   if (isValidParamter(commandResponse, tokenParam) == false) {

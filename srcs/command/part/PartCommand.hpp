@@ -23,7 +23,7 @@ class PartCommand : public ACommand {
   PartCommand();
   ~PartCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               TokenParam& tokenParam);
+                               const TokenParam& tokenParam);
 };
 
 #endif

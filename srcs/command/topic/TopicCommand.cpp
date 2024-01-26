@@ -33,7 +33,7 @@ bool TopicCommand::isValidParamter(CommandResponseParam& commandResponse,
 }
 
 CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
-                                           TokenParam& tokenParam) {
+                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
@@ -45,7 +45,6 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   Channel* channel = serverParam.getChannel(parameter[0]);
   Channel* topic = serverParam.getChannel(parameter[1]);
 
-  // 조건수정
   if (channel == NULL) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNoSuchChannel("", parameter[0]));

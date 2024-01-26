@@ -22,7 +22,7 @@ class PongCommand : public ACommand {
   PongCommand();
   ~PongCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               TokenParam& tokenParam);
+                               const TokenParam& tokenParam);
 };
 
 #endif
