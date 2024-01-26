@@ -10,7 +10,6 @@
 #include "../../client/Client.hpp"
 
 // 미구현 클래스 선언
-class Client;
 class Channel;
 
 class ServerParam {
@@ -18,7 +17,6 @@ class ServerParam {
   int serverFd;
   std::string serverPassword;
   std::map<int, Client*> clientMap;
-  std::map<std::string, Channel*> channelMap;
 
  public:
   ServerParam();
@@ -29,12 +27,10 @@ class ServerParam {
   void setServerPassword(const std::string& serverPassword);
   const int& getServerFd() const;
   const std::string& getServerPassword() const;
-  bool addClient(const int& clientFd, Client* client);
-  bool addChannel(const std::string& channelName, Channel* channel);
-  bool removeClient(const int& clientFd);
-  bool removeChannel(const std::string& channelName);
+  void addNewClient(const int& clientFd);
+  void removeClient(const int& clientFd);
   Client* getClient(const int& clientFd) const;
-  Channel* getChannel(const std::string& channelName) const;
+  Client* getClientByNickname(const std::string& nickname) const;
 };
 
 #endif

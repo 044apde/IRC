@@ -27,7 +27,7 @@ class CommandInvoker;
 #define MAX_CLIENTS 100
 #define EVENTLIST_SIZE 10
 #define SEVER_WAIT_TIME 10
-#define MESSAGE_MAX_LENGTH 10
+#define MESSAGE_MAX_LENGTH 512
 
 class Server {
  private:

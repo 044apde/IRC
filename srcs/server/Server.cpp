@@ -125,6 +125,7 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   flag = fcntl(clientSocket, F_GETFL, 0);
   fcntl(clientSocket, F_SETFL, flag | O_NONBLOCK);
   std::cout << "Accept client: " << clientSocket << "\n";
+  serverParam.addNewClient(clientSocket);
   enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,
                    NULL);
   return;
@@ -135,12 +136,11 @@ std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
   ssize_t bytesRead;
   std::string receivedMessage = "";
 
-  std::cout << "읽어야할 양: " << eventlist.data << "\n";
   while (true) {
     bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-    std::cout << "읽어들인 양: " << bytesRead << "\n";
     if (bytesRead > 0) {
       std::string temp(buffer, bytesRead);
+      std::cout << temp << "\n";
       receivedMessage += temp;
     } else if (bytesRead < 0) {
       if (errno == EAGAIN)
@@ -150,8 +150,7 @@ std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
     } else
       return "";
   }
-
-  std::cout << "클라이언트에게 맏은 메세지: '" << receivedMessage << "'\n";
+  std::cout << receivedMessage << "\n";
   return receivedMessage;
 }
 
@@ -261,11 +260,16 @@ std::vector<std::string> Server::makeParams(std::string clientMessage) {
 std::string Server::makeCombinedBuffer(std::string clientMessage,
                                        int targetFD) {
   Client* client = serverParam.getClient(targetFD);
-  std::string remainRequestBuffer = client->popRemainRequestBuffer();
-  std::string combinedBuffer = remainRequestBuffer + clientMessage;
+  std::string combinedBuffer;
+  std::string remainRequestBuffer;
 
-  std::cout << "combined buffer: [" << combinedBuffer << "]\n";
-  return combinedBuffer;
+  if (client != NULL) {
+    remainRequestBuffer = client->popRemainRequestBuffer();
+    combinedBuffer = remainRequestBuffer + clientMessage;
+    return combinedBuffer;
+  } else {
+    return clientMessage;
+  }
 }
 
 void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
@@ -278,16 +282,11 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
 
   while (combinedBuffer[++i] != '\0') {
     if (combinedBuffer[i] == '\r' && combinedBuffer[i + 1] == '\n') {
-      completeMessage = combinedBuffer.substr(0, i + 2);
-      std::cout << "complete message: [" << completeMessage << "\n";
-      prefix = makePrefix(completeMessage);
-      command = makeCommand(completeMessage);
-      // params = makeParams(completeMessage);
-      combinedBuffer = combinedBuffer.substr(i + 3);
-      std::cout << "combined message: [" << combinedBuffer << "\n";
+      completeMessage = combinedBuffer.substr(0, i);
+      std::cout << "complete message: '" << completeMessage << "'\n";
     }
   }
-  client->pushRemainRequestBuffer(combinedBuffer);
+  if (client != NULL) client->pushRemainRequestBuffer(combinedBuffer);
   return;
 }
 
@@ -295,7 +294,7 @@ void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
                            struct kevent& eventlist) {
   std::string combinedBuffer;
 
-  std::cout << "manage request\n";
+  std::cout << "[manage request]\n";
   std::string clientMessage = getMessage(targetFd, eventlist);
   if (clientMessage.compare("") == 0) {
     disconnectClient(targetFd, eventvec);

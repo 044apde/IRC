@@ -4,7 +4,8 @@ CXXFLAGS = -std=c++98 -fsanitize=address -g
 SOURCES = main.cpp \
 				srcs/server/Server.cpp \
 				srcs/param/server_param/ServerParam.cpp \
-				srcs/client/Client.cpp
+				srcs/client/Client.cpp \
+
 
 OBJ = $(SOURCES:.cpp=.o)
 
