@@ -33,24 +33,49 @@ bool NickCommand::isSameStrWithLowercase(const std::string& str1,
   return true;
 }
 
-CommandResponseParam NickCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
-  CommandResponseParam commandResponse;
-  std::string nickname = parsedParam.getNickname();
-
-  if (nickname.empty() == true) {
+bool NickCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  const std::vector<std::string>& parameter = tokenParam.getParameter();
+  if (parameter.size() < 1) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNoNicknameGiven(parsedParam));
+        this->replyMessage.errNoNicknameGiven(""));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  if (parameter.size() > 1 || isTrailing(parameter[0]) == true) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  return true;
+}
+
+CommandResponseParam NickCommand::execute(ServerParam& serverParam,
+                                          const TokenParam& tokenParam) {
+  CommandResponseParam commandResponse;
+
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
+  }
+
+  const std::vector<std::string>& parameter = tokenParam.getParameter();
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+  std::string nickname = parameter[0];
+
+  if (senderClient == NULL) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
   } else if (isInvalidNickname(nickname) == true) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errErroneusNickname(parsedParam));
+        this->replyMessage.errErroneusNickname("", nickname));
   } else if (serverParam.getClientByNickname(nickname) != NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNicknameInUse(parsedParam));
+        this->replyMessage.errNicknameInUse("", nickname));
   }
   if (commandResponse.getResponseMessage().empty() == false) {
-    serverParam.removeClient(parsedParam.getSenderSocketFd());
-    commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
+    serverParam.removeClient(senderSocketFd);
+    commandResponse.addTargetClientFd(senderSocketFd);
   }
   return commandResponse;
 }
