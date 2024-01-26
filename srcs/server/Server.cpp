@@ -135,7 +135,7 @@ std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
   ssize_t bytesRead;
   std::string receivedMessage = "";
 
-  std::cout << "소켓 버퍼에 남은 양: " << eventlist.data << "\n";
+  std::cout << "읽어야할 양: " << eventlist.data << "\n";
   while (true) {
     bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
     std::cout << "읽어들인 양: " << bytesRead << "\n";
