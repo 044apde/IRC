@@ -20,7 +20,7 @@ bool QuitCommand::isValidParamter(CommandResponseParam& commandResponse,
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     return false;
   }
-  if (parameter.size() > 1 && isTariling(parameter[0]) == false) {
+  if (parameter.size() > 1 && isTrailing(parameter[0]) == false) {
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     return false;
@@ -44,7 +44,7 @@ CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
     commandResponse.setResponseMessage(
         this->replyMessage.successQuit(parameter[0]));
   }
-  // 서버에 있는 클라리언트 정보 삭제
+
   serverParam.removeClient(tokenParam.getSenderSocketFd());
 
   return commandResponse;

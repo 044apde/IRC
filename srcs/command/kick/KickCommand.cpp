@@ -21,9 +21,9 @@ bool KickCommand::isValidParamter(CommandResponseParam &commandResponse,
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
-  if (parameter.size() > 3 || isTariling(parameter[0]) == true ||
-      isTariling(parameter[1]) == true ||
-      (parameter.size() == 3 && isTariling(parameter[2]) == false)) {
+  if (parameter.size() > 3 || isTrailing(parameter[0]) == true ||
+      isTrailing(parameter[1]) == true ||
+      (parameter.size() == 3 && isTrailing(parameter[2]) == false)) {
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
@@ -48,17 +48,17 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
 
   if (serverParam.getChannel(parameter[0]) == NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel(parameter[1], parameter[0]));
+        this->replyMessage.errNoSuchChannel("", parameter[0]));
   } else if (kickTargetClient == NULL ||
              channel->isClientInChannel(kickTargetClient) == false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errUserNotInChannel(parameter[1], "", parameter[0]));
+        this->replyMessage.errUserNotInChannel("", parameter[1], parameter[0]));
   } else if (channel->isClientInChannel(senderClient) == false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel(parameter[1], parameter[0]));
+        this->replyMessage.errNotOnChannel("", parameter[0]));
   } else if (channel->isOpClient(senderClient) == false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errChaNoPrivsNeeded(parameter[1], parameter[0]));
+        this->replyMessage.errChaNoPrivsNeeded("", parameter[0]));
   } else {
     channel->setAllClientFd(commandResponse.getTargetClientFdSet());
     commandResponse.setResponseMessage(this->replyMessage.successKick(
