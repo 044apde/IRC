@@ -4,3 +4,5 @@
 *.d
 main.cpp
 Makefile
+Client.hpp
+Client.cpp

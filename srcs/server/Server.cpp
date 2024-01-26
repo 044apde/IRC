@@ -116,27 +116,42 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   int clientSocket;
   struct sockaddr_in clientAddr;
   socklen_t clientAddrLen = sizeof(clientAddr);
+  int flag;
 
   if ((clientSocket = accept(serverParam.getServerFd(),
                              (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
       -1)
     throw std::runtime_error("faild to accpet client");
+  flag = fcntl(clientSocket, F_GETFL, 0);
+  fcntl(clientSocket, F_SETFL, flag | O_NONBLOCK);
   std::cout << "Accept client: " << clientSocket << "\n";
-  enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+  enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,
+                   NULL);
   return;
 }
 
 std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
   char buffer[MESSAGE_MAX_LENGTH];
   ssize_t bytesRead;
+  std::string receivedMessage = "";
 
-  bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-  if (bytesRead == -1) throw std::runtime_error("failed to recv");
-  std::string receivedMessage(buffer, bytesRead);
+  std::cout << "소켓 버퍼에 남은 양: " << eventlist.data << "\n";
+  while (true) {
+    bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
+    std::cout << "읽어들인 양: " << bytesRead << "\n";
+    if (bytesRead > 0) {
+      std::string temp(buffer, bytesRead);
+      receivedMessage += temp;
+    } else if (bytesRead < 0) {
+      if (errno == EAGAIN)
+        break;
+      else
+        throw std::runtime_error("failed to read message form client");
+    } else
+      return "";
+  }
 
-  std::cout << "byteRead: " << bytesRead << "\n";
-  std::cout << "Server recieve: [" << receivedMessage << "]\n";
-  std::cout << "Socker buffer remain: " << eventlist.data << "\n";
+  std::cout << "클라이언트에게 맏은 메세지: '" << receivedMessage << "'\n";
   return receivedMessage;
 }
 
@@ -144,6 +159,7 @@ void Server::disconnectClient(int clientSocket,
                               std::vector<struct kevent>& eventvec) {
   struct kevent temp;
   EV_SET(&temp, clientSocket, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+  std::cout << "client '" << clientSocket << "' is offline\n";
   eventvec.push_back(temp);
   return;
 }
@@ -186,29 +202,107 @@ std::string Server::makeCommand(std::string& clientMessage) {
   return command;
 }
 
-void Server::tokenize(std::string clientMessage) {
+std::vector<std::string> Server::makeParam(std::string clientMessage) {
+  int i = 0;
+  std::string temp;
+  std::vector<std::string> params;
+
+  while (true) {
+    if (clientMessage[i] == '\0')
+      break;
+    else if (clientMessage[i] == '\n' || clientMessage[i] == '\r') {
+      break;
+    } else if (clientMessage[i] == ' ') {
+      ++i;
+      continue;
+    } else if (clientMessage[i] == ':')  // trailing
+    {
+      temp = "";
+      while (clientMessage[i] != '\n' && clientMessage[i] != '\r' &&
+             clientMessage[i] != '\0') {
+        temp += clientMessage[i];
+        ++i;
+      }
+      params.push_back(temp);
+      return params;
+    } else  // middle
+    {
+      temp = "";
+      while (clientMessage[i] != '\n' && clientMessage[i] != '\r' &&
+             clientMessage[i] != '\0' && clientMessage[i] != ' ') {
+        temp += clientMessage[i];
+        ++i;
+      }
+      params.push_back(temp);
+    }
+  }
+  return params;
+}
+
+std::vector<std::string> Server::makeParams(std::string clientMessage) {
+  std::vector<std::string> params;
+  int i = 0;
+
+  if (clientMessage[i] != ' ')
+    throw std::runtime_error(
+        "클라이언트 메세지의 파라미터 형식이 바르지 않습니다.");
+  else {
+    params = makeParam(clientMessage);
+    for (int i = 0; i < params.size(); i++) {
+      if (params[i][0] == ':')
+        std::cout << "trialing: [" << params[i] << "]\n";
+      else
+        std::cout << "param: [" << params[i] << "]\n";
+    }
+    return params;
+  }
+}
+
+std::string Server::makeCombinedBuffer(std::string clientMessage,
+                                       int targetFD) {
+  Client* client = serverParam.getClient(targetFD);
+  std::string remainRequestBuffer = client->popRemainRequestBuffer();
+  std::string combinedBuffer = remainRequestBuffer + clientMessage;
+
+  std::cout << "combined buffer: [" << combinedBuffer << "]\n";
+  return combinedBuffer;
+}
+
+void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
+  int i = -1;
+  Client* client = serverParam.getClient(clientSocket);
+  std::string completeMessage;
   std::string prefix;
   std::string command;
   std::vector<std::string> params;
 
-  prefix = makePrefix(clientMessage);
-  command = makeCommand(clientMessage);
-  // params = makeParams(clientMessage);
+  while (combinedBuffer[++i] != '\0') {
+    if (combinedBuffer[i] == '\r' && combinedBuffer[i + 1] == '\n') {
+      completeMessage = combinedBuffer.substr(0, i + 2);
+      std::cout << "complete message: [" << completeMessage << "\n";
+      prefix = makePrefix(completeMessage);
+      command = makeCommand(completeMessage);
+      // params = makeParams(completeMessage);
+      combinedBuffer = combinedBuffer.substr(i + 3);
+      std::cout << "combined message: [" << combinedBuffer << "\n";
+    }
+  }
+  client->pushRemainRequestBuffer(combinedBuffer);
   return;
 }
 
 void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
                            struct kevent& eventlist) {
-  // 1. tokenize를 통해 TokenParam을 생성한다.
-  // 2. CommandInvoker를 만듦 execute -> CommandReseponseParam을 만듦
-  // 3. 서버가 대상 클라이언트에게 커멘드를 보냄, sendCommand(responseParam);
+  std::string combinedBuffer;
 
+  std::cout << "manage request\n";
   std::string clientMessage = getMessage(targetFd, eventlist);
   if (clientMessage.compare("") == 0) {
     disconnectClient(targetFd, eventvec);
     return;
   }
-  tokenize(clientMessage);
+  // combinedBuffer = makeCombinedBuffer(clientMessage, targetFd);
+  // handleCombindBuffer(combinedBuffer, targetFd);
   return;
 }
 

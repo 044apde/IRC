@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -26,7 +27,7 @@ class CommandInvoker;
 #define MAX_CLIENTS 100
 #define EVENTLIST_SIZE 10
 #define SEVER_WAIT_TIME 10
-#define MESSAGE_MAX_LENGTH 2000
+#define MESSAGE_MAX_LENGTH 10
 
 class Server {
  private:
@@ -53,15 +54,16 @@ class Server {
                         int16_t filter, uint16_t flags, uint32_t fflags,
                         intptr_t data, void* udata);
 
-  // 1월 25일 추가한 멤버 함수
   void manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
                      struct kevent& eventlist);
   std::string getMessage(int clientSocket, struct kevent& eventlist);
   void disconnectClient(int clientSocket, std::vector<struct kevent>& eventvec);
-  void tokenize(std::string clientMessage);
+  void handleCombindBuffer(std::string combinedBuffer, int clientSocket);
   std::string makePrefix(std::string& clientMesaage);
   std::string makeCommand(std::string& clientMessage);
-  // std::vector<std::string> makeParams(std::string clientMessage);
+  std::vector<std::string> makeParams(std::string clientMessage);
+  std::vector<std::string> makeParam(std::string clientMessage);
+  std::string makeCombinedBuffer(std::string clientMessage, int targetFD);
 
  public:
   Server(int ac, char** av);
