@@ -11,27 +11,48 @@ PartCommand &PartCommand::operator=(const PartCommand &other) {
   return *this;
 }
 
+bool PartCommand::isValidParamter(CommandResponseParam &commandResponse,
+                                  const TokenParam &tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+
+  if (parameter.size() < 1) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  if (parameter.size() > 2 || isTariling(parameter[0]) == true ||
+      isTariling(parameter[1]) == false) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+}
+
 CommandResponseParam PartCommand::execute(ServerParam &serverParam,
-                                          ParsedParam &parsedParam) {
+                                          TokenParam &tokenParam) {
   CommandResponseParam commandResponse;
-  int senderSocketFd = parsedParam.getSenderSocketFd();
-  std::string channelName = parsedParam.getChannelName();
-  Channel *channel = serverParam.getChannel(channelName);
+
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
+  }
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  int senderSocketFd = tokenParam.getSenderSocketFd();
+  Channel *channel = serverParam.getChannel(parameter[0]);
   Client *client = serverParam.getClient(senderSocketFd);
 
-  if (parsedParam.getChannelName().empty() == true) {
+  if (channel == NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNeedMoreParams(parsedParam));
-  } else if (channel == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel(parsedParam));
+        this->replyMessage.errNoSuchChannel("", parameter[0]));
   } else if (client == NULL || channel->isClientInChannel(client) == false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel(parsedParam));
+        this->replyMessage.errNotOnChannel("", parameter[0]));
   } else {
     channel->setAllClientFd(commandResponse.getTargetClientFdSet());
     commandResponse.setResponseMessage(
-        this->replyMessage.successPart(parsedParam));
+        this->replyMessage.successPart(parameter[0], parameter[1]));
     serverParam.removeClientAndChannelEachOther(client, channel);
   }
   if (commandResponse.getTargetClientFdSet().empty() == true) {

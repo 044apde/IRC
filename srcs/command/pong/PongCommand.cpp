@@ -11,14 +11,41 @@ PongCommand& PongCommand::operator=(const PongCommand& other) {
   return *this;
 }
 
+bool PongCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+
+  if (parameter.size() < 1) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  if (parameter.size() > 1 || isTariling(parameter[0]) == true) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  return true;
+}
+
 CommandResponseParam PongCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
+                                          TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
 
-  std::string daemon = parsedParam.getServerName();
-  if (daemon.empty() == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoOrigin(parsedParam));
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
   }
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+
+  if (parameter.size() == 2 && parameter[1].empty() == true) {
+    commandResponse.setResponseMessage(this->replyMessage.errNoOrigin(""));
+  }
+
+  commandResponse.addTargetClientFd(senderSocketFd);
+
   return commandResponse;
 }

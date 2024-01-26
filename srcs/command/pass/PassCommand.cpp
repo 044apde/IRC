@@ -11,21 +11,46 @@ PassCommand& PassCommand::operator=(const PassCommand& other) {
   return *this;
 }
 
+bool PassCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+
+  if (parameter.size() < 1) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  if (parameter.size() > 1 || isTariling(parameter[0]) == true) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  return true;
+}
+
 CommandResponseParam PassCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
+                                          TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
-  const int& senderSocketFd = parsedParam.getSenderSocketFd();
+
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
+  }
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (serverParam.getClient(senderSocketFd) != NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errAlreadyRegistered(parsedParam));
-  } else if (parsedParam.getServerPassword().empty() == true) {
+        this->replyMessage.errAlreadyRegistered(""));
+  } else if (parameter[0] != serverParam.getServerPassword()) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNeedMoreParams(parsedParam));
+        this->replyMessage.errPasswdMismatch(""));
   } else {
-    if (parsedParam.getServerPassword() != serverParam.getServerPassword()) {
+    if (parameter[0] != serverParam.getServerPassword()) {
       commandResponse.setResponseMessage(
-          this->replyMessage.errPasswdMismatch(parsedParam));
+          this->replyMessage.errPasswdMismatch(""));
     } else {
       serverParam.addNewClient(senderSocketFd);
     }

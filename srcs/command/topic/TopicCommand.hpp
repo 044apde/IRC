@@ -3,17 +3,21 @@
 #define TOPIC_COMMAND_HPP
 
 #include <string>
+#include <vector>
 
 #include "../../client/Client.hpp"
 #include "../ACommand.hpp"
+#include "../channel/Channel.hpp"
 #include "../param/command_response_param/CommandResponseParam.hpp"
-#include "../param/parsed_param/ParsedParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
+#include "../param/token_param/TokenParam.hpp"
 
 class TopicCommand : public ACommand {
  private:
   TopicCommand(const TopicCommand& other);
   TopicCommand& operator=(const TopicCommand& other);
+  bool isValidParamter(CommandResponseParam& commandResponse,
+                       const TokenParam& tokenParam);
 
  public:
   TopicCommand();

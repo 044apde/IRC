@@ -13,42 +13,66 @@ TopicCommand& TopicCommand::operator=(const TopicCommand& other) {
   return *this;
 }
 
+bool TopicCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                   const TokenParam& tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+
+  if (parameter.size() < 1) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  } else if (parameter.size() > 2 || (isTariling(parameter[0]) == true ||
+                                      isTariling(parameter[1]) == false)) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  return true;
+}
+
 CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
-                                           ParsedParam& parsedParam) {
+                                           TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
 
-  std::string channel = parsedParam.getChannelName();
-  std::string topic = parsedParam.getTrailing();
-  Client* client = serverParam.getClient(parsedParam.getSenderSocketFd());
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
+  }
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  Client* client = serverParam.getClient(tokenParam.getSenderSocketFd());
+  Channel* channel = serverParam.getChannel(parameter[0]);
+  Channel* topic = serverParam.getChannel(parameter[1]);
 
   // 조건수정
-  // 파라미터가 0개 일 때 errNeedMoreParams()
-  if (channel.empty() == true || topic.empty() == true) {
+  if (channel == NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNeedMoreParams(parsedParam));
-  } else if (serverParam.getChannel(channel) == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel(parsedParam));
-  } else if (topic.empty() == true) {
-    // topic이 빈 문자열이면 topic을 삭제한다.
-    // removeTopic(serverParam, parsedParam);
-    // 채널 모든 사용자에게 topic이 변경되었다고 알린다.
-  } else if (serverParam.getChannel(channel)->isClientInChannel(client) ==
+        this->replyMessage.errNoSuchChannel("", parameter[0]));
+  } else if (serverParam.getChannel(parameter[0])->isClientInChannel(client) ==
              false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel(parsedParam));
-  } else if (serverParam.getChannel(channel)->isOpClient(client) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errChaNoPrivsNeeded(parsedParam));
+        this->replyMessage.errNotOnChannel("", parameter[0]));
+  } else if (parameter.size() > 1) {
+    if (channel->getIsSetTopicOnly() == true &&
+        serverParam.getChannel(parameter[0])->isOpClient(client) == false) {
+      commandResponse.setResponseMessage(
+          this->replyMessage.errChaNoPrivsNeeded("", parameter[0]));
+    } else {
+      channel->setTopic(parameter[1]);
+      channel->setAllClientFd(commandResponse.getTargetClientFdSet());
+    }
+  } else {
+    if (channel->getTopic().empty() == true) {
+      commandResponse.setResponseMessage(
+          this->replyMessage.rplNoTopic("", parameter[0]));
+    } else {
+      commandResponse.setResponseMessage(
+          this->replyMessage.rplTopic("", parameter[0], parameter[1], ""));
+    }
   }
-  //   else {
-  // if () {
-  //     // rplNoTopic
-  // } else {
-  //     commandResponse.setResponseMessage(
-  //         this->replyMessage.rplTopic(parsedParam, topic));
-  //   }
-  // 채널 모든 사용자에게 topic이 변경되었다고 알린다.
-  // }
+  if (commandResponse.getTargetClientFdSet().empty() == true) {
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+  }
   return commandResponse;
 }

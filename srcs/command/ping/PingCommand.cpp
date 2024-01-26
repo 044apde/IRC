@@ -11,22 +11,43 @@ PingCommand& PingCommand::operator=(const PingCommand& other) {
   return *this;
 }
 
+bool PingCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  if (parameter.size() < 1) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  if (parameter.size() > 1 || isTariling(parameter[0]) == true) {
+    commandResponse.setResponseMessage(
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    return false;
+  }
+  return true;
+}
+
 CommandResponseParam PingCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
+                                          TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
-  // 클라이언트와 서버의 연결이 잘 되었는지
-  std::string server = parsedParam.getServerName();
-  if (server.empty() == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoOrigin(parsedParam));
+
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
   }
-  // pong 줘야됨
-  else {
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+
+  if (parameter[0].empty() == true) {
+    commandResponse.setResponseMessage(this->replyMessage.errNoOrigin(""));
+  } else {
     commandResponse.setResponseMessage(
-        this->replyMessage.successPing(parsedParam));
+        this->replyMessage.successPing(parameter[0]));
   }
-  // responseMessage를 받을 clientFd 설정
-  commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
+
+  commandResponse.addTargetClientFd(senderSocketFd);
 
   return commandResponse;
 }
