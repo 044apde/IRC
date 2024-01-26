@@ -37,12 +37,11 @@ CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
+  const std::string& reason = parameter[0];
 
-  if (parameter.size() < 1 || parameter.size() == 1 &&
-                                  parameter[0].empty() == false &&
-                                  parameter[0][0] == 0) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.successQuit(parameter[0]));
+  if (parameter.size() < 1 ||
+      parameter.size() == 1 && reason.empty() == false && reason[0] == 0) {
+    commandResponse.setResponseMessage(this->replyMessage.successQuit(reason));
   }
 
   serverParam.removeClient(tokenParam.getSenderSocketFd());

@@ -42,21 +42,23 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
 
   std::vector<std::string> parameter = tokenParam.getParameter();
   Client* client = serverParam.getClient(tokenParam.getSenderSocketFd());
-  Channel* channel = serverParam.getChannel(parameter[0]);
-  Channel* topic = serverParam.getChannel(parameter[1]);
+  const std::string& channelName = parameter[0];
+  const std::string& changedTopic = parameter[1];
+  Channel* channel = serverParam.getChannel(channelName);
+  Channel* topic = serverParam.getChannel(changedTopic);
 
   if (channel == NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", parameter[0]));
-  } else if (serverParam.getChannel(parameter[0])->isClientInChannel(client) ==
+        this->replyMessage.errNoSuchChannel("", channelName));
+  } else if (serverParam.getChannel(channelName)->isClientInChannel(client) ==
              false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", parameter[0]));
+        this->replyMessage.errNotOnChannel("", channelName));
   } else if (parameter.size() > 1) {
     if (channel->getIsSetTopicOnly() == true &&
-        serverParam.getChannel(parameter[0])->isOpClient(client) == false) {
+        serverParam.getChannel(channelName)->isOpClient(client) == false) {
       commandResponse.setResponseMessage(
-          this->replyMessage.errChaNoPrivsNeeded("", parameter[0]));
+          this->replyMessage.errChaNoPrivsNeeded("", channelName));
     } else {
       channel->setTopic(parameter[1]);
       channel->setAllClientFd(commandResponse.getTargetClientFdSet());
@@ -64,10 +66,10 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   } else {
     if (channel->getTopic().empty() == true) {
       commandResponse.setResponseMessage(
-          this->replyMessage.rplNoTopic("", parameter[0]));
+          this->replyMessage.rplNoTopic("", channelName));
     } else {
-      commandResponse.setResponseMessage(
-          this->replyMessage.rplTopic("", parameter[0], parameter[1], ""));
+      commandResponse.setResponseMessage(this->replyMessage.rplTopic(
+          "", channelName, changedTopic, channel->getTopic()));
     }
   }
   if (commandResponse.getTargetClientFdSet().empty() == true) {

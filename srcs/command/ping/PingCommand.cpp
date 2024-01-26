@@ -39,12 +39,13 @@ CommandResponseParam PingCommand::execute(ServerParam& serverParam,
 
   std::vector<std::string> parameter = tokenParam.getParameter();
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  const std::string& serverName = parameter[0];
 
-  if (parameter[0].empty() == true) {
+  if (serverName.empty() == true) {
     commandResponse.setResponseMessage(this->replyMessage.errNoOrigin(""));
   } else {
     commandResponse.setResponseMessage(
-        this->replyMessage.successPing(parameter[0]));
+        this->replyMessage.successPing(serverName));
   }
 
   commandResponse.addTargetClientFd(senderSocketFd);

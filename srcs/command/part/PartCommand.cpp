@@ -40,19 +40,21 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
 
   std::vector<std::string> parameter = tokenParam.getParameter();
   int senderSocketFd = tokenParam.getSenderSocketFd();
-  Channel *channel = serverParam.getChannel(parameter[0]);
+  const std::string &channelName = parameter[0];
+  const std::string &reason = parameter[1];
+  Channel *channel = serverParam.getChannel(channelName);
   Client *client = serverParam.getClient(senderSocketFd);
 
   if (channel == NULL) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", parameter[0]));
+        this->replyMessage.errNoSuchChannel("", channelName));
   } else if (client == NULL || channel->isClientInChannel(client) == false) {
     commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", parameter[0]));
+        this->replyMessage.errNotOnChannel("", channelName));
   } else {
     channel->setAllClientFd(commandResponse.getTargetClientFdSet());
     commandResponse.setResponseMessage(
-        this->replyMessage.successPart(parameter[0], parameter[1]));
+        this->replyMessage.successPart(channelName, reason));
     serverParam.removeClientAndChannelEachOther(client, channel);
   }
   if (commandResponse.getTargetClientFdSet().empty() == true) {

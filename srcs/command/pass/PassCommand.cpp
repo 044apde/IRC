@@ -40,15 +40,16 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
 
   std::vector<std::string> parameter = tokenParam.getParameter();
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  const std::string& password = parameter[0];
 
   if (serverParam.getClient(senderSocketFd) != NULL) {
     commandResponse.setResponseMessage(
         this->replyMessage.errAlreadyRegistered(""));
-  } else if (parameter[0] != serverParam.getServerPassword()) {
+  } else if (password != serverParam.getServerPassword()) {
     commandResponse.setResponseMessage(
         this->replyMessage.errPasswdMismatch(""));
   } else {
-    if (parameter[0] != serverParam.getServerPassword()) {
+    if (password != serverParam.getServerPassword()) {
       commandResponse.setResponseMessage(
           this->replyMessage.errPasswdMismatch(""));
     } else {
