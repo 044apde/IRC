@@ -4,11 +4,11 @@
 
 #include <cctype>
 #include <string>
+#include <vector>
 
 #include "../../client/Client.hpp"
 #include "../ACommand.hpp"
 #include "../param/command_response_param/CommandResponseParam.hpp"
-#include "../param/parsed_param/ParsedParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
 
 class NickCommand : public ACommand {
@@ -18,12 +18,14 @@ class NickCommand : public ACommand {
   bool isInvalidNickname(const std::string &nickname) const;
   bool isSameStrWithLowercase(const std::string &str1,
                               const std::string &str2) const;
+  bool isValidParamter(CommandResponseParam &commandResponse,
+                       const TokenParam &tokenParam);
 
  public:
   NickCommand();
   ~NickCommand();
   CommandResponseParam execute(ServerParam &serverParam,
-                               TokenParam &tokenParam);
+                               const TokenParam &tokenParam);
 };
 
 #endif
