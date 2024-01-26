@@ -43,19 +43,21 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
   const std::string &channelName = parameter[0];
   const std::string &reason = parameter[1];
   Channel *channel = serverParam.getChannel(channelName);
-  Client *client = serverParam.getClient(senderSocketFd);
+  Client *senderClient = serverParam.getClient(senderSocketFd);
 
-  if (channel == NULL) {
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  } else if (channel == NULL) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNoSuchChannel("", channelName));
-  } else if (client == NULL || channel->isClientInChannel(client) == false) {
+  } else if (channel->isClientInChannel(senderClient) == false) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNotOnChannel("", channelName));
   } else {
     channel->setAllClientFd(commandResponse.getTargetClientFdSet());
     commandResponse.setResponseMessage(
         this->replyMessage.successPart(channelName, reason));
-    serverParam.removeClientAndChannelEachOther(client, channel);
+    serverParam.removeClientAndChannelEachOther(senderClient, channel);
   }
   if (commandResponse.getTargetClientFdSet().empty() == true) {
     commandResponse.addTargetClientFd(senderSocketFd);

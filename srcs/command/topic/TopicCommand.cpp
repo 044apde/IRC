@@ -41,22 +41,25 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
-  Client* client = serverParam.getClient(tokenParam.getSenderSocketFd());
+  Client* senderClient = serverParam.getClient(tokenParam.getSenderSocketFd());
   const std::string& channelName = parameter[0];
   const std::string& changedTopic = parameter[1];
   Channel* channel = serverParam.getChannel(channelName);
   Channel* topic = serverParam.getChannel(changedTopic);
 
-  if (channel == NULL) {
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  } else if (channel == NULL) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNoSuchChannel("", channelName));
-  } else if (serverParam.getChannel(channelName)->isClientInChannel(client) ==
-             false) {
+  } else if (serverParam.getChannel(channelName)
+                 ->isClientInChannel(senderClient) == false) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNotOnChannel("", channelName));
   } else if (parameter.size() > 1) {
     if (channel->getIsSetTopicOnly() == true &&
-        serverParam.getChannel(channelName)->isOpClient(client) == false) {
+        serverParam.getChannel(channelName)->isOpClient(senderClient) ==
+            false) {
       commandResponse.setResponseMessage(
           this->replyMessage.errChaNoPrivsNeeded("", channelName));
     } else {

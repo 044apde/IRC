@@ -37,10 +37,15 @@ CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
+  int senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string& reason = parameter[0];
+  Client* senderClient = serverParam.getClient(senderSocketFd);
 
-  if (parameter.size() < 1 ||
-      parameter.size() == 1 && reason.empty() == false && reason[0] == 0) {
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  } else if (parameter.size() < 1 || parameter.size() == 1 &&
+                                         reason.empty() == false &&
+                                         reason[0] == 0) {
     commandResponse.setResponseMessage(this->replyMessage.successQuit(reason));
   }
 

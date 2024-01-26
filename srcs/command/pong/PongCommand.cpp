@@ -42,8 +42,11 @@ CommandResponseParam PongCommand::execute(ServerParam& serverParam,
   std::vector<std::string> parameter = tokenParam.getParameter();
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string& token = parameter[0];
+  Client* senderClient = serverParam.getClient(senderSocketFd);
 
-  if (parameter.size() == 2 && token.empty() == true) {
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  } else if (parameter.size() == 2 && token.empty() == true) {
     commandResponse.setResponseMessage(this->replyMessage.errNoOrigin(""));
   }
 

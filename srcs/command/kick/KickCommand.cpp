@@ -48,7 +48,9 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
   Client *senderClient = serverParam.getClient(senderSocketFd);
   Client *kickTargetClient = serverParam.getClientByNickname(nickname);
 
-  if (channel == NULL) {
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  } else if (channel == NULL) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNoSuchChannel("", channelName));
   } else if (kickTargetClient == NULL ||

@@ -20,7 +20,8 @@ bool PingCommand::isValidParamter(CommandResponseParam& commandResponse,
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
-  if (parameter.size() > 1 || isTrailing(parameter[0]) == true) {
+  if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
+      isTrailing(parameter[1]) == false) {
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
@@ -40,8 +41,11 @@ CommandResponseParam PingCommand::execute(ServerParam& serverParam,
   std::vector<std::string> parameter = tokenParam.getParameter();
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string& serverName = parameter[0];
+  Client* senderClient = serverParam.getClient(senderSocketFd);
 
-  if (serverName.empty() == true) {
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  } else if (serverName.empty() == true) {
     commandResponse.setResponseMessage(this->replyMessage.errNoOrigin(""));
   } else {
     commandResponse.setResponseMessage(
