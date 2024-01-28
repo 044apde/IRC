@@ -169,7 +169,6 @@ std::string Server::makePrefix(std::string& clientMessage) {
     prefix = "";
   } else {
     while (clientMessage[i] != '\0') {
-      if (clientMessage[i] == 10 || clientMessage[i] == 13) break;
       prefix += clientMessage[i];
       ++i;
       if (clientMessage[i - 1] == ' ' && clientMessage[i] != ' ') break;
@@ -184,9 +183,7 @@ std::string Server::makeCommand(std::string& clientMessage) {
   int i = 0;
 
   while (clientMessage[i] != '\0') {
-    if (clientMessage[i] == 10 || clientMessage[i] == 13 ||
-        clientMessage[i] == ' ')
-      break;
+    if (clientMessage[i] == ' ') break;
     command += clientMessage[i];
     ++i;
   }
