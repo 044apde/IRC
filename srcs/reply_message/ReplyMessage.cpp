@@ -11,223 +11,279 @@ ReplyMessage& ReplyMessage::operator=(const ReplyMessage& src) {
   return *this;
 }
 
+const std::string ReplyMessage::getCurrentDatetime() {
+  const time_t now = std::time(NULL);
+  const struct tm* timeinfo = std::localtime(&now);
+  char buffer[20];
+
+  std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+  return std::string(buffer);
+}
+
 ReplyMessage& ReplyMessage::getInstance() {
   static ReplyMessage instance = ReplyMessage();
   return instance;
 }
 
-std::string ReplyMessage::rplWelcome(ParsedParam& parsedParam) {
-  return "001 " + parsedParam.getUsername() +
-         " :Welcome to the IRC42 Network " + parsedParam.getNickname() + "\r\n";
+std::string ReplyMessage::rplWelcome(const std::string& senderNickname) {
+  return "001 " + senderNickname + " :Welcome to the IRC42 Network " +
+         senderNickname + "\r\n";
 }
 
 // IRC42 자리는 server name이 들어가는 곳
 // 혹시나 클라이언트가 이에 대해 이해하지 못해 문제가 발생하면 수정 필요
-std::string ReplyMessage::rplYourHost(ParsedParam& parsedParam) {
-  return "002 " + parsedParam.getUsername() +
+std::string ReplyMessage::rplYourHost(const std::string& senderNickname) {
+  return "002 " + senderNickname +
          " :Your host is IRC42, running version ircd42-1.0.0" + "\r\n";
 }
 
-std::string ReplyMessage::rplCreated(ParsedParam& parsedParam) {
-  time_t now = time(0);
-  tm* currentLocalTime = localtime(&now);
-  std::string currentDatetime =
-      std::to_string(currentLocalTime->tm_year + 1900) + "-" +
-      std::to_string(currentLocalTime->tm_mon + 1) + "-" +
-      std::to_string(currentLocalTime->tm_mday) + " " +
-      std::to_string(currentLocalTime->tm_hour) + ":" +
-      std::to_string(currentLocalTime->tm_min) + ":" +
-      std::to_string(currentLocalTime->tm_sec);
+std::string ReplyMessage::rplCreated(const std::string& senderNickname) {
+  const std::string currentDatetime = getCurrentDatetime();
 
-  return "003 " + parsedParam.getUsername() + " :This server was created " +
+  return "003 " + senderNickname + " :This server was created " +
          currentDatetime + "\r\n";
 }
 
-std::string ReplyMessage::rplMyInfo(ParsedParam& parsedParam) {
-  return "004 " + parsedParam.getUsername() + " IRC42" + " ircd42-1.0.0" +
-         "  " + " itkol \r\n";
+std::string ReplyMessage::rplMyInfo(const std::string& senderNickname) {
+  return "004 " + senderNickname + " IRC42" + " ircd42-1.0.0" + "  " +
+         " itkol \r\n";
 }
 
-std::string ReplyMessage::rplNoTopic(ParsedParam& parsedParam) {
-  return "331 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :No topic is set\r\n";
+std::string ReplyMessage::rplNoTopic(const std::string& username,
+                                     const std::string& channelName) {
+  return "331 " + username + " " + channelName + " :No topic is set\r\n";
 }
 
-std::string ReplyMessage::rplTopic(ParsedParam& parsedParam,
+std::string ReplyMessage::rplTopic(const std::string& username,
+                                   const std::string& channelName,
+                                   const std::string& changedTopic,
                                    const std::string& curerntTopic) {
-  assert(curerntTopic.empty() == false ||
-         parsedParam.getTrailing().empty() == false);
-  return "332 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :" +
-         (curerntTopic.empty() == true ? parsedParam.getTrailing()
-                                       : curerntTopic) +
-         "\r\n";
+  return "332 " + username + " " + channelName + " :" +
+         (curerntTopic.empty() == true ? changedTopic : curerntTopic) + "\r\n";
 }
 
-std::string ReplyMessage::rplInviting(ParsedParam& parsedParam) {
-  return "341 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
-         " " + parsedParam.getChannelName() + "\r\n";
+std::string ReplyMessage::rplInviting(const std::string& username,
+                                      const std::string& nickname,
+                                      const std::string& channelName) {
+  return "341 " + username + " " + nickname + " " + channelName + "\r\n";
 }
 
-std::string ReplyMessage::errNoSuchNick(ParsedParam& parsedParam) {
-  return "401 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
-         " :No such nick/channel\r\n";
+std::string ReplyMessage::errUnknownError(const std::string& command,
+                                          const std::string& info) {
+  return "400 " + command + " :" + info + "\r\n";
 }
 
-std::string ReplyMessage::errNoSuchChannel(ParsedParam& parsedParam) {
-  return "403 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :No such channel\r\n";
+std::string ReplyMessage::errNoSuchNick(const std::string& username,
+                                        const std::string& nickname) {
+  return "401 " + username + " " + nickname + " :No such nick/channel\r\n";
 }
 
-std::string ReplyMessage::errCannotSendToChan(ParsedParam& parsedParam) {
-  return "404 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :Cannot send to channel\r\n";
+std::string ReplyMessage::errNoSuchChannel(const std::string& username,
+                                           const std::string& channelName) {
+  return "403 " + username + " " + channelName + " :No such channel\r\n";
 }
 
-std::string ReplyMessage::errTooManyChannels(ParsedParam& parsedParam) {
-  return "405 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() +
-         " :You have joined too many channels\r\n";
+std::string ReplyMessage::errCannotSendToChan(const std::string& username,
+                                              const std::string& channelName) {
+  return "404 " + username + " " + channelName + " :Cannot send to channel\r\n";
 }
 
-std::string ReplyMessage::errTooManyTargets(ParsedParam& parsedParam) {
-  return "407 " + parsedParam.getUsername() + parsedParam.getNickname() +
-         " :Too many recipients\r\n";
+std::string ReplyMessage::errTooManyChannels(const std::string& username,
+                                             const std::string& channelName) {
+  return "405 " + username + " " + channelName +
+         " :You have joined too many "
+         "channels\r\n";
 }
 
-std::string ReplyMessage::errNoOrigin(ParsedParam& parsedParam) {
-  return "409 " + parsedParam.getUsername() + " :No origin specified\r\n";
+std::string ReplyMessage::errTooManyTargets(const std::string& nickname) {
+  return "407 " + nickname + " :Duplicate recipients No message delevered\r\n";
 }
 
-std::string ReplyMessage::errNoRecipient(ParsedParam& parsedParam) {
-  return "411 " + parsedParam.getUsername() + " :No recipient given (" +
-         parsedParam.getCommand() + ")\r\n";
+std::string ReplyMessage::errNoOrigin(const std::string& username) {
+  return "409 " + username + " :No origin specified\r\n";
 }
 
-std::string ReplyMessage::errNoTextToSend(ParsedParam& parsedParam) {
-  return "412 " + parsedParam.getUsername() + " :No text to send\r\n";
+std::string ReplyMessage::errNoRecipient(const std::string& username,
+                                         const std::string& command) {
+  return "411 " + username + " :No recipient given (" + command + ")\r\n";
 }
 
-std::string ReplyMessage::errUnknownCommand(ParsedParam& parsedParam) {
-  return "421 " + parsedParam.getUsername() + " " + parsedParam.getCommand() +
-         " :Unknown command\r\n";
+std::string ReplyMessage::errNoTextToSend(const std::string& username) {
+  return "412 " + username + " :No text to send\r\n";
 }
 
-std::string ReplyMessage::errNoNicknameGiven(ParsedParam& parsedParam) {
-  return "431 " + parsedParam.getUsername() + " :No nickname given\r\n";
+std::string ReplyMessage::errInputTooLong(const std::string& username) {
+  return "414 " + username + " :Input line too long\r\n";
 }
 
-std::string ReplyMessage::errErroneusNickname(ParsedParam& parsedParam) {
-  return "432 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
-         " :Erroneus nickname\r\n";
+std::string ReplyMessage::errUnknownCommand(const std::string& username,
+                                            const std::string& command) {
+  return "421 " + username + " " + command + " :Unknown command\r\n";
 }
 
-std::string ReplyMessage::errNicknameInUse(ParsedParam& parsedParam) {
-  return "433 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
+std::string ReplyMessage::errNoNicknameGiven(const std::string& username) {
+  return "431 " + username + " :No nickname given\r\n";
+}
+
+std::string ReplyMessage::errErroneusNickname(const std::string& username,
+                                              const std::string& nickname) {
+  return "432 " + username + " " + nickname + " :Erroneus nickname\r\n";
+}
+
+std::string ReplyMessage::errNicknameInUse(const std::string& username,
+                                           const std::string& nickname) {
+  return "433 " + username + " " + nickname +
          " :Nickname is already in use\r\n";
 }
 
-std::string ReplyMessage::errUserNotInChannel(ParsedParam& parsedParam) {
-  return "441 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
-         " " + parsedParam.getChannelName() +
+std::string ReplyMessage::errUserNotInChannel(const std::string& username,
+                                              const std::string& nickname,
+                                              const std::string& channelName) {
+  return "441 " + username + " " + nickname + " " + channelName +
          " :They aren't on that channel\r\n";
 }
 
-std::string ReplyMessage::errNotOnChannel(ParsedParam& parsedParam) {
-  return "442 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :You're not on that channel\r\n";
+std::string ReplyMessage::errNotOnChannel(const std::string& username,
+                                          const std::string& channelName) {
+  return "442 " + username + " " + channelName +
+         " :You're not on that channel\r\n";
 }
 
-std::string ReplyMessage::errUserOnChannel(ParsedParam& parsedParam) {
-  return "443 " + parsedParam.getUsername() + " " + parsedParam.getNickname() +
-         " " + parsedParam.getChannelName() + " :is already on channel\r\n";
+std::string ReplyMessage::errUserOnChannel(const std::string& username,
+                                           const std::string& nickname,
+                                           const std::string& channelName) {
+  return "443 " + username + " " + nickname + " " + channelName +
+         " :is already on channel\r\n";
 }
 
-std::string ReplyMessage::errNeedMoreParams(ParsedParam& parsedParam) {
-  return "461 " + parsedParam.getUsername() + " " + parsedParam.getCommand() +
-         " :Not enough parameters\r\n";
+std::string ReplyMessage::errNotRegisterd() {
+  return "451 :You have not registered\r\n";
 }
 
-std::string ReplyMessage::errAlreadyRegistered(ParsedParam& parsedParam) {
-  return "462 " + parsedParam.getUsername() + " :You may not reregister\r\n";
+std::string ReplyMessage::errNeedMoreParams(const std::string& username,
+                                            const std::string& command) {
+  return "461 " + username + " " + command + " :Not enough parameters\r\n";
 }
 
-std::string ReplyMessage::errPasswdMismatch(ParsedParam& parsedParam) {
-  return "464 " + parsedParam.getUsername() + " :Password incorrect\r\n";
+std::string ReplyMessage::errAlreadyRegistered(const std::string& username) {
+  return "462 " + username + " :You may not reregister\r\n";
 }
 
-std::string ReplyMessage::errKeySet(ParsedParam& parsedParam) {
-  return "467 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :Channel key already set\r\n";
+std::string ReplyMessage::errPasswdMismatch(const std::string& username) {
+  return "464 " + username + " :Password incorrect\r\n";
 }
 
-std::string ReplyMessage::errChannelIsFull(ParsedParam& parsedParam) {
-  return "471 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :Cannot join channel (+l)\r\n";
+std::string ReplyMessage::errKeySet(const std::string& username,
+                                    const std::string& channelName) {
+  return "467 " + username + " " + channelName +
+         " :Channel key already set\r\n";
 }
 
-std::string ReplyMessage::errUnknownMode(ParsedParam& parsedParam) {
-  return "472 " + parsedParam.getUsername() + " " +
-         parsedParam.getModeString() + " :is unknown mode char to me\r\n";
+std::string ReplyMessage::errChannelIsFull(const std::string& username,
+                                           const std::string& channelName) {
+  return "471 " + username + " " + channelName +
+         " :Cannot join channel (+l)\r\n";
 }
 
-std::string ReplyMessage::errInviteOnlyChan(ParsedParam& parsedParam) {
-  return "473 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :Cannot join channel (+i)\r\n";
+std::string ReplyMessage::errUnknownMode(const std::string& username,
+                                         const std::string& modeString) {
+  return "472 " + username + " " + modeString +
+         " :is unknown mode char to me\r\n";
 }
 
-std::string ReplyMessage::errBadChannelKey(ParsedParam& parsedParam) {
-  return "475 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :Cannot join channel (+k)\r\n";
+std::string ReplyMessage::errInviteOnlyChan(const std::string& username,
+                                            const std::string& channelName) {
+  return "473 " + username + " " + channelName +
+         " :Cannot join channel (+i)\r\n";
 }
 
-std::string ReplyMessage::errChaNoPrivsNeeded(ParsedParam& parsedParam) {
-  return "482 " + parsedParam.getUsername() + " " +
-         parsedParam.getChannelName() + " :You're not channel operator\r\n";
+std::string ReplyMessage::errBadChannelKey(const std::string& username,
+                                           const std::string& channelName) {
+  return "475 " + username + " " + channelName +
+         " :Cannot join channel (+k)\r\n";
 }
 
-std::string ReplyMessage::successJoin(ParsedParam& parsedParam,
-                                      const std::string& nickname) {
-  return ":" + nickname + " JOIN " + parsedParam.getChannelName() + "\r\n";
+std::string ReplyMessage::errChaNoPrivsNeeded(const std::string& username,
+                                              const std::string& channelName) {
+  return "482 " + username + " " + channelName +
+         " :You're not channel operator\r\n";
 }
 
-std::string successKick(ParsedParam& parsedParam) {
-  std::string comment = parsedParam.getTrailing();
+std::string ReplyMessage::successInvite(const std::string& senderNickname,
+                                        const std::string& channelName,
+                                        const std::string& targetNickname) {
+  return ":" + senderNickname + " INVITE " + targetNickname + " " +
+         channelName + "\r\n";
+}
 
+std::string ReplyMessage::successJoin(const std::string& senderNickname,
+                                      const std::string& channelName) {
+  return ":" + senderNickname + " JOIN " + channelName + "\r\n";
+}
+
+std::string ReplyMessage::successKick(const std::string& senderNickname,
+                                      const std::string& channelName,
+                                      const std::string& targetNickname,
+                                      std::string comment) {
   if (comment.empty() == false) {
     comment = " " + comment;
   }
-  return "KICK " + parsedParam.getChannelName() + " " +
-         parsedParam.getNickname() + comment + "\r\n";
+  return ":" + senderNickname + " KICK " + channelName + " " + targetNickname +
+         comment + "\r\n";
 }
 
-std::string ReplyMessage::successPart(ParsedParam& parsedParam) {
-  std::string reason = parsedParam.getTrailing();
+std::string ReplyMessage::successMode(const std::string& senderNickname,
+                                      const std::string& modeString,
+                                      std::vector<std::string> argument) {
+  std::string argumentsString;
 
+  for (size_t i = 0; i < argument.size(); i++) {
+    argumentsString += " " + argument[i];
+  }
+
+  return ":" + senderNickname + " MODE " + modeString + argumentsString +
+         "\r\n";
+}
+
+std::string ReplyMessage::successNick(std::string senderNickname,
+                                      const std::string& newNickname) {
+  if (senderNickname.empty() == false) {
+    senderNickname = ":" + senderNickname + " ";
+  }
+  return senderNickname + "NICK " + newNickname + "\r\n";
+}
+
+std::string ReplyMessage::successPart(const std::string& senderNickname,
+                                      const std::string& channelName,
+                                      std::string reason) {
   if (reason.empty() == false) {
     reason = " " + reason;
   }
-  return "PART " + parsedParam.getChannelName() + reason + "\r\n";
+  return ":" + senderNickname + " PART " + channelName + reason + "\r\n";
 }
 
-std::string ReplyMessage::successPrivmsg(ParsedParam& parsedParam) {
-  std::string target = parsedParam.getChannelName();
+std::string ReplyMessage::successPing(const std::string& serverName) {
+  return "PONG " + serverName + "\r\n";
+}
 
-  if (target.empty() == true) {
-    target = parsedParam.getNickname();
+std::string ReplyMessage::successPrivmsg(const std::string& senderNickname,
+                                         const std::string& targetNickOrChannel,
+                                         const std::string& message) {
+  return ":" + senderNickname + " PRIVMSG " + targetNickOrChannel + " " +
+         message + "\r\n";
+}
+
+std::string ReplyMessage::successQuit(const std::string& senderNickname,
+                                      std::string reason) {
+  if (reason.empty() == false) {
+    reason = " " + reason;
   }
-  return "PRIVMSG " + target + " " + parsedParam.getTrailing() + "\r\n";
+  return ":" + senderNickname + " QUIT" + reason + "\r\n";
 }
 
-std::string ReplyMessage::successPing(ParsedParam& parsedParam) {
-  return "PONG " + parsedParam.getServerName() + "\r\n";
-}
-
-std::string ReplyMessage::successQuit(ParsedParam& parsedParam) {
-  std::string trailing = parsedParam.getTrailing();
-
-  if (trailing.empty() == false) {
-    trailing = " " + trailing;
-  }
-  return "QUIT" + trailing + "\r\n";
+std::string ReplyMessage::successTopic(const std::string& senderNickname,
+                                       const std::string& channelName,
+                                       const std::string& newTopic) {
+  return ":" + senderNickname + " TOPIC " + channelName + " :" + newTopic +
+         "\r\n";
 }
