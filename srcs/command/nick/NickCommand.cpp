@@ -11,13 +11,13 @@ NickCommand& NickCommand::operator=(const NickCommand& other) {
   return *this;
 }
 
-bool NickCommand::isInvalidNickname(const std::string& nickname) const {
-  if (nickname[0] == '#' || nickname[0] == '&' || nickname[0] == ':' ||
-      nickname[0] == ' ' || std::isdigit(nickname[0]) == true ||
-      nickname.size() > 9) {
-    return true;
+bool NickCommand::isValidNickname(const std::string& nickname) const {
+  if (nickname.empty() == true || nickname[0] == '#' || nickname[0] == '&' ||
+      nickname[0] == ':' || nickname[0] == ' ' ||
+      std::isdigit(nickname[0]) == true || nickname.size() > 9) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 bool NickCommand::isSameStrWithLowercase(const std::string& str1,
@@ -33,24 +33,50 @@ bool NickCommand::isSameStrWithLowercase(const std::string& str1,
   return true;
 }
 
-CommandResponseParam NickCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
-  CommandResponseParam commandResponse;
-  std::string nickname = parsedParam.getNickname();
-
-  if (nickname.empty() == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoNicknameGiven(parsedParam));
-  } else if (isInvalidNickname(nickname) == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errErroneusNickname(parsedParam));
-  } else if (serverParam.getClientByNickname(nickname) != NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNicknameInUse(parsedParam));
+bool NickCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  const std::vector<std::string>& parameter = tokenParam.getParameter();
+  if (parameter.size() < 1) {
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
+        this->replyMessage.errNoNicknameGiven(""));
+    return false;
   }
-  if (commandResponse.getResponseMessage().empty() == false) {
-    serverParam.removeClient(parsedParam.getSenderSocketFd());
-    commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
+  if (parameter.size() > 1 || isTrailing(parameter[0]) == true) {
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    return false;
+  }
+  return true;
+}
+
+CommandResponseParam NickCommand::execute(ServerParam& serverParam,
+                                          const TokenParam& tokenParam) {
+  CommandResponseParam commandResponse;
+
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
+  }
+
+  const std::vector<std::string>& parameter = tokenParam.getParameter();
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+  const std::string prevNickname = senderClient->getNickname();
+  const std::string newNickname = parameter[0];
+
+  if (isValidNickname(newNickname) == true) {
+    commandResponse.addResponseMessage(
+        senderSocketFd,
+        this->replyMessage.errErroneusNickname("", newNickname));
+  } else if (serverParam.getClientByNickname(newNickname) != NULL) {
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNicknameInUse("", newNickname));
+  } else {
+    senderClient->setNickname(newNickname);
+    commandResponse.addMultipleClientResponseMessage(
+        senderClient->getAllChannelClientFd(),
+        this->replyMessage.successNick(prevNickname, newNickname));
   }
   return commandResponse;
 }

@@ -3,22 +3,25 @@
 #define USER_COMMAND_HPP
 
 #include <string>
+#include <vector>
 
 #include "../ACommand.hpp"
 #include "../param/command_response_param/CommandResponseParam.hpp"
-#include "../param/parsed_param/ParsedParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
+#include "../param/token_param/TokenParam.hpp"
 
 class UserCommand : public ACommand {
  private:
   UserCommand(const UserCommand &other);
   UserCommand &operator=(const UserCommand &other);
+  bool isValidParamter(CommandResponseParam &commandResponse,
+                       const TokenParam &tokenParam);
 
  public:
   UserCommand();
   ~UserCommand();
   CommandResponseParam execute(ServerParam &serverParam,
-                               TokenParam &tokenParam);
+                               const TokenParam &tokenParam);
 };
 
 #endif

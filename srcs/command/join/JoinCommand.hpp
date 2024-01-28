@@ -3,12 +3,12 @@
 #define JOIN_COMMAND_HPP
 
 #include <string>
+#include <vector>
 
 #include "../ACommand.hpp"
 #include "../channel/Channel.hpp"
 #include "../client/Client.hpp"
 #include "../param/command_response_param/CommandResponseParam.hpp"
-#include "../param/parsed_param/ParsedParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
 
 class JoinCommand : public ACommand {
@@ -18,12 +18,14 @@ class JoinCommand : public ACommand {
   bool isInValidChannelKey(const std::string& parsedChannelKey,
                            const std::string& channelKey) const;
   bool isClientChannelSizeOver(Client* client) const;
+  bool isValidParamter(CommandResponseParam& commandResponse,
+                       const TokenParam& tokenParam);
 
  public:
   JoinCommand();
   ~JoinCommand();
   CommandResponseParam execute(ServerParam& serverParam,
-                               TokenParam& tokenParam);
+                               const TokenParam& tokenParam);
 };
 
 #endif
