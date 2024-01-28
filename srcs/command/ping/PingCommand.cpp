@@ -11,22 +11,46 @@ PingCommand& PingCommand::operator=(const PingCommand& other) {
   return *this;
 }
 
-CommandResponseParam PingCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
-  CommandResponseParam commandResponse;
-  // 클라이언트와 서버의 연결이 잘 되었는지
-  std::string server = parsedParam.getServerName();
-  if (server.empty() == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoOrigin(parsedParam));
+bool PingCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  if (parameter.size() < 1) {
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
+        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+    return false;
   }
-  // pong 줘야됨
-  else {
-    commandResponse.setResponseMessage(
-        this->replyMessage.successPing(parsedParam));
+  if (parameter.size() > 1 || isTrailing(parameter[0]) == false) {
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    return false;
   }
-  // responseMessage를 받을 clientFd 설정
-  commandResponse.addTargetClientFd(parsedParam.getSenderSocketFd());
+  return true;
+}
 
+CommandResponseParam PingCommand::execute(ServerParam& serverParam,
+                                          const TokenParam& tokenParam) {
+  CommandResponseParam commandResponse;
+
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
+  }
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  const std::string& serverName = parameter[0];
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+
+  if (isRegisteredClient(senderClient) == false) {
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
+  } else if (serverName.empty() == true) {
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNoOrigin(""));
+  } else {
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.successPing(serverName));
+  }
   return commandResponse;
 }

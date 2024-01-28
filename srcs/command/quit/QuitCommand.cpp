@@ -11,17 +11,40 @@ QuitCommand& QuitCommand::operator=(const QuitCommand& other) {
   return *this;
 }
 
+bool QuitCommand::isValidParamter(CommandResponseParam& commandResponse,
+                                  const TokenParam& tokenParam) {
+  std::vector<std::string> parameter = tokenParam.getParameter();
+
+  if (parameter.size() > 1 ||
+      (parameter.size() == 1 && isTrailing(parameter[0]) == false)) {
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+    return false;
+  }
+  return true;
+}
+
 CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
-                                          ParsedParam& parsedParam) {
+                                          const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
 
-  std::string reason = parsedParam.getNickname();
-
-  if (reason.empty() == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.successQuit(parsedParam));
+  if (isValidParamter(commandResponse, tokenParam) == false) {
+    return commandResponse;
   }
-  // 서버에 있는 클라리언트 정보 삭제
-  serverParam.removeClient(parsedParam.getSenderSocketFd());
+
+  std::vector<std::string> parameter = tokenParam.getParameter();
+  int senderSocketFd = tokenParam.getSenderSocketFd();
+  std::string reason;
+  if (parameter.size() == 1) {
+    reason = parameter[0];
+  }
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+  const std::string& senderNickname = senderClient->getNickname();
+
+  commandResponse.addMultipleClientResponseMessage(
+      senderClient->getAllChannelClientFd(),
+      this->replyMessage.successQuit(senderNickname, reason));
+  serverParam.removeClient(senderSocketFd);
   return commandResponse;
 }
