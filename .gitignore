@@ -2,3 +2,5 @@
 .DS_Store
 *.o
 *.d
+main.cpp
+Makefile

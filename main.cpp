@@ -1,13 +1,14 @@
-#include "srcs/parse/ServerInfo.hpp"
-#include "srcs/socket/ServerSocket.hpp"
-#include "srcs/utils/utils.hpp"
+#include <iostream>
+
+#include "srcs/server/Server.hpp"
 
 int main(int ac, char** av) {
-  ServerInfo serverInfo(ac, av);
-  ServerSocket serverSocket(serverInfo);
+  Server server(ac, av);
 
-  initSignal();
-  while (true)
-    ;
+  try {
+    server.run();
+  } catch (const std::exception& e) {
+    std::cerr << e.what() << '\n';
+  }
   return 0;
 }

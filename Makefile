@@ -1,10 +1,11 @@
 TARGET = ircserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
+CXXFLAGS = -std=c++98 -fsanitize=address -g
 SOURCES = main.cpp \
-	srcs/parse/ServerInfo.cpp \
-	srcs/socket/ServerSocket.cpp srcs/socket/ClientSocket.cpp \
-	srcs/utils/signal.cpp
+				srcs/server/Server.cpp \
+				srcs/param/server_param/ServerParam.cpp \
+				srcs/client/Client.cpp \
+
 
 OBJ = $(SOURCES:.cpp=.o)
 
