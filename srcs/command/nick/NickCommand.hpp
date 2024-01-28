@@ -15,7 +15,7 @@ class NickCommand : public ACommand {
  private:
   NickCommand(const NickCommand &other);
   NickCommand &operator=(const NickCommand &other);
-  bool isInvalidNickname(const std::string &nickname) const;
+  bool isValidNickname(const std::string &nickname) const;
   bool isSameStrWithLowercase(const std::string &str1,
                               const std::string &str2) const;
   bool isValidParamter(CommandResponseParam &commandResponse,

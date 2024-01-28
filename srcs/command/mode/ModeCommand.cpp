@@ -101,47 +101,79 @@ bool ModeCommand::isValidParamter(CommandResponseParam &commandResponse,
   const std::vector<std::string> &parameter = tokenParam.getParameter();
 
   if (parameter.size() < 2) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   if (isTrailing(parameter[0]) == true || isTrailing(parameter[1]) == true) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   if (isValidModeString(parameter[1]) == false ||
       isValidModeArgument(parameter) == false) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownMode("", parameter[1]));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   return true;
 }
 
-bool IsDigitMaxUser(const std::string &argument) {
+size_t getArgumentSizeIndex(const std::string &argument) {
+  size_t argumentStartIndex = 0;
+
+  for (size_t i = 0; i < argument.size(); i++) {
+    if (argument[i] != '0') {
+      break;
+    }
+    argumentStartIndex = i;
+  }
+  return argumentStartIndex;
+}
+
+const std::string getSize_tMaxString() {
+  const size_t sizeMaxSize = std::numeric_limits<size_t>::max();
+  std::ostringstream maxSizeSstream;
+
+  maxSizeSstream << sizeMaxSize;
+  return maxSizeSstream.str();
+}
+
+bool IsValidMaxUser(const std::string &argument) {
   for (size_t i = 0; i < argument.size(); i++) {
     if (isdigit(argument[i]) == false) {
       return false;
     }
   }
+  size_t argumentStartIndex = getArgumentSizeIndex(argument);
+  size_t argumentSize = argument.size() - argumentStartIndex;
+  std::string maxSizeString = getSize_tMaxString();
+
+  if (argumentSize > maxSizeString.size()) {
+    return false;
+  }
+  if (argumentSize == maxSizeString.size()) {
+    for (size_t i = 0; i < argumentSize; i++) {
+      if (argument[i + argumentStartIndex] > maxSizeString[i]) {
+        return false;
+      }
+    }
+  }
+
   return true;
 }
 
-size_t getDigitMaxUser(const std::string &argument) {
-  size_t digitMaxUser = 0;
+size_t getMaxUserParameter(const std::string &argument) {
+  std::istringstream argumentSstream(argument);
+  size_t digitMaxUser;
 
-  for (size_t i = 0; i < argument.size(); i++) {
-    digitMaxUser *= 10;
-    digitMaxUser += argument[i] - '0';
-  }
+  argumentSstream >> digitMaxUser;
   return digitMaxUser;
 }
 
-// 모드에서 필요한 것은 다시 파싱할 때 받아오므로 그 때 다시 구현
 CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
                                           const TokenParam &tokenParam) {
   CommandResponseParam commandResponse;
@@ -160,15 +192,17 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
   Channel *channel = serverParam.getChannel(channelName);
 
   if (senderClient == NULL) {
-    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
   } else if (channel == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
   } else if (channel->isClientInChannel(senderClient) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
   } else if (channel->isOpClient(senderClient) == false) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        senderSocketFd,
         this->replyMessage.errChaNoPrivsNeeded("", channelName));
   } else {
     for (size_t i = 0; i < modeString.size(); i++) {
@@ -203,15 +237,15 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
               serverParam.getClientByNickname(parameter[argumentIndex]);
 
           if (targetClient == NULL) {
-            commandResponse.setResponseMessage(
+            commandResponse.addResponseMessage(
+                senderSocketFd,
                 this->replyMessage.errNoSuchNick("", parameter[argumentIndex]));
-            commandResponse.addTargetClientFd(senderSocketFd);
             return commandResponse;
           }
           if (channel->isClientInChannel(targetClient) == false) {
-            commandResponse.setResponseMessage(
+            commandResponse.addResponseMessage(
+                senderSocketFd,
                 this->replyMessage.errNotOnChannel("", channelName));
-            commandResponse.addTargetClientFd(senderSocketFd);
             return commandResponse;
           }
           if (modeString[i] == '+') {
@@ -223,13 +257,13 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
           break;
         case 'l':
           if (modeString[i] == '+') {
-            size_t digitMaxUser = getDigitMaxUser(parameter[argumentIndex]);
+            size_t digitMaxUser = getMaxUserParameter(parameter[argumentIndex]);
 
-            if (IsDigitMaxUser(parameter[argumentIndex]) == false ||
+            if (IsValidMaxUser(parameter[argumentIndex]) == false ||
                 digitMaxUser < channel->getUserCountInChannel()) {
-              commandResponse.setResponseMessage(
+              commandResponse.addResponseMessage(
+                  senderSocketFd,
                   this->replyMessage.errUnknownMode("", modeString));
-              commandResponse.addTargetClientFd(senderSocketFd);
               return commandResponse;
             }
             channel->setMaxUser(digitMaxUser);
@@ -240,12 +274,10 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
           break;
       }
     }
-    commandResponse.setResponseMessage(
-        this->replyMessage.successMode(modeString, arguments));
-    channel->setAllClientFd(commandResponse.getTargetClientFdSet());
-  }
-  if (commandResponse.getTargetClientFdSet().empty() == true) {
-    commandResponse.addTargetClientFd(senderSocketFd);
+    commandResponse.addMultipleClientResponseMessage(
+        channel->getAllClientFd(),
+        this->replyMessage.successMode(senderClient->getNickname(), modeString,
+                                       arguments));
   }
   return commandResponse;
 }

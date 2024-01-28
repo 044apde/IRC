@@ -16,18 +16,18 @@ bool UserCommand::isValidParamter(CommandResponseParam& commandResponse,
   const std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 4) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
-    return true;
+    return false;
   }
   if (parameter.size() > 4 || isTrailing(parameter[0]) == true ||
       isTrailing(parameter[1]) == true || isTrailing(parameter[2]) == true ||
       isTrailing(parameter[3]) == false) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
-    return true;
+    return false;
   }
   return true;
 }
@@ -35,34 +35,30 @@ bool UserCommand::isValidParamter(CommandResponseParam& commandResponse,
 CommandResponseParam UserCommand::execute(ServerParam& serverParam,
                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
-  int senderSocketFd = tokenParam.getSenderSocketFd();
 
-  if (isValidParamter(commandResponse, tokenParam) == true) {
-    serverParam.removeClient(senderSocketFd);
+  if (isValidParamter(commandResponse, tokenParam) == false) {
     return commandResponse;
   }
 
+  int senderSocketFd = tokenParam.getSenderSocketFd();
   const std::vector<std::string> parameter = tokenParam.getParameter();
   const std::string& username = parameter[0];
   Client* senderClient = serverParam.getClient(senderSocketFd);
-  bool isSuccess = false;
 
-  if (senderClient == NULL || senderClient->getNickname().empty() == true) {
-    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+  if (senderClient->getNickname().empty() == true) {
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
   } else if (senderClient->getUsername().empty() == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errAlreadyRegistered(""));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
   } else {
     senderClient->setUsername(username);
-    commandResponse.setResponseMessage(
-        this->replyMessage.rplWelcome(
-            "", serverParam.getClient(senderSocketFd)->getNickname()) +
-        this->replyMessage.rplYourHost("") + this->replyMessage.rplCreated("") +
-        this->replyMessage.rplMyInfo(""));
+    const std::string& senderNickname = senderClient->getNickname();
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.rplWelcome(senderNickname) +
+                            this->replyMessage.rplYourHost(senderNickname) +
+                            this->replyMessage.rplCreated(senderNickname) +
+                            this->replyMessage.rplMyInfo(senderNickname));
   }
-  if (isSuccess == false) {
-    serverParam.removeClient(senderSocketFd);
-  }
-  commandResponse.addTargetClientFd(senderSocketFd);
   return commandResponse;
 }
