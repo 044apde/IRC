@@ -237,12 +237,6 @@ std::vector<std::string> Server::makeParams(std::string clientMessage) {
         "클라이언트 메세지의 파라미터 형식이 바르지 않습니다.");
   else {
     params = makeParam(clientMessage);
-    for (int i = 0; i < params.size(); i++) {
-      if (params[i][0] == ':')
-        std::cout << "trialing: [" << params[i] << "]\n";
-      else
-        std::cout << "param: [" << params[i] << "]\n";
-    }
     return params;
   }
 }
@@ -273,13 +267,20 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
       completeMessage = combinedBuffer.substr(0, i);
       std::cout << "complete message: '" << completeMessage << "'\n";
       // 만들어진 메세지를 처리하는 로직이 필요하다.
-      prefix = makePrefix(completeMessage);
-      std::cout << "prefix message: '" << prefix << "'\n";
-      command = makeCommand(completeMessage);
-      std::cout << "command message: '" << command << "'\n";
-      //
+      try {
+        prefix = makePrefix(completeMessage);
+        std::cout << "prefix message: '" << prefix << "'\n";
+        command = makeCommand(completeMessage);
+        std::cout << "command message: '" << command << "'\n";
+        params = makeParams(completeMessage);
+        for (int i = 0; i < params.size(); i++)
+          std::cout << "param: '" << params[i] << "'\n";
+      } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return;
+      }
       combinedBuffer = combinedBuffer.substr(i + 2);
-      std::cout << "remain message: '" << combinedBuffer << "'\n";
+      std::cout << "re combined message: '" << combinedBuffer << "'\n";
     }
   }
   client->pushRemainRequestBuffer(combinedBuffer);
