@@ -22,7 +22,7 @@ bool PartCommand::isValidParamter(CommandResponseParam &commandResponse,
     return false;
   }
   if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
-      isTrailing(parameter[1]) == false) {
+      (parameter.size() == 2 && isTrailing(parameter[1]) == false)) {
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
@@ -41,9 +41,13 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
   std::vector<std::string> parameter = tokenParam.getParameter();
   int senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string &channelName = parameter[0];
-  const std::string &reason = parameter[1];
+  std::string reason;
+  if (parameter.size() == 2) {
+    reason = parameter[1];
+  }
   Channel *channel = serverParam.getChannel(channelName);
   Client *senderClient = serverParam.getClient(senderSocketFd);
+  const std::string &senderNickname = senderClient->getNickname();
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
@@ -56,7 +60,7 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
   } else {
     channel->setAllClientFd(commandResponse.getTargetClientFdSet());
     commandResponse.setResponseMessage(
-        this->replyMessage.successPart(channelName, reason));
+        this->replyMessage.successPart(senderNickname, channelName, reason));
     serverParam.removeClientAndChannelEachOther(senderClient, channel);
   }
   if (commandResponse.getTargetClientFdSet().empty() == true) {

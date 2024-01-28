@@ -21,8 +21,7 @@ bool PongCommand::isValidParamter(CommandResponseParam& commandResponse,
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
-  if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
-      isTrailing(parameter[1]) == false) {
+  if (parameter.size() > 1 || isTrailing(parameter[0]) == false) {
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());

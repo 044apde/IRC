@@ -22,8 +22,8 @@ bool TopicCommand::isValidParamter(CommandResponseParam& commandResponse,
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
-  } else if (parameter.size() > 2 || (isTrailing(parameter[0]) == true ||
-                                      isTrailing(parameter[1]) == false)) {
+  } else if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
+             (parameter.size() == 2 && isTrailing(parameter[1]) == false)) {
     commandResponse.setResponseMessage(
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
@@ -43,7 +43,10 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   std::vector<std::string> parameter = tokenParam.getParameter();
   Client* senderClient = serverParam.getClient(tokenParam.getSenderSocketFd());
   const std::string& channelName = parameter[0];
-  const std::string& changedTopic = parameter[1];
+  std::string changedTopic;
+  if (parameter.size() == 2) {
+    changedTopic = parameter[1];
+  }
   Channel* channel = serverParam.getChannel(channelName);
   Channel* topic = serverParam.getChannel(changedTopic);
 

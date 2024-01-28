@@ -43,10 +43,11 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
   std::vector<std::string> parameter = tokenParam.getParameter();
   int senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string &channelName = parameter[0];
-  const std::string &nickname = parameter[1];
+  const std::string &targetNickname = parameter[1];
   Channel *channel = serverParam.getChannel(channelName);
   Client *senderClient = serverParam.getClient(senderSocketFd);
-  Client *kickTargetClient = serverParam.getClientByNickname(nickname);
+  Client *kickTargetClient = serverParam.getClientByNickname(targetNickname);
+  const std::string &senderNickname = senderClient->getNickname();
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
@@ -55,8 +56,8 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
         this->replyMessage.errNoSuchChannel("", channelName));
   } else if (kickTargetClient == NULL ||
              channel->isClientInChannel(kickTargetClient) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errUserNotInChannel("", nickname, channelName));
+    commandResponse.setResponseMessage(this->replyMessage.errUserNotInChannel(
+        "", targetNickname, channelName));
   } else if (channel->isClientInChannel(senderClient) == false) {
     commandResponse.setResponseMessage(
         this->replyMessage.errNotOnChannel("", channelName));
@@ -65,8 +66,8 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
         this->replyMessage.errChaNoPrivsNeeded("", channelName));
   } else {
     channel->setAllClientFd(commandResponse.getTargetClientFdSet());
-    commandResponse.setResponseMessage(
-        this->replyMessage.successKick(channelName, nickname, parameter[2]));
+    commandResponse.setResponseMessage(this->replyMessage.successKick(
+        senderNickname, channelName, targetNickname, parameter[2]));
     serverParam.removeClientAndChannelEachOther(kickTargetClient, channel);
   }
   if (commandResponse.getTargetClientFdSet().empty() == true) {

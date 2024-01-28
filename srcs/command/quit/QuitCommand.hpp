@@ -2,6 +2,8 @@
 #ifndef QUIT_COMMAND_HPP
 #define QUIT_COMMAND_HPP
 
+#include <unistd.h>
+
 #include <string>
 #include <vector>
 
