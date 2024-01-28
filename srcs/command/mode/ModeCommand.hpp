@@ -3,6 +3,8 @@
 #define MODE_COMMAND_HPP
 
 #include <cctype>
+#include <limits>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -23,8 +25,10 @@ class ModeCommand : public ACommand {
   bool isValidModeArgument(const std::vector<std::string>& parameter);
   bool isValidParamter(CommandResponseParam& commandResponse,
                        const TokenParam& tokenParam);
-  bool IsDigitMaxUser(const std::string& argument);
-  size_t getDigitMaxUser(const std::string& argument);
+  size_t getArgumentSizeIndex(const std::string& argument);
+  const std::string getSize_tMaxString();
+  bool IsValidMaxUser(const std::string& argument);
+  size_t getMaxUserParameter(const std::string& argument);
   bool executeMode(Client* client, Channel* channel,
                    const std::string& modeString,
                    std::vector<std::string> arguments);

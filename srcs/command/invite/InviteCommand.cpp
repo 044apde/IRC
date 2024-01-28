@@ -18,16 +18,16 @@ bool InviteCommand::isValidParamter(CommandResponseParam& commandResponse,
   const std::vector<std::string>& parameter = tokenParam.getParameter();
 
   if (parameter.size() < 2) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   if (parameter.size() > 3 || isTrailing(parameter[0]) == true ||
       isTrailing(parameter[1]) == true) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   return true;
@@ -42,38 +42,43 @@ CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
   }
 
   const std::vector<std::string>& parameter = tokenParam.getParameter();
-  const std::string& nickname = parameter[0];
+  const std::string& invitedNickname = parameter[0];
   const std::string& channelName = parameter[1];
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
   Client* senderClient = serverParam.getClient(senderSocketFd);
-  Client* inviteTargetClient = serverParam.getClientByNickname(nickname);
+  Client* inviteTargetClient = serverParam.getClientByNickname(invitedNickname);
   Channel* channel = serverParam.getChannel(channelName);
 
   if (isRegisteredClient(senderClient) == false) {
-    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
   } else if (channel == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
   } else if (channel->isClientInChannel(senderClient) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
   } else if (channel->isInviteOnlyChannel() == true &&
              channel->isOpClient(senderClient) == false) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        senderSocketFd,
         this->replyMessage.errChaNoPrivsNeeded("", channelName));
   } else if (inviteTargetClient == NULL) {
-    // TODO: UB, 대상 사용자가 서버에 아예 없는 경우
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchNick("", nickname));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNoSuchNick("", invitedNickname));
   } else if (channel->isClientInChannel(inviteTargetClient) == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errUserOnChannel("", nickname, channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd,
+        this->replyMessage.errUserOnChannel("", invitedNickname, channelName));
   } else {
     channel->inviteClient(inviteTargetClient);
-    commandResponse.setResponseMessage(
-        this->replyMessage.rplInviting("", nickname, channelName));
-    commandResponse.addTargetClientFd(inviteTargetClient->getClientFd());
+    commandResponse.addResponseMessage(
+        senderSocketFd,
+        this->replyMessage.rplInviting("", invitedNickname, channelName));
+    commandResponse.addResponseMessage(
+        inviteTargetClient->getClientFd(),
+        this->replyMessage.successInvite(senderClient->getNickname(),
+                                         channelName, invitedNickname));
   }
-  commandResponse.addTargetClientFd(senderSocketFd);
   return commandResponse;
 }
