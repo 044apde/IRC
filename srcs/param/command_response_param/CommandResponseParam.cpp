@@ -11,32 +11,29 @@ CommandResponseParam::CommandResponseParam(const CommandResponseParam& other) {
 CommandResponseParam& CommandResponseParam::operator=(
     const CommandResponseParam& other) {
   if (this != &other) {
-    this->targetClientFdSet = other.targetClientFdSet;
-    this->responseMessage = other.responseMessage;
+    this->clientResponseMessageMap = other.clientResponseMessageMap;
   }
   return *this;
 }
 
-void CommandResponseParam::addTargetClientFd(const int& targetClientFd) {
-  assert(targetClientFd > 2);
-  assert(this->targetClientFdSet.find(targetClientFd) ==
-         this->targetClientFdSet.end());
-  this->targetClientFdSet.insert(targetClientFd);
+void CommandResponseParam::addResponseMessage(
+    const int& targetClientFd, const std::string& responseMessage) {
+  this->clientResponseMessageMap.insert(
+      std::make_pair(targetClientFd, responseMessage));
   return;
 }
 
-void CommandResponseParam::setResponseMessage(
+void CommandResponseParam::addMultipleClientResponseMessage(
+    const std::set<const int>& targetClientFdSet,
     const std::string& responseMessage) {
-  this->responseMessage = responseMessage;
+  for (std::set<const int>::iterator it = targetClientFdSet.begin();
+       it != targetClientFdSet.end(); it++) {
+    addResponseMessage(*it, responseMessage);
+  }
   return;
 }
 
-std::set<int> CommandResponseParam::getTargetClientFdSet() const {
-  assert(this->targetClientFdSet.empty() == false);
-  return this->targetClientFdSet;
-}
-
-std::string CommandResponseParam::getResponseMessage() const {
-  assert(this->responseMessage.empty() == false);
-  return this->responseMessage;
+const std::map<const int, const std::string>&
+CommandResponseParam::getClientResponseMessageMap() const {
+  return this->clientResponseMessageMap;
 }

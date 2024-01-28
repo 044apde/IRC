@@ -61,8 +61,8 @@ void ServerParam::addNewChannel(const std::string& channelName,
 }
 
 void ServerParam::removeClient(const int& clientFd) {
-  std::map<int, Client*>::iterator it = this->clientMap.find(clientFd);
   assert(clientFd > 2);
+  std::map<int, Client*>::iterator it = this->clientMap.find(clientFd);
   assert(it != this->clientMap.end());
   it->second->removeAllChannel();
   delete it->second;
