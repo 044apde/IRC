@@ -158,6 +158,8 @@ void Server::disconnectClient(int clientSocket,
   EV_SET(&temp, clientSocket, EVFILT_READ, EV_DELETE, 0, 0, NULL);
   std::cout << "client '" << clientSocket << "' is offline\n";
   eventvec.push_back(temp);
+
+  // 뭔가 추가적으로 해야할 일이 있음
   return;
 }
 
@@ -266,7 +268,6 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
     if (combinedBuffer[i] == '\r' && combinedBuffer[i + 1] == '\n') {
       completeMessage = combinedBuffer.substr(0, i);
       std::cout << "complete message: '" << completeMessage << "'\n";
-      // 만들어진 메세지를 처리하는 로직이 필요하다.
       try {
         prefix = makePrefix(completeMessage);
         std::cout << "prefix message: '" << prefix << "'\n";
@@ -275,6 +276,9 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
         params = makeParams(completeMessage);
         for (int i = 0; i < params.size(); i++)
           std::cout << "param: '" << params[i] << "'\n";
+
+        // 커멘드 인보크()
+        // sendCommand()
       } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
         return;
