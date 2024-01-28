@@ -16,15 +16,15 @@ bool PassCommand::isValidParamter(CommandResponseParam& commandResponse,
   std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 1) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   if (parameter.size() > 1 || isTrailing(parameter[0]) == true) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   return true;
@@ -44,16 +44,13 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
   Client* senderClient = serverParam.getClient(senderSocketFd);
 
   if (senderClient->getIsCheckPass() == true) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errAlreadyRegistered(""));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
   } else if (password != serverParam.getServerPassword()) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errPasswdMismatch(""));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errPasswdMismatch(""));
   } else {
     senderClient->setIsCheckPassTrue();
-  }
-  if (commandResponse.getResponseMessage().empty() == false) {
-    commandResponse.addTargetClientFd(senderSocketFd);
   }
   return commandResponse;
 }

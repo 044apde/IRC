@@ -18,15 +18,15 @@ bool TopicCommand::isValidParamter(CommandResponseParam& commandResponse,
   std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 1) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   } else if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
              (parameter.size() == 2 && isTrailing(parameter[1]) == false)) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   return true;
@@ -41,7 +41,8 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
-  Client* senderClient = serverParam.getClient(tokenParam.getSenderSocketFd());
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  Client* senderClient = serverParam.getClient(senderSocketFd);
   const std::string& channelName = parameter[0];
   std::string changedTopic;
   if (parameter.size() == 2) {
@@ -51,35 +52,39 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   Channel* topic = serverParam.getChannel(changedTopic);
 
   if (isRegisteredClient(senderClient) == false) {
-    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
   } else if (channel == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
   } else if (serverParam.getChannel(channelName)
                  ->isClientInChannel(senderClient) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
   } else if (parameter.size() > 1) {
-    if (channel->getIsSetTopicOnly() == true &&
+    if (channel->isSetTopicOpOnlyChannel() == true &&
         serverParam.getChannel(channelName)->isOpClient(senderClient) ==
             false) {
-      commandResponse.setResponseMessage(
+      commandResponse.addResponseMessage(
+          senderSocketFd,
           this->replyMessage.errChaNoPrivsNeeded("", channelName));
     } else {
-      channel->setTopic(parameter[1]);
-      channel->setAllClientFd(commandResponse.getTargetClientFdSet());
+      channel->setTopic(changedTopic);
+      commandResponse.addMultipleClientResponseMessage(
+          channel->getAllClientFd(),
+          this->replyMessage.successTopic(senderClient->getNickname(),
+                                          channelName, changedTopic));
     }
   } else {
     if (channel->getTopic().empty() == true) {
-      commandResponse.setResponseMessage(
-          this->replyMessage.rplNoTopic("", channelName));
+      commandResponse.addResponseMessage(
+          senderSocketFd, this->replyMessage.rplNoTopic("", channelName));
     } else {
-      commandResponse.setResponseMessage(this->replyMessage.rplTopic(
-          "", channelName, changedTopic, channel->getTopic()));
+      commandResponse.addResponseMessage(
+          senderSocketFd,
+          this->replyMessage.rplTopic("", channelName, changedTopic,
+                                      channel->getTopic()));
     }
-  }
-  if (commandResponse.getTargetClientFdSet().empty() == true) {
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
   }
   return commandResponse;
 }

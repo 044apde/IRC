@@ -16,17 +16,17 @@ bool KickCommand::isValidParamter(CommandResponseParam &commandResponse,
   std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 2) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   if (parameter.size() > 3 || isTrailing(parameter[0]) == true ||
       isTrailing(parameter[1]) == true ||
       (parameter.size() == 3 && isTrailing(parameter[2]) == false)) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   return true;
@@ -44,34 +44,38 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
   int senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string &channelName = parameter[0];
   const std::string &targetNickname = parameter[1];
+  std::string commnet;
+  if (parameter.size() == 3) {
+    commnet = parameter[2];
+  }
   Channel *channel = serverParam.getChannel(channelName);
   Client *senderClient = serverParam.getClient(senderSocketFd);
   Client *kickTargetClient = serverParam.getClientByNickname(targetNickname);
   const std::string &senderNickname = senderClient->getNickname();
 
   if (isRegisteredClient(senderClient) == false) {
-    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
   } else if (channel == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
   } else if (kickTargetClient == NULL ||
              channel->isClientInChannel(kickTargetClient) == false) {
-    commandResponse.setResponseMessage(this->replyMessage.errUserNotInChannel(
-        "", targetNickname, channelName));
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errUserNotInChannel(
+                                           "", targetNickname, channelName));
   } else if (channel->isClientInChannel(senderClient) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
   } else if (channel->isOpClient(senderClient) == false) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        senderSocketFd,
         this->replyMessage.errChaNoPrivsNeeded("", channelName));
   } else {
-    channel->setAllClientFd(commandResponse.getTargetClientFdSet());
-    commandResponse.setResponseMessage(this->replyMessage.successKick(
-        senderNickname, channelName, targetNickname, parameter[2]));
-    serverParam.removeClientAndChannelEachOther(kickTargetClient, channel);
-  }
-  if (commandResponse.getTargetClientFdSet().empty() == true) {
-    commandResponse.addTargetClientFd(senderSocketFd);
+    commandResponse.addMultipleClientResponseMessage(
+        channel->getAllClientFd(),
+        this->replyMessage.successKick(senderNickname, channelName,
+                                       targetNickname, commnet));
   }
   return commandResponse;
 }

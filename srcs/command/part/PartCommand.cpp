@@ -16,16 +16,16 @@ bool PartCommand::isValidParamter(CommandResponseParam &commandResponse,
   std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 1) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
       (parameter.size() == 2 && isTrailing(parameter[1]) == false)) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
 }
@@ -50,21 +50,19 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
   const std::string &senderNickname = senderClient->getNickname();
 
   if (isRegisteredClient(senderClient) == false) {
-    commandResponse.setResponseMessage(this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(senderSocketFd,
+                                       this->replyMessage.errNotRegisterd());
   } else if (channel == NULL) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNoSuchChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
   } else if (channel->isClientInChannel(senderClient) == false) {
-    commandResponse.setResponseMessage(
-        this->replyMessage.errNotOnChannel("", channelName));
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
   } else {
-    channel->setAllClientFd(commandResponse.getTargetClientFdSet());
-    commandResponse.setResponseMessage(
+    commandResponse.addMultipleClientResponseMessage(
+        channel->getAllClientFd(),
         this->replyMessage.successPart(senderNickname, channelName, reason));
     serverParam.removeClientAndChannelEachOther(senderClient, channel);
-  }
-  if (commandResponse.getTargetClientFdSet().empty() == true) {
-    commandResponse.addTargetClientFd(senderSocketFd);
   }
   return commandResponse;
 }

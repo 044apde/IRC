@@ -17,9 +17,9 @@ bool QuitCommand::isValidParamter(CommandResponseParam& commandResponse,
 
   if (parameter.size() > 1 ||
       (parameter.size() == 1 && isTrailing(parameter[0]) == false)) {
-    commandResponse.setResponseMessage(
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
     return false;
   }
   return true;
@@ -42,7 +42,8 @@ CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
   Client* senderClient = serverParam.getClient(senderSocketFd);
   const std::string& senderNickname = senderClient->getNickname();
 
-  commandResponse.setResponseMessage(
+  commandResponse.addMultipleClientResponseMessage(
+      senderClient->getAllChannelClientFd(),
       this->replyMessage.successQuit(senderNickname, reason));
   serverParam.removeClient(senderSocketFd);
   return commandResponse;
