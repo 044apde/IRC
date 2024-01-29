@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "../../channel/Channel.hpp"
+#include "../../client/Client.hpp"
+#include "../../param/command_response_param/CommandResponseParam.hpp"
+#include "../../param/server_param/ServerParam.hpp"
 #include "../ACommand.hpp"
-#include "../channel/Channel.hpp"
-#include "../client/Client.hpp"
-#include "../param/command_response_param/CommandResponseParam.hpp"
-#include "../param/server_param/ServerParam.hpp"
 
 class JoinCommand : public ACommand {
  private:
