@@ -13,7 +13,6 @@ ModeCommand &ModeCommand::operator=(const ModeCommand &other) {
 
 bool ModeCommand::isValidSignedChar(const std::string &modeString,
                                     const size_t &index) {
-  assert(index != 0);
   const char &currentChar = modeString[index];
 
   if (currentChar != '+' && currentChar != '-') {
@@ -65,6 +64,9 @@ bool ModeCommand::isValidModeArgument(
     }
     switch (modeString[i]) {
       case 'k':
+        if (signedChar == '-') {
+          continue;
+        }
         if (signedChar == '+' &&
             (parameter.size() <= argumentIndex ||
              isTrailing(parameter[argumentIndex]) == true ||
@@ -79,14 +81,19 @@ bool ModeCommand::isValidModeArgument(
             parameter[argumentIndex].empty() == true) {
           return false;
         }
+        argumentIndex++;
         break;
       case 'l':
+        if (signedChar == '-') {
+          continue;
+        }
         if (signedChar == '+' &&
             (parameter.size() <= argumentIndex ||
              isTrailing(parameter[argumentIndex]) == true ||
              parameter[argumentIndex].empty() == true)) {
           return false;
         }
+        argumentIndex++;
         break;
     }
   }
@@ -166,7 +173,7 @@ bool IsValidMaxUser(const std::string &argument) {
   return true;
 }
 
-size_t getMaxUserParameter(const std::string &argument) {
+size_t ModeCommand::getMaxUserParameter(const std::string &argument) {
   std::istringstream argumentSstream(argument);
   size_t digitMaxUser;
 
@@ -205,38 +212,48 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
         senderSocketFd,
         this->replyMessage.errChaNoPrivsNeeded("", channelName));
   } else {
+    char signedChar = '\0';
+    std::string keyArgument;
+    std::set<std::string> opArguments;
+    std::set<std::string> unsetOpArguments;
+    std::vector<size_t> maxUserArguments;
     for (size_t i = 0; i < modeString.size(); i++) {
+      // TODO: o에서만 쓰는 것으로 리팩토링 시 함수로 뺌
+      Client *targetClient = NULL;
       if (modeString[i] == '+' || modeString[i] == '-') {
+        signedChar = modeString[i];
         continue;
       }
       switch (modeString[i]) {
         case 'i':
-          if (modeString[i] == '+') {
+          if (signedChar == '+') {
             channel->setInviteOnly();
           } else {
             channel->unsetInviteOnly();
           }
           break;
         case 't':
-          if (modeString[i] == '+') {
+          if (signedChar == '+') {
             channel->setTopicOpOnly();
           } else {
             channel->unsetTopicOpOnly();
           }
           break;
         case 'k':
-          if (modeString[i] == '+') {
-            channel->setKey(parameter[argumentIndex++]);
+          if (signedChar == '+') {
+            // channel->setKey(parameter[argumentIndex++]);
+            keyArgument = parameter[argumentIndex++];
             arguments.push_back("*");
           } else {
-            channel->unsetKey();
+            // channel->unsetKey();
+            keyArgument.clear();  // 비어있으면 unset
           }
           break;
         case 'o':
-          Client *targetClient =
+          targetClient =
               serverParam.getClientByNickname(parameter[argumentIndex]);
-
-          if (targetClient == NULL) {
+          if (targetClient == NULL ||
+              isRegisteredClient(targetClient) == false) {
             commandResponse.addResponseMessage(
                 senderSocketFd,
                 this->replyMessage.errNoSuchNick("", parameter[argumentIndex]));
@@ -248,15 +265,17 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
                 this->replyMessage.errNotOnChannel("", channelName));
             return commandResponse;
           }
-          if (modeString[i] == '+') {
-            channel->setOpClient(targetClient);
+          if (signedChar == '+') {
+            // channel->setOpClient(targetClient);
+            opArguments.insert(parameter[argumentIndex]);
           } else {
-            channel->unsetOpClient(targetClient);
+            // channel->unsetOpClient(targetClient);
+            unsetOpArguments.insert(parameter[argumentIndex]);
           }
           arguments.push_back(parameter[argumentIndex++]);
           break;
         case 'l':
-          if (modeString[i] == '+') {
+          if (signedChar == '+') {
             size_t digitMaxUser = getMaxUserParameter(parameter[argumentIndex]);
 
             if (IsValidMaxUser(parameter[argumentIndex]) == false ||
@@ -266,12 +285,37 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
                   this->replyMessage.errUnknownMode("", modeString));
               return commandResponse;
             }
-            channel->setMaxUser(digitMaxUser);
+            // channel->setMaxUser(digitMaxUser);
+            // maxUserArguments.clear();
+            maxUserArguments.push_back(digitMaxUser);
             arguments.push_back(parameter[argumentIndex++]);
           } else {
-            channel->unsetMaxUser();
+            // channel->unsetMaxUser();
+            maxUserArguments.push_back(0);  // 비어있으면 unset
           }
           break;
+      }
+    }
+    if (keyArgument.empty() == false) {
+      channel->setKey(keyArgument);
+    } else {
+      channel->unsetKey();
+    }
+    for (std::set<std::string>::iterator it = opArguments.begin();
+         it != opArguments.end(); ++it) {
+      Client *targetClient = serverParam.getClientByNickname(*it);
+      channel->setOpClient(targetClient);
+    }
+    for (std::set<std::string>::iterator it = unsetOpArguments.begin();
+         it != unsetOpArguments.end(); ++it) {
+      Client *targetClient = serverParam.getClientByNickname(*it);
+      channel->unsetOpClient(targetClient);
+    }
+    for (size_t i = 0; i < maxUserArguments.size(); i++) {
+      if (maxUserArguments[i] != 0) {
+        channel->setMaxUser(maxUserArguments[i]);
+      } else {
+        channel->unsetMaxUser();
       }
     }
     commandResponse.addMultipleClientResponseMessage(
