@@ -37,7 +37,8 @@ bool JoinCommand::isValidParamter(CommandResponseParam& commandResponse,
     return false;
   }
   if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
-      isTrailing(parameter[1]) == true) {
+      isTrailing(parameter[1]) == true ||
+      isValidChannelName(parameter[0]) == false) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
@@ -57,6 +58,10 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
   const std::vector<std::string>& parameter = tokenParam.getParameter();
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string& channelName = parameter[0];
+  std::string channelKey;
+  if (parameter[1].empty() == false) {
+    channelKey = parameter[1];
+  }
   Client* client = serverParam.getClient(senderSocketFd);
   const std::string& senderNickname = client->getNickname();
   Channel* channel = serverParam.getChannel(channelName);
@@ -98,14 +103,17 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
           senderSocketFd,
           this->replyMessage.errTooManyChannels("", channelName));
     } else {
-      serverParam.addClientAndChannelEachOther(client, channel);
       commandResponse.addMultipleClientResponseMessage(
           channel->getAllClientFd(),
+          this->replyMessage.successJoin(senderNickname, channelName));
+      commandResponse.addResponseMessage(
+          senderSocketFd,
           this->replyMessage.successJoin(senderNickname, channelName) +
               (channel->getTopic().empty() == true
                    ? ""
                    : this->replyMessage.rplTopic("", channelName, "",
                                                  channel->getTopic())));
+      serverParam.addClientAndChannelEachOther(client, channel);
     }
   }
   return commandResponse;
