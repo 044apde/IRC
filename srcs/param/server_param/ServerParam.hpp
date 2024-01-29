@@ -9,9 +9,6 @@
 #include "../../channel/Channel.hpp"
 #include "../../client/Client.hpp"
 
-// 미구현 클래스 선언
-class Channel;
-
 class ServerParam {
  private:
   int serverFd;

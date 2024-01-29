@@ -38,7 +38,6 @@ const int& ServerParam::getServerFd() const {
 }
 
 const std::string& ServerParam::getServerPassword() const {
-  assert(this->serverPassword.empty() == false);
   return this->serverPassword;
 }
 
@@ -55,8 +54,7 @@ void ServerParam::addNewChannel(const std::string& channelName,
   assert(this->channelMap.find(channelName) == this->channelMap.end());
   Channel* channel = new Channel(channelName);
   this->channelMap.insert(std::make_pair(channelName, channel));
-  firstClient->addChannel(channel);
-  channel->addClient(firstClient);
+  addClientAndChannelEachOther(firstClient, channel);
   return;
 }
 
@@ -66,20 +64,28 @@ void ServerParam::removeClient(const int& clientFd) {
   assert(it != this->clientMap.end());
   it->second->removeAllChannel();
   delete it->second;
+  it->second = NULL;
   this->clientMap.erase(clientFd);
   return;
 }
 
 void ServerParam::removeChannel(const std::string& channelName) {
   assert(channelName.empty() == false);
-  assert(this->channelMap.find(channelName) != this->channelMap.end());
+  std::map<std::string, Channel*>::iterator it =
+      this->channelMap.find(channelName);
+  assert(it != this->channelMap.end());
+  delete it->second;
+  it->second = NULL;
   this->channelMap.erase(channelName);
   return;
 }
 
 Client* ServerParam::getClient(const int& clientFd) const {
   assert(clientFd > 2);
-  assert(this->clientMap.find(clientFd) != this->clientMap.end());
+  std::map<int, Client*>::const_iterator it = this->clientMap.find(clientFd);
+  if (it == this->clientMap.end()) {
+    return NULL;
+  }
   return this->clientMap.find(clientFd)->second;
 }
 
@@ -95,8 +101,11 @@ Client* ServerParam::getClientByNickname(const std::string& nickname) const {
 }
 
 Channel* ServerParam::getChannel(const std::string& channelName) const {
-  assert(channelName.empty() == false);
-  assert(this->channelMap.find(channelName) != this->channelMap.end());
+  std::map<std::string, Channel*>::const_iterator it =
+      this->channelMap.find(channelName);
+  if (it == this->channelMap.end()) {
+    return NULL;
+  }
   return this->channelMap.find(channelName)->second;
 }
 
