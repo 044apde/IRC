@@ -50,18 +50,27 @@ CommandResponseParam PrivmsgCommand::execute(ServerParam &serverParam,
   const int &senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string &sendTarget = parameter[0];
   const std::string &message = parameter[1];
-  Channel *channel = serverParam.getChannel(sendTarget);
   Client *senderClient = serverParam.getClient(senderSocketFd);
   const std::string &senderClientNickname = senderClient->getNickname();
+  Channel *targetChannel = serverParam.getChannel(sendTarget);
   Client *targetClient = serverParam.getClientByNickname(sendTarget);
+  bool isChannel = false;
+
+  if (sendTarget[0] == '#') {
+    isChannel = true;
+  }
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.addResponseMessage(senderSocketFd,
                                        this->replyMessage.errNotRegisterd());
-  } else if (channel == NULL || targetClient == NULL) {
+  } else if ((isChannel == true && targetChannel == NULL) ||
+             ((isChannel == false &&
+               (targetClient == NULL ||
+                isRegisteredClient(targetClient) == false)))) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errNoSuchNick("", sendTarget));
-  } else if (channel->isClientInChannel(senderClient) == false) {
+  } else if (targetChannel != NULL &&
+             targetChannel->isClientInChannel(senderClient) == false) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errCannotSendToChan("", sendTarget));
   } else if (targetClient != NULL) {
@@ -69,10 +78,14 @@ CommandResponseParam PrivmsgCommand::execute(ServerParam &serverParam,
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.successPrivmsg(senderClientNickname,
                                                           sendTarget, message));
+    commandResponse.addResponseMessage(
+        targetClient->getClientFd(),
+        this->replyMessage.successPrivmsg(senderClientNickname, sendTarget,
+                                          message));
   } else {
     // 채널 메세지
     commandResponse.addMultipleClientResponseMessage(
-        channel->getAllClientFd(),
+        targetChannel->getAllClientFd(),
         this->replyMessage.successPrivmsg(senderClientNickname, sendTarget,
                                           message));
   }
