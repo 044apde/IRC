@@ -45,7 +45,8 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
   const std::string& username = parameter[0];
   Client* senderClient = serverParam.getClient(senderSocketFd);
 
-  if (senderClient->getNickname().empty() == true) {
+  if (senderClient->getIsCheckPass() == false ||
+      senderClient->getNickname().empty() == true) {
     commandResponse.addResponseMessage(senderSocketFd,
                                        this->replyMessage.errNotRegisterd());
   } else if (senderClient->getUsername().empty() == false) {
