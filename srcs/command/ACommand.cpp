@@ -14,17 +14,33 @@ ACommand& ACommand::operator=(const ACommand& other) {
   return *this;
 }
 
+bool ACommand::isChannelNameHasOnlyDigitOrAlpha(
+    const std::string& channelName) {
+  for (size_t i = 1; i < channelName.size(); i++) {
+    if (std::isalnum(channelName[i]) == false &&
+        (channelName[i] != '-' && channelName[i] != '_' &&
+         channelName[i] != '.')) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool ACommand::isValidNickname(const std::string& nickname) {
-  // TODO: https://modern.ircdocs.horse/#clients
-  // 위 규칙에 맞게 유효성 검사
-  if (nickname.size() > 9) {
+  if (nickname.size() == 0 || nickname.size() > 9 ||
+      std::isalpha(nickname[0]) == false) {
     return false;
   }
   return true;
 }
+
 bool ACommand::isValidChannelName(const std::string& channelName) {
-  // TODO: https://modern.ircdocs.horse/#channels
-  // 위 규칙에 맞게 유효성 검사
+  const size_t channelNameSize = channelName.size();
+  if (channelNameSize == 0 || channelNameSize > 200 || channelName[0] != '#' ||
+      isChannelNameHasOnlyDigitOrAlpha(channelName) == false) {
+    return false;
+  }
+  return true;
 }
 
 bool ACommand::isRegisteredClient(Client* client) {

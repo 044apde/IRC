@@ -2,6 +2,7 @@
 #ifndef ACOMMAND_HPP
 #define ACOMMAND_HPP
 
+#include <cctype>
 #include <string>
 #include <vector>
 
@@ -14,6 +15,7 @@ class ACommand {
  private:
   ACommand(const ACommand& other);
   ACommand& operator=(const ACommand& other);
+  bool isChannelNameHasOnlyDigitOrAlpha(const std::string& channelName);
 
  protected:
   ACommand();
