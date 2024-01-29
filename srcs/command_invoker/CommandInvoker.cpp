@@ -21,6 +21,7 @@ CommandInvoker::~CommandInvoker() {
   for (std::map<std::string, ACommand*>::iterator it = this->commandMap.begin();
        it != this->commandMap.end(); it++) {
     delete it->second;
+    it->second = NULL;
   }
   return;
 }
