@@ -20,7 +20,8 @@ bool PingCommand::isValidParamter(CommandResponseParam& commandResponse,
         this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
     return false;
   }
-  if (parameter.size() > 1 || isTrailing(parameter[0]) == false) {
+  if (parameter.size() > 1 ||
+      (parameter.size() == 1 && isTrailing(parameter[0]) == true)) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));

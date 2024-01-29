@@ -28,6 +28,7 @@ bool PartCommand::isValidParamter(CommandResponseParam &commandResponse,
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     return false;
   }
+  return true;
 }
 
 CommandResponseParam PartCommand::execute(ServerParam &serverParam,
