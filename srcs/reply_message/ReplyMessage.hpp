@@ -2,7 +2,6 @@
 #ifndef REPLY_MESSAGE_HPP
 #define REPLY_MESSAGE_HPP
 
-#include <cassert>
 #include <ctime>
 #include <string>
 #include <vector>
