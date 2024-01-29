@@ -190,6 +190,4 @@ const std::set<const int> Channel::getAllClientFd() {
   return clientFdSet;
 }
 
-const size_t Channel::getUserCountInChannel() const {
-  return this->clientMap.size();
-}
+size_t Channel::getUserCountInChannel() const { return this->clientMap.size(); }

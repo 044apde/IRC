@@ -57,7 +57,7 @@ class Channel {
   const std::string& getTopic() const;
   void setAllClientFd(std::set<const int>& clientFdSet);
   const std::set<const int> getAllClientFd();
-  const size_t getUserCountInChannel() const;
+  size_t getUserCountInChannel() const;
 };
 
 #endif
