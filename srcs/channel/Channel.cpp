@@ -98,7 +98,6 @@ bool Channel::isSetTopicOpOnlyChannel() { return this->isSetTopicOpOnly; }
 bool Channel::isSetKeyChannel() { return this->isSetKey; }
 
 bool Channel::isKeyMatched(const std::string& key) {
-  assert(key.empty() == false);
   if (this->key == key) {
     return true;
   }
