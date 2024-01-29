@@ -131,7 +131,7 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   return;
 }
 
-std::string Server::getMessage(int clientSocket, struct kevent& eventlist) {
+std::string Server::getMessage(int clientSocket) {
   char buffer[MESSAGE_MAX_LENGTH];
   ssize_t bytesRead;
   std::string receivedMessage = "";
@@ -273,7 +273,7 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
         command = makeCommand(completeMessage);
         std::cout << "command message: '" << command << "'\n";
         params = makeParams(completeMessage);
-        for (int i = 0; i < params.size(); i++)
+        for (size_t i = 0; i < params.size(); i++)
           std::cout << "param: '" << params[i] << "'\n";
 
         // 커멘드 인보크()
@@ -290,12 +290,11 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
   return;
 }
 
-void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
-                           struct kevent& eventlist) {
+void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec) {
   std::string combinedBuffer;
 
   std::cout << "[manage request]\n";
-  std::string clientMessage = getMessage(targetFd, eventlist);
+  std::string clientMessage = getMessage(targetFd);
   std::cout << "client message: '" << clientMessage << "'";
   if (clientMessage.compare("") == 0) {
     disconnectClient(targetFd, eventvec);
@@ -318,7 +317,7 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
-      manageRequest(targetFd, eventVec, eventlist[i]);
+      manageRequest(targetFd, eventVec);
     }
   }
   return;

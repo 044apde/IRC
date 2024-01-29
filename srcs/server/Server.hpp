@@ -54,9 +54,8 @@ class Server {
                         int16_t filter, uint16_t flags, uint32_t fflags,
                         intptr_t data, void* udata);
 
-  void manageRequest(int targetFd, std::vector<struct kevent>& eventvec,
-                     struct kevent& eventlist);
-  std::string getMessage(int clientSocket, struct kevent& eventlist);
+  void manageRequest(int targetFd, std::vector<struct kevent>& eventvec);
+  std::string getMessage(int clientSocket);
   void disconnectClient(int clientSocket, std::vector<struct kevent>& eventvec);
   void handleCombindBuffer(std::string combinedBuffer, int clientSocket);
   std::string makePrefix(std::string& clientMesaage);
