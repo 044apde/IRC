@@ -6,6 +6,7 @@ void Server::sendCommand(CommandResponseParam& responseParam, int clientSocket,
                          std::vector<struct kevent>& eventvec) {
   std::map<const int, const std::string>::const_iterator iter;
 
+  std::cout << "send message\n";
   iter = responseParam.getClientResponseMessageMap().begin();
   for (; iter != responseParam.getClientResponseMessageMap().end(); iter++) {
     if (iter->first == -1) {
@@ -15,6 +16,7 @@ void Server::sendCommand(CommandResponseParam& responseParam, int clientSocket,
     if (send(iter->first, iter->second.c_str(), iter->second.size(), 0) == -1) {
       throw std::runtime_error("failed to send message");
     }
+    std::cout << "보낼 메세지" << iter->second << "\n";
   }
   return;
 }
@@ -270,7 +272,6 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
   std::string prefix;
   std::string command;
   std::vector<std::string> params;
-  TokenParam tokenParam;
   CommandResponseParam cmdresparam;
 
   while (combinedBuffer[++i] != '\0') {
@@ -286,8 +287,8 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
         for (size_t i = 0; i < params.size(); i++)
           std::cout << "param: '" << params[i] << "'\n";
 
-        tokenParam = TokenParam(clientSocket, prefix, command, params);
-        cmdresparam = commandInvoker.execute(serverParam, tokenParam);
+        cmdresparam = commandInvoker.execute(
+            serverParam, TokenParam(clientSocket, prefix, command, params));
         sendCommand(cmdresparam, clientSocket, eventvec);
       } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
