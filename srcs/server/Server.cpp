@@ -216,8 +216,7 @@ std::vector<std::string> Server::makeParam(std::string clientMessage) {
       }
       params.push_back(temp);
       return params;
-    } else  // middle
-    {
+    } else {
       temp = "";
       while (clientMessage[i] != '\n' && clientMessage[i] != '\r' &&
              clientMessage[i] != '\0' && clientMessage[i] != ' ') {
@@ -338,7 +337,7 @@ void Server::run() {
     eventCount = kevent(kqueueFd, eventVec.data(), eventVec.size(), eventlist,
                         EVENTLIST_SIZE, NULL);
     if (eventCount == 0) {
-      std::cout << "timeout\n";
+      std::cout << "server timeout\n";
       break;
     } else if (eventCount == -1) {
       throw std::runtime_error("error kevent()");
