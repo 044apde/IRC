@@ -37,7 +37,6 @@ void Client::setIsCheckPassTrue() {
 }
 
 void Client::setNickname(const std::string& nickname) {
-  assert(nickname.empty() == false);
   this->nickname = nickname;
   return;
 }
@@ -48,13 +47,11 @@ void Client::setUsername(const std::string& username) {
 }
 
 void Client::addChannel(Channel* channel) {
-  assert(channel != NULL);
   this->channelSet.insert(channel);
   return;
 }
 
 void Client::removeChannel(Channel* channel) {
-  assert(channel != NULL);
   this->channelSet.erase(channel);
   return;
 }
@@ -71,7 +68,7 @@ bool Client::hasChannel(Channel* channel) {
   return true;
 }
 
-const size_t Client::getChannelSetSize() { return this->channelSet.size(); }
+size_t Client::getChannelSetSize() { return this->channelSet.size(); }
 
 void Client::pushRemainRequestBuffer(const std::string& remainRequestBuffer) {
   this->remainRequestBuffer = remainRequestBuffer;

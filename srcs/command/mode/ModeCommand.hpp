@@ -8,12 +8,12 @@
 #include <string>
 #include <vector>
 
+#include "../../channel/Channel.hpp"
+#include "../../client/Client.hpp"
+#include "../../param/command_response_param/CommandResponseParam.hpp"
+#include "../../param/server_param/ServerParam.hpp"
+#include "../../param/token_param/TokenParam.hpp"
 #include "../ACommand.hpp"
-#include "../channel/Channel.hpp"
-#include "../client/Client.hpp"
-#include "../param/command_response_param/CommandResponseParam.hpp"
-#include "../param/server_param/ServerParam.hpp"
-#include "../param/token_param/TokenParam.hpp"
 
 class ModeCommand : public ACommand {
  private:
@@ -27,7 +27,6 @@ class ModeCommand : public ACommand {
                        const TokenParam& tokenParam);
   size_t getArgumentSizeIndex(const std::string& argument);
   const std::string getSize_tMaxString();
-  bool IsValidMaxUser(const std::string& argument);
   size_t getMaxUserParameter(const std::string& argument);
   bool executeMode(Client* client, Channel* channel,
                    const std::string& modeString,

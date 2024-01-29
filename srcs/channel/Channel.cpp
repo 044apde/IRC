@@ -43,27 +43,23 @@ void Channel::setTopicOpOnly() {
 }
 
 void Channel::setKey(std::string key) {
-  assert(key.empty() == false);
   this->isSetKey = true;
   this->key = key;
   return;
 }
 
 void Channel::setMaxUser(size_t maxUser) {
-  assert(maxUser > 0);
   this->isSetMaxUser = true;
   this->maxUser = maxUser;
   return;
 }
 
 void Channel::setOpClient(Client* client) {
-  assert(client != NULL);
   this->clientMap[client] = true;
   return;
 }
 
 void Channel::setTopic(const std::string& topic) {
-  assert(topic.empty() == false);
   this->topic = topic;
   return;
 }
@@ -91,7 +87,6 @@ void Channel::unsetMaxUser() {
 }
 
 void Channel::unsetOpClient(Client* client) {
-  assert(client != NULL);
   this->clientMap[client] = false;
   return;
 }
@@ -103,7 +98,6 @@ bool Channel::isSetTopicOpOnlyChannel() { return this->isSetTopicOpOnly; }
 bool Channel::isSetKeyChannel() { return this->isSetKey; }
 
 bool Channel::isKeyMatched(const std::string& key) {
-  assert(key.empty() == false);
   if (this->key == key) {
     return true;
   }
@@ -182,7 +176,7 @@ void Channel::setAllClientFd(std::set<const int>& clientFdSet) {
   return;
 }
 
-const std::set<const int>& Channel::getAllClientFd() {
+const std::set<const int> Channel::getAllClientFd() {
   std::set<const int> clientFdSet;
 
   for (std::map<Client*, bool>::iterator it = this->clientMap.begin();
@@ -195,6 +189,6 @@ const std::set<const int>& Channel::getAllClientFd() {
   return clientFdSet;
 }
 
-const size_t Channel::getUserCountInChannel() const {
-  return this->clientMap.size();
-}
+size_t Channel::getUserCountInChannel() const { return this->clientMap.size(); }
+
+size_t Channel::getMaxUser() const { return this->maxUser; }

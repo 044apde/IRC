@@ -284,6 +284,6 @@ std::string ReplyMessage::successQuit(const std::string& senderNickname,
 std::string ReplyMessage::successTopic(const std::string& senderNickname,
                                        const std::string& channelName,
                                        const std::string& newTopic) {
-  return ":" + senderNickname + " TOPIC " + channelName + " :" + newTopic +
+  return ":" + senderNickname + " TOPIC " + channelName + " " + newTopic +
          "\r\n";
 }

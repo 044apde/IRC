@@ -21,6 +21,7 @@ CommandInvoker::~CommandInvoker() {
   for (std::map<std::string, ACommand*>::iterator it = this->commandMap.begin();
        it != this->commandMap.end(); it++) {
     delete it->second;
+    it->second = NULL;
   }
   return;
 }
@@ -32,9 +33,9 @@ CommandResponseParam CommandInvoker::execute(ServerParam& serverParam,
   if (it == this->commandMap.end()) {
     CommandResponseParam commandResponse;
 
-    commandResponse.setResponseMessage(
-        this->replyMessage.errUnknownCommand(parsedParam));
-    commandResponse.addTargetClientFd(tokenParam.getSenderSocketFd());
+    commandResponse.addResponseMessage(
+        tokenParam.getSenderSocketFd(),
+        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     return commandResponse;
   }
   return it->second->execute(serverParam, tokenParam);
