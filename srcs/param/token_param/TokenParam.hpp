@@ -11,9 +11,9 @@ class TokenParam {
   const std::string prefix;
   const std::string command;
   const std::vector<std::string> parameter;
-  TokenParam();
 
  public:
+  TokenParam();
   TokenParam(const int& senderSocketFd, const std::string& prefix,
              const std::string& command,
              const std::vector<std::string>& parameter);

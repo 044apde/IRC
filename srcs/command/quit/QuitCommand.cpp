@@ -45,6 +45,7 @@ CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
   commandResponse.addMultipleClientResponseMessage(
       senderClient->getAllChannelClientFd(),
       this->replyMessage.successQuit(senderNickname, reason));
+  commandResponse.addResponseMessage(-1, "");
   serverParam.removeClient(senderSocketFd);
   return commandResponse;
 }

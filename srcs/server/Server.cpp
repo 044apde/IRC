@@ -2,23 +2,30 @@
 
 Server::Server() : serverParam(ServerParam()) { return; }
 
+void Server::sendCommand(CommandResponseParam& responseParam, int clientSocket,
+                         std::vector<struct kevent>& eventvec) {
+  std::map<const int, const std::string>::const_iterator iter;
+
+  iter = responseParam.getClientResponseMessageMap().begin();
+  for (; iter != responseParam.getClientResponseMessageMap().end(); iter++) {
+    if (iter->first == -1) {
+      disconnectClient(clientSocket, eventvec);
+      continue;
+    }
+    if (send(iter->first, iter->second.c_str(), iter->second.size(), 0) == -1) {
+      throw std::runtime_error("failed to send message");
+    }
+  }
+  return;
+}
+
 Server::Server(const Server& obj) {
-  if (this == &obj)
-    return;
-  else {
-    serverParam = obj.serverParam;
-    // commandInvoker 객체 초기화 필요
-  };
+  static_cast<void>(obj);
   return;
 }
 
 Server& Server::operator=(const Server& obj) {
-  if (this == &obj)
-    return *this;
-  else {
-    serverParam = obj.serverParam;
-    // commandInvoker 객체 초기화 필요
-  }
+  static_cast<void>(obj);
   return *this;
 }
 
@@ -255,13 +262,16 @@ std::string Server::makeCombinedBuffer(std::string clientMessage,
   return combinedBuffer;
 }
 
-void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
+void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
+                                 std::vector<struct kevent>& eventvec) {
   int i = -1;
   Client* client = serverParam.getClient(clientSocket);
   std::string completeMessage;
   std::string prefix;
   std::string command;
   std::vector<std::string> params;
+  TokenParam tokenParam;
+  CommandResponseParam cmdresparam;
 
   while (combinedBuffer[++i] != '\0') {
     if (combinedBuffer[i] == '\r' && combinedBuffer[i + 1] == '\n') {
@@ -276,8 +286,9 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket) {
         for (size_t i = 0; i < params.size(); i++)
           std::cout << "param: '" << params[i] << "'\n";
 
-        // 커멘드 인보크()
-        // sendCommand()
+        tokenParam = TokenParam(clientSocket, prefix, command, params);
+        cmdresparam = commandInvoker.execute(serverParam, tokenParam);
+        sendCommand(cmdresparam, clientSocket, eventvec);
       } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
         return;
@@ -301,7 +312,7 @@ void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec) {
     return;
   }
   combinedBuffer = makeCombinedBuffer(clientMessage, targetFd);
-  handleCombindBuffer(combinedBuffer, targetFd);
+  handleCombindBuffer(combinedBuffer, targetFd, eventvec);
   return;
 }
 

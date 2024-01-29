@@ -11,11 +11,15 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include "../command_invoker/CommandInvoker.hpp"
+#include "../param/command_response_param/CommandResponseParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
+#include "../param/token_param/TokenParam.hpp"
 
 // 클래스 임시 선언
 class CommandInvoker;
@@ -32,11 +36,10 @@ class CommandInvoker;
 class Server {
  private:
   ServerParam serverParam;
-  // CommandInvoker commandInvoker;
+  CommandInvoker commandInvoker;
 
-  // paredParam parse(std::string input);
-  // void sendCommand(CommandResponseParam& responseParam);
-
+  void sendCommand(CommandResponseParam& responseParam, int clientSocket,
+                   std::vector<struct kevent>& eventvec);
   Server();
   Server(const Server& obj);
   Server& operator=(const Server& obj);
@@ -57,7 +60,8 @@ class Server {
   void manageRequest(int targetFd, std::vector<struct kevent>& eventvec);
   std::string getMessage(int clientSocket);
   void disconnectClient(int clientSocket, std::vector<struct kevent>& eventvec);
-  void handleCombindBuffer(std::string combinedBuffer, int clientSocket);
+  void handleCombindBuffer(std::string combinedBuffer, int clientSocket,
+                           std::vector<struct kevent>& eventvec);
   std::string makePrefix(std::string& clientMesaage);
   std::string makeCommand(std::string& clientMessage);
   std::vector<std::string> makeParams(std::string clientMessage);
