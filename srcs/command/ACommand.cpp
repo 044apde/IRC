@@ -44,7 +44,7 @@ bool ACommand::isValidChannelName(const std::string& channelName) {
 }
 
 bool ACommand::isRegisteredClient(Client* client) {
-  if (client == NULL || client->getNickname().size() == 0 ||
+  if (client->getIsCheckPass() == false || client->getNickname().size() == 0 ||
       client->getUsername().size() == 0) {
     return false;
   }
