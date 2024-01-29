@@ -49,7 +49,6 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
     changedTopic = parameter[1];
   }
   Channel* channel = serverParam.getChannel(channelName);
-  Channel* topic = serverParam.getChannel(changedTopic);
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.addResponseMessage(senderSocketFd,
