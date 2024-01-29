@@ -36,7 +36,7 @@ class Client {
   void removeChannel(Channel* channel);
   void removeAllChannel();
   bool hasChannel(Channel* channel);
-  const size_t getChannelSetSize();
+  size_t getChannelSetSize();
   void pushRemainRequestBuffer(const std::string& remainRequestBuffer);
   const std::string popRemainRequestBuffer();
   const std::set<const int> getAllChannelClientFd() const;

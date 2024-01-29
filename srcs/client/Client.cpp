@@ -68,7 +68,7 @@ bool Client::hasChannel(Channel* channel) {
   return true;
 }
 
-const size_t Client::getChannelSetSize() { return this->channelSet.size(); }
+size_t Client::getChannelSetSize() { return this->channelSet.size(); }
 
 void Client::pushRemainRequestBuffer(const std::string& remainRequestBuffer) {
   this->remainRequestBuffer = remainRequestBuffer;
