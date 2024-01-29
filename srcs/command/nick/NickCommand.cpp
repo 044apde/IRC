@@ -11,28 +11,6 @@ NickCommand& NickCommand::operator=(const NickCommand& other) {
   return *this;
 }
 
-bool NickCommand::isValidNickname(const std::string& nickname) const {
-  if (nickname.empty() == true || nickname[0] == '#' || nickname[0] == '&' ||
-      nickname[0] == ':' || nickname[0] == ' ' ||
-      std::isdigit(nickname[0]) == true || nickname.size() > 9) {
-    return false;
-  }
-  return true;
-}
-
-bool NickCommand::isSameStrWithLowercase(const std::string& str1,
-                                         const std::string& str2) const {
-  if (str1.size() != str2.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < str1.size(); ++i) {
-    if (std::tolower(str1[i]) != std::tolower(str2[i])) {
-      return false;
-    }
-  }
-  return true;
-}
-
 bool NickCommand::isValidParamter(CommandResponseParam& commandResponse,
                                   const TokenParam& tokenParam) {
   const std::vector<std::string>& parameter = tokenParam.getParameter();
@@ -65,7 +43,7 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
   const std::string prevNickname = senderClient->getNickname();
   const std::string newNickname = parameter[0];
 
-  if (isValidNickname(newNickname) == true) {
+  if (isValidNickname(newNickname) == false) {
     commandResponse.addResponseMessage(
         senderSocketFd,
         this->replyMessage.errErroneusNickname("", newNickname));
