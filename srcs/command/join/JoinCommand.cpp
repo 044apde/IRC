@@ -111,9 +111,9 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
       serverParam.addClientAndChannelEachOther(client, channel);
       std::string nicknameList = ":";
 
-      for (std::map<Client*, bool>::iterator it =
-               channel->getClientMap().begin();
-           it != channel->getClientMap().end(); ++it) {
+      std::map<Client*, bool> channelClientMap = channel->getClientMap();
+      for (std::map<Client*, bool>::iterator it = channelClientMap.begin();
+           it != channelClientMap.end(); ++it) {
         nicknameList +=
             (it->second == true ? "@" : "") + it->first->getNickname() + " ";
       }

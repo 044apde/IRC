@@ -60,40 +60,47 @@ void ServerParam::addNewChannel(const std::string& channelName,
 
 void ServerParam::removeClient(const int& clientFd) {
   assert(clientFd > 2);
-  std::map<int, Client*>::iterator it = this->clientMap.find(clientFd);
-  if (it == this->clientMap.end()) {
+  std::map<int, Client*>::iterator clientIt = this->clientMap.find(clientFd);
+  if (clientIt == this->clientMap.end()) {
     return;
   }
+  std::vector<std::string> deletedChannelNameVec;
   for (std::map<std::string, Channel*>::iterator channelIt =
            this->channelMap.begin();
        channelIt != this->channelMap.end(); channelIt++) {
-    if (channelIt->second->getClientMap().find(it->second) !=
+    if (channelIt->second->getClientMap().find(clientIt->second) !=
         channelIt->second->getClientMap().end()) {
-      channelIt->second->removeClient(it->second);
+      channelIt->second->removeClient(clientIt->second);
     }
     if (channelIt->second->getUserCountInChannel() == 0) {
-      Channel* deleteChannel = channelIt->second;
-      this->channelMap.erase(channelIt);
-      delete deleteChannel;
-      deleteChannel = NULL;
+      std::string channelName = channelIt->first;
+      if (removeChannel(channelIt->first) == true) {
+        deletedChannelNameVec.push_back(channelName);
+      }
     }
   }
-  it->second->removeAllChannel();
-  delete it->second;
-  it->second = NULL;
+  for (size_t i = 0; i < deletedChannelNameVec.size(); i++) {
+    this->channelMap.erase(deletedChannelNameVec[i]);
+  }
+  clientIt->second->removeAllChannel();
+  delete clientIt->second;
+  clientIt->second = NULL;
   this->clientMap.erase(clientFd);
   return;
 }
 
-void ServerParam::removeChannel(const std::string& channelName) {
+bool ServerParam::removeChannel(const std::string channelName) {
   assert(channelName.empty() == false);
   std::map<std::string, Channel*>::iterator it =
       this->channelMap.find(channelName);
-  assert(it != this->channelMap.end());
-  delete it->second;
-  it->second = NULL;
-  this->channelMap.erase(channelName);
-  return;
+  if (it != this->channelMap.end()) {
+    std::string deletedChannelName = it->first;
+    delete it->second;
+    it->second = NULL;
+    return true;
+    // this->channelMap.erase(deletedChannelName);
+  }
+  return false;
 }
 
 Client* ServerParam::getClient(const int& clientFd) const {
@@ -142,7 +149,7 @@ void ServerParam::removeClientAndChannelEachOther(Client* client,
   channel->removeClient(client);
   if (channel->getUserCountInChannel() == 0) {
     Channel* deleteChannel = channel;
-    channelMap.erase(channel->getChannelName());
+    this->channelMap.erase(channel->getChannelName());
     delete deleteChannel;
     deleteChannel = NULL;
   }
