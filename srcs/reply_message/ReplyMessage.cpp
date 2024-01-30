@@ -63,7 +63,7 @@ std::string ReplyMessage::rplTopic(const std::string& channelName,
 std::string ReplyMessage::rplInviting(const std::string& username,
                                       const std::string& nickname,
                                       const std::string& channelName) {
-  return "341 " + username + " " + nickname + " " + channelName + "\r\n";
+  return "341 IRC42 " + username + " " + nickname + " " + channelName + "\r\n";
 }
 
 std::string ReplyMessage::rplNamReply(const std::string& targetNickname,
@@ -221,8 +221,11 @@ std::string ReplyMessage::successInvite(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successJoin(const std::string& senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& channelName) {
-  return ":" + senderNickname + " JOIN " + channelName + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " JOIN " +
+         channelName + "\r\n";
 }
 
 std::string ReplyMessage::successKick(const std::string& senderNickname,
@@ -259,12 +262,15 @@ std::string ReplyMessage::successNick(std::string senderNickname,
 }
 
 std::string ReplyMessage::successPart(const std::string& senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& channelName,
                                       std::string reason) {
   if (reason.empty() == false) {
     reason = " " + reason;
   }
-  return ":" + senderNickname + " PART " + channelName + reason + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " PART " +
+         channelName + reason + "\r\n";
 }
 
 std::string ReplyMessage::successPing(const std::string& serverName) {

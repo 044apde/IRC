@@ -64,6 +64,8 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
   }
   Client* client = serverParam.getClient(senderSocketFd);
   const std::string& senderNickname = client->getNickname();
+  const std::string& senderUsername = client->getUsername();
+  const std::string& senderHost = client->getHost();
   Channel* channel = serverParam.getChannel(channelName);
 
   if (isRegisteredClient(client) == false) {
@@ -78,7 +80,8 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
       serverParam.addNewChannel(channelName, client);
       commandResponse.addResponseMessage(
           senderSocketFd,
-          this->replyMessage.successJoin(senderNickname, channelName) +
+          this->replyMessage.successJoin(senderNickname, senderUsername,
+                                         senderHost, channelName) +
               this->replyMessage.rplNamReply(senderNickname, channelName,
                                              ":@" + senderNickname));
     }
@@ -107,7 +110,8 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
     } else {
       commandResponse.addMultipleClientResponseMessage(
           channel->getAllClientFd(),
-          this->replyMessage.successJoin(senderNickname, channelName));
+          this->replyMessage.successJoin(senderNickname, senderUsername,
+                                         senderHost, channelName));
       serverParam.addClientAndChannelEachOther(client, channel);
       std::string nicknameList = ":";
 
@@ -119,7 +123,8 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
       }
       commandResponse.addResponseMessage(
           senderSocketFd,
-          this->replyMessage.successJoin(senderNickname, channelName) +
+          this->replyMessage.successJoin(senderNickname, senderUsername,
+                                         senderHost, channelName) +
               this->replyMessage.rplNamReply(senderNickname, channelName,
                                              nicknameList) +
               (channel->getTopic().empty() == true

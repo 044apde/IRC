@@ -62,7 +62,9 @@ CommandResponseParam PartCommand::execute(ServerParam &serverParam,
   } else {
     commandResponse.addMultipleClientResponseMessage(
         channel->getAllClientFd(),
-        this->replyMessage.successPart(senderNickname, channelName, reason));
+        this->replyMessage.successPart(
+            senderNickname, senderClient->getUsername(),
+            senderClient->getHost(), channelName, reason));
     serverParam.removeClientAndChannelEachOther(senderClient, channel);
   }
   return commandResponse;
