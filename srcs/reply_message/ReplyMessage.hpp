@@ -20,15 +20,16 @@ class ReplyMessage {
   std::string rplYourHost(const std::string& senderNickname);
   std::string rplCreated(const std::string& senderNickname);
   std::string rplMyInfo(const std::string& senderNickname);
-  std::string rplNoTopic(const std::string& username,
-                         const std::string& channelName);
-  std::string rplTopic(const std::string& username,
-                       const std::string& channelName,
+  std::string rplNoTopic(const std::string& channelName);
+  std::string rplTopic(const std::string& channelName,
                        const std::string& changedTopic,
                        const std::string& curerntTopic);
   std::string rplInviting(const std::string& username,
                           const std::string& nickname,
                           const std::string& channelName);
+  std::string rplNamReply(const std::string& targetNickname,
+                          const std::string& channelName,
+                          const std::string& nicknameList);
   std::string errUnknownError(const std::string& command,
                               const std::string& info);
   std::string errNoSuchNick(const std::string& username,
@@ -86,6 +87,7 @@ class ReplyMessage {
                           const std::string& targetNickname,
                           std::string comment);
   std::string successMode(const std::string& senderNickname,
+                          const std::string& targetName,
                           const std::string& modeString,
                           std::vector<std::string> argument);
   std::string successNick(std::string senderNickname,

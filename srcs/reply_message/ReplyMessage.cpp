@@ -49,16 +49,14 @@ std::string ReplyMessage::rplMyInfo(const std::string& senderNickname) {
          " itkol \r\n";
 }
 
-std::string ReplyMessage::rplNoTopic(const std::string& username,
-                                     const std::string& channelName) {
-  return "331 " + username + " " + channelName + " :No topic is set\r\n";
+std::string ReplyMessage::rplNoTopic(const std::string& channelName) {
+  return "331 IRC42 " + channelName + " :No topic is set\r\n";
 }
 
-std::string ReplyMessage::rplTopic(const std::string& username,
-                                   const std::string& channelName,
+std::string ReplyMessage::rplTopic(const std::string& channelName,
                                    const std::string& changedTopic,
                                    const std::string& curerntTopic) {
-  return "332 " + username + " " + channelName + " :" +
+  return "332 IRC42 " + channelName + " :" +
          (curerntTopic.empty() == true ? changedTopic : curerntTopic) + "\r\n";
 }
 
@@ -66,6 +64,13 @@ std::string ReplyMessage::rplInviting(const std::string& username,
                                       const std::string& nickname,
                                       const std::string& channelName) {
   return "341 " + username + " " + nickname + " " + channelName + "\r\n";
+}
+
+std::string ReplyMessage::rplNamReply(const std::string& targetNickname,
+                                      const std::string& channelName,
+                                      const std::string& nicknameList) {
+  return "353 " + targetNickname + " = " + channelName + " " + nicknameList +
+         "\r\n";
 }
 
 std::string ReplyMessage::errUnknownError(const std::string& command,
@@ -232,6 +237,7 @@ std::string ReplyMessage::successKick(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successMode(const std::string& senderNickname,
+                                      const std::string& targetName,
                                       const std::string& modeString,
                                       std::vector<std::string> argument) {
   std::string argumentsString;
@@ -240,8 +246,8 @@ std::string ReplyMessage::successMode(const std::string& senderNickname,
     argumentsString += " " + argument[i];
   }
 
-  return ":" + senderNickname + " MODE " + modeString + argumentsString +
-         "\r\n";
+  return ":" + senderNickname + " MODE " + targetName + " " + modeString +
+         argumentsString + "\r\n";
 }
 
 std::string ReplyMessage::successNick(std::string senderNickname,
