@@ -192,3 +192,5 @@ const std::set<const int> Channel::getAllClientFd() {
 size_t Channel::getUserCountInChannel() const { return this->clientMap.size(); }
 
 size_t Channel::getMaxUser() const { return this->maxUser; }
+
+std::map<Client*, bool>& Channel::getClientMap() { return this->clientMap; }
