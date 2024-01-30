@@ -45,7 +45,7 @@ std::string ReplyMessage::rplCreated(const std::string& senderNickname) {
 }
 
 std::string ReplyMessage::rplMyInfo(const std::string& senderNickname) {
-  return "004 " + senderNickname + " IRC42" + " ircd42-1.0.0" + "  " +
+  return "004 " + senderNickname + " IRC42" + " ircd42-1.0.0" + " -" +
          " itkol \r\n";
 }
 
