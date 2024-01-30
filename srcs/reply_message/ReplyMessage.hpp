@@ -81,6 +81,7 @@ class ReplyMessage {
                             const std::string& channelName,
                             const std::string& targetNickname);
   std::string successJoin(const std::string& senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& channelName);
   std::string successKick(const std::string& senderNickname,
                           const std::string& channelName,
@@ -93,6 +94,7 @@ class ReplyMessage {
   std::string successNick(std::string senderNickname,
                           const std::string& newNickname);
   std::string successPart(const std::string& senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& channelName, std::string reason);
   std::string successPing(const std::string& serverName);
   std::string successPrivmsg(const std::string& senderNickname,
