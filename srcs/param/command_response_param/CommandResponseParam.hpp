@@ -22,6 +22,7 @@ class CommandResponseParam {
       const std::string& responseMessage);
   const std::map<const int, const std::string>& getClientResponseMessageMap()
       const;
+  void removeTarget(const int targetClientFd);
 };
 
 #endif

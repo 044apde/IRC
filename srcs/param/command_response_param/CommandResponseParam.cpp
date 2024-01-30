@@ -37,3 +37,8 @@ const std::map<const int, const std::string>&
 CommandResponseParam::getClientResponseMessageMap() const {
   return this->clientResponseMessageMap;
 }
+
+void CommandResponseParam::removeTarget(const int targetClientFd) {
+  this->clientResponseMessageMap.erase(targetClientFd);
+  return;
+}
