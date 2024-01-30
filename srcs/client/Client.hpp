@@ -15,6 +15,7 @@ class Client {
   bool isCheckPass;
   std::string nickname;
   std::string username;
+  std::string host;
   std::set<Channel*> channelSet;
   std::string remainRequestBuffer;
   Client();
@@ -28,10 +29,12 @@ class Client {
   const bool& getIsCheckPass() const;
   const std::string& getNickname() const;
   const std::string& getUsername() const;
+  const std::string& getHost() const;
   std::set<Channel*>& getChannelSet();
   void setIsCheckPassTrue();
   void setNickname(const std::string& nickname);
   void setUsername(const std::string& username);
+  void setHost(const std::string& host);
   void addChannel(Channel* channel);
   void removeChannel(Channel* channel);
   void removeAllChannel();

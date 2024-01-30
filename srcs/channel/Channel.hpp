@@ -59,6 +59,7 @@ class Channel {
   const std::set<const int> getAllClientFd();
   size_t getUserCountInChannel() const;
   size_t getMaxUser() const;
+  std::map<Client*, bool>& getClientMap();
 };
 
 #endif

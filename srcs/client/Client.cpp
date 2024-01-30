@@ -15,6 +15,7 @@ Client& Client::operator=(const Client& other) {
     this->isCheckPass = other.isCheckPass;
     this->nickname = other.nickname;
     this->username = other.username;
+    this->host = other.host;
     this->channelSet = other.channelSet;
     this->remainRequestBuffer = other.remainRequestBuffer;
   }
@@ -28,6 +29,8 @@ const bool& Client::getIsCheckPass() const { return this->isCheckPass; }
 const std::string& Client::getNickname() const { return this->nickname; }
 
 const std::string& Client::getUsername() const { return this->username; }
+
+const std::string& Client::getHost() const { return this->host; }
 
 std::set<Channel*>& Client::getChannelSet() { return this->channelSet; }
 
@@ -43,6 +46,11 @@ void Client::setNickname(const std::string& nickname) {
 
 void Client::setUsername(const std::string& username) {
   this->username = username;
+  return;
+}
+
+void Client::setHost(const std::string& host) {
+  this->host = host;
   return;
 }
 
