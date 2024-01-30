@@ -65,7 +65,6 @@ class Server {
   std::string makePrefix(std::string& clientMesaage);
   std::string makeCommand(std::string& clientMessage);
   std::vector<std::string> makeParams(std::string clientMessage);
-  std::vector<std::string> makeParam(std::string clientMessage);
   std::string makeCombinedBuffer(std::string clientMessage, int targetFD);
 
  public:

@@ -83,7 +83,6 @@ Server::Server(int ac, char** av) {
     serverParam.setServerFd(serverFd);
     serverParam.setServerPassword(serverPassword);
   } catch (const std::exception& e) {
-    // std::cerr << e.what() << '\n';
     std::cerr << "Server start exception : " << e.what() << '\n';  // seonghle
     exit(1);
   }
@@ -184,7 +183,6 @@ std::string Server::makePrefix(std::string& clientMessage) {
   if (clientMessage[0] != ':') {
     prefix = "";
   } else {
-    // while (clientMessage[i] != '\0') {
     while (i != clientMessage.size()) {
       prefix += clientMessage[i];
       ++i;
@@ -197,9 +195,7 @@ std::string Server::makePrefix(std::string& clientMessage) {
 
 std::string Server::makeCommand(std::string& clientMessage) {
   std::string command = "";
-  size_t i = 0;  // seonghle
-
-  // while (clientMessage[i] != '\0') {
+  size_t i = 0;
   while (i != clientMessage.size()) {
     if (clientMessage[i] == ' ') break;
     command += clientMessage[i];
@@ -209,61 +205,36 @@ std::string Server::makeCommand(std::string& clientMessage) {
   return command;
 }
 
-std::vector<std::string> Server::makeParam(std::string clientMessage) {
-  size_t i = 0;  // seonghle
-  std::string temp;
+std::vector<std::string> Server::makeParams(std::string clientMessage) {
   std::vector<std::string> params;
+  std::string temp;
+  int countSpace = 0;
+  size_t i = -1;
 
-  // while (true) {
-  while (i < clientMessage.size()) {
-    // seonghle
-    // if (clientMessage[i] == '\0')
-    // if (i == clientMessage.size()) {
-    //   break;
-    // } else
-    if (clientMessage[i] == '\n' || clientMessage[i] == '\r') {
-      break;
-    } else if (clientMessage[i] == ' ') {
-      ++i;
+  if (clientMessage.size() == 0 || clientMessage[0] != ' ')
+    throw std::runtime_error("클라이언트 메세지가 형식에 맞지 않습니다.");
+  while (++i <= clientMessage.size() - 1) {
+    if (clientMessage[i] == ' ' && ++countSpace) {
       continue;
-    } else if (clientMessage[i] == ':')  // trailing
-    {
+    } else if (clientMessage[i] == ':') {
+      if (countSpace == 0)
+        throw std::runtime_error("클라이언트 메세지가 형식에 맞지 않습니다.");
       temp = "";
-      // seonghle
-      while (i != clientMessage.size() && clientMessage[i] != '\n' &&
-             clientMessage[i] != '\r' && clientMessage[i] != '\0') {
-        temp += clientMessage[i];
-        ++i;
-      }
+      while (i <= clientMessage.size() - 1) temp += clientMessage[i++];
       params.push_back(temp);
       return params;
     } else {
+      if (countSpace == 0)
+        throw std::runtime_error("클라이언트 메세지가 형식에 맞지 않습니다.");
       temp = "";
-      // seonghle
-      while (i != clientMessage.size() && clientMessage[i] != '\n' &&
-             clientMessage[i] != '\r' && clientMessage[i] != '\0' &&
-             clientMessage[i] != ' ') {
-        temp += clientMessage[i];
-        ++i;
+      while (i <= clientMessage.size() - 1) {
+        if (clientMessage[i] == ' ') break;
+        temp += clientMessage[i++];
       }
       params.push_back(temp);
     }
   }
   return params;
-}
-
-std::vector<std::string> Server::makeParams(std::string clientMessage) {
-  std::vector<std::string> params;
-  int i = 0;
-
-  // seonghle
-  if (clientMessage.size() > 0 && clientMessage[i] != ' ')
-    throw std::runtime_error(
-        "클라이언트 메세지의 파라미터 형식이 바르지 않습니다.");
-  else {
-    params = makeParam(clientMessage);
-    return params;
-  }
 }
 
 std::string Server::makeCombinedBuffer(std::string clientMessage,
@@ -274,15 +245,13 @@ std::string Server::makeCombinedBuffer(std::string clientMessage,
 
   if (client == NULL) throw std::runtime_error("failed to load client");
   remainRequestBuffer = client->popRemainRequestBuffer();
-  std::cout << std::endl << "remain : " << remainRequestBuffer << std::endl;
   combinedBuffer = remainRequestBuffer + clientMessage;
-  std::cout << "\ncombined buffer : '" << combinedBuffer << "'\n";
   return combinedBuffer;
 }
 
 void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
                                  std::vector<struct kevent>& eventvec) {
-  size_t i = -1;  // seonghle
+  size_t i = 0;
   Client* client = serverParam.getClient(clientSocket);
   std::string completeMessage;
   std::string prefix;
@@ -290,42 +259,29 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
   std::vector<std::string> params;
   CommandResponseParam cmdresparam;
 
-  // seonghle
-  // while (combinedBuffer[++i] != '\0') {
-  while (++i < combinedBuffer.size() - 1) {
-    if (serverParam.getClient(clientSocket) == NULL) {
-      return;
-    }
-    if (combinedBuffer[i] == '\r' && combinedBuffer[i + 1] == '\n') {
-      completeMessage = combinedBuffer.substr(0, i);
-      std::cout << "complete message: '" << completeMessage << "'\n";
-      try {
-        prefix = makePrefix(completeMessage);
-        std::cout << "prefix message: '" << prefix << "'\n";
-        command = makeCommand(completeMessage);
-        std::cout << "command message: '" << command << "'\n";
-        params = makeParams(completeMessage);
-        for (size_t i = 0; i < params.size(); i++)
-          std::cout << "param: '" << params[i] << "'\n";
-
-        cmdresparam = commandInvoker.execute(
-            serverParam, TokenParam(clientSocket, prefix, command, params));
-        sendCommand(cmdresparam, clientSocket, eventvec);
-      } catch (const std::exception& e) {
-        // std::cerr << e.what() << '\n';
-        std::cerr << "handleCombindBuffer exception : " << e.what()
-                  << '\n';  // seonghle
-        return;
-      }
-      if (i + 2 >= combinedBuffer.size()) {
-        return;
-      }
-      combinedBuffer = combinedBuffer.substr(i + 2);
-      i = 0;  // seonghle
-      std::cout << "re combined message: '" << combinedBuffer << "'\n";
+  if (client == NULL)
+    throw std::runtime_error("클라이언트를 불러오는데 실패했습니다.");
+  while (i <= combinedBuffer.size() - 1) {
+    if (combinedBuffer[i] == '\n' && combinedBuffer[i - 1] == '\r') {
+      completeMessage = combinedBuffer.substr(0, i - 1);
+      std::cout << "complete messgae: '" << completeMessage << "'\n";
+      combinedBuffer = combinedBuffer.substr(i + 1);
+      prefix = makePrefix(completeMessage);
+      std::cout << "prefix: '" << prefix << "'\n";
+      command = makeCommand(completeMessage);
+      std::cout << "command: " << command << "'\n";
+      params = makeParams(completeMessage);
+      for (size_t i = 0; i < params.size(); i++)
+        std::cout << "param: " << params[i] << "\n";
+      cmdresparam = commandInvoker.execute(
+          serverParam, TokenParam(clientSocket, prefix, command, params));
+      sendCommand(cmdresparam, clientSocket, eventvec);
+      if (combinedBuffer.empty() == true) break;
+      i = 0;
+    } else {
+      ++i;
     }
   }
-  client->pushRemainRequestBuffer(combinedBuffer);
   return;
 }
 
@@ -334,8 +290,6 @@ void Server::manageRequest(int targetFd, std::vector<struct kevent>& eventvec) {
 
   std::cout << "[manage request]\n";
   std::string clientMessage = getMessage(targetFd);
-  std::cout << "client message: '" << clientMessage << "'";
-  // if (clientMessage.compare("") == 0) {
   if (clientMessage.empty() == true) {
     disconnectClient(targetFd, eventvec);
     return;
@@ -352,10 +306,7 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
   for (int i = 0; i < eventCount; i++) {
     targetFd = eventlist[i].ident;
     std::cout << "target fd : " << targetFd << "\n";
-    if (eventlist[i].flags & EV_ERROR)
-      // seonghle
-      // throw std::runtime_error("faild to make succcesfully eventlist");
-      continue;
+    if (eventlist[i].flags & EV_ERROR) continue;
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
