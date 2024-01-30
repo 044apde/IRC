@@ -32,24 +32,29 @@ bool NickCommand::isValidParamter(CommandResponseParam& commandResponse,
 CommandResponseParam NickCommand::execute(ServerParam& serverParam,
                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
     return commandResponse;
   }
 
   const std::vector<std::string>& parameter = tokenParam.getParameter();
-  const int& senderSocketFd = tokenParam.getSenderSocketFd();
   Client* senderClient = serverParam.getClient(senderSocketFd);
   const std::string prevNickname = senderClient->getNickname();
   const std::string newNickname = parameter[0];
 
   if (isValidNickname(newNickname) == false) {
     commandResponse.addResponseMessage(
-        senderSocketFd,
-        this->replyMessage.errErroneusNickname("", newNickname));
+        senderSocketFd, this->replyMessage.errErroneusNickname(newNickname));
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
   } else if (serverParam.getClientByNickname(newNickname) != NULL) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errNicknameInUse("", newNickname));
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setNickname(newNickname);
     commandResponse.addMultipleClientResponseMessage(

@@ -35,12 +35,14 @@ bool UserCommand::isValidParamter(CommandResponseParam& commandResponse,
 CommandResponseParam UserCommand::execute(ServerParam& serverParam,
                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
+  int senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
     return commandResponse;
   }
 
-  int senderSocketFd = tokenParam.getSenderSocketFd();
   const std::vector<std::string> parameter = tokenParam.getParameter();
   const std::string& username = parameter[0];
   Client* senderClient = serverParam.getClient(senderSocketFd);
@@ -49,9 +51,13 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
       senderClient->getNickname().empty() == true) {
     commandResponse.addResponseMessage(senderSocketFd,
                                        this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
   } else if (senderClient->getUsername().empty() == false) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setUsername(username);
     const std::string& senderNickname = senderClient->getNickname();
