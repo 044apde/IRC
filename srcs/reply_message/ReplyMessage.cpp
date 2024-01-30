@@ -125,9 +125,8 @@ std::string ReplyMessage::errNoNicknameGiven(const std::string& username) {
   return "431 " + username + " :No nickname given\r\n";
 }
 
-std::string ReplyMessage::errErroneusNickname(const std::string& username,
-                                              const std::string& nickname) {
-  return "432 " + username + " " + nickname + " :Erroneus nickname\r\n";
+std::string ReplyMessage::errErroneusNickname(const std::string& nickname) {
+  return "432 IRC42 " + nickname + " :Erroneus nickname\r\n";
 }
 
 std::string ReplyMessage::errNicknameInUse(const std::string& username,

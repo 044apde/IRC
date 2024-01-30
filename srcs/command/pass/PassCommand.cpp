@@ -34,13 +34,15 @@ bool PassCommand::isValidParamter(CommandResponseParam& commandResponse,
 CommandResponseParam PassCommand::execute(ServerParam& serverParam,
                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
     return commandResponse;
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
-  const int& senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string& password = parameter[0];
   Client* senderClient = serverParam.getClient(senderSocketFd);
 
@@ -52,6 +54,10 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
         senderSocketFd, this->replyMessage.errPasswdMismatch(""));
   } else {
     senderClient->setIsCheckPassTrue();
+  }
+  if (commandResponse.getClientResponseMessageMap().empty() == false) {
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
   }
   return commandResponse;
 }

@@ -48,8 +48,7 @@ class ReplyMessage {
   std::string errUnknownCommand(const std::string& username,
                                 const std::string& command);
   std::string errNoNicknameGiven(const std::string& username);
-  std::string errErroneusNickname(const std::string& username,
-                                  const std::string& nickname);
+  std::string errErroneusNickname(const std::string& nickname);
   std::string errNicknameInUse(const std::string& username,
                                const std::string& nickname);
   std::string errUserNotInChannel(const std::string& username,
