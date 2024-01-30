@@ -37,7 +37,7 @@ bool JoinCommand::isValidParamter(CommandResponseParam& commandResponse,
     return false;
   }
   if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
-      isTrailing(parameter[1]) == true ||
+      (parameter.size() == 2 && isTrailing(parameter[1]) == true) ||
       isValidChannelName(parameter[0]) == false) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),

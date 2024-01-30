@@ -119,6 +119,9 @@ bool ModeCommand::isValidParamter(CommandResponseParam &commandResponse,
         this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
     return false;
   }
+  if (parameter[0].empty() == false && parameter[0][0] != '#') {
+    return false;
+  }
   if (isValidModeString(parameter[1]) == false ||
       isValidModeArgument(parameter) == false) {
     commandResponse.addResponseMessage(
