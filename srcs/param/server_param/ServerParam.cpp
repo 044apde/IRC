@@ -61,7 +61,23 @@ void ServerParam::addNewChannel(const std::string& channelName,
 void ServerParam::removeClient(const int& clientFd) {
   assert(clientFd > 2);
   std::map<int, Client*>::iterator it = this->clientMap.find(clientFd);
-  assert(it != this->clientMap.end());
+  if (it == this->clientMap.end()) {
+    return;
+  }
+  for (std::map<std::string, Channel*>::iterator channelIt =
+           this->channelMap.begin();
+       channelIt != this->channelMap.end(); channelIt++) {
+    if (channelIt->second->getClientMap().find(it->second) !=
+        channelIt->second->getClientMap().end()) {
+      channelIt->second->removeClient(it->second);
+    }
+    if (channelIt->second->getUserCountInChannel() == 0) {
+      Channel* deleteChannel = channelIt->second;
+      this->channelMap.erase(channelIt);
+      delete deleteChannel;
+      deleteChannel = NULL;
+    }
+  }
   it->second->removeAllChannel();
   delete it->second;
   it->second = NULL;
@@ -124,5 +140,11 @@ void ServerParam::removeClientAndChannelEachOther(Client* client,
   assert(channel != NULL);
   client->removeChannel(channel);
   channel->removeClient(client);
+  if (channel->getUserCountInChannel() == 0) {
+    Channel* deleteChannel = channel;
+    channelMap.erase(channel->getChannelName());
+    delete deleteChannel;
+    deleteChannel = NULL;
+  }
   return;
 }
