@@ -5,6 +5,7 @@
 #include <cassert>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "../../channel/Channel.hpp"
 #include "../../client/Client.hpp"
@@ -28,7 +29,7 @@ class ServerParam {
   void addNewClient(const int& clientFd);
   void addNewChannel(const std::string& channelName, Client* firstClient);
   void removeClient(const int& clientFd);
-  void removeChannel(const std::string& channelName);
+  bool removeChannel(const std::string channelName);
   Client* getClient(const int& clientFd) const;
   Client* getClientByNickname(const std::string& nickname) const;
   Channel* getChannel(const std::string& channelName) const;
