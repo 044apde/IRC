@@ -45,6 +45,7 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
 
   const std::vector<std::string> parameter = tokenParam.getParameter();
   const std::string& username = parameter[0];
+  const std::string& host = parameter[2];
   Client* senderClient = serverParam.getClient(senderSocketFd);
 
   if (senderClient->getIsCheckPass() == false ||
@@ -60,6 +61,7 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
     serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setUsername(username);
+    senderClient->setHost(host);
     const std::string& senderNickname = senderClient->getNickname();
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.rplWelcome(senderNickname) +

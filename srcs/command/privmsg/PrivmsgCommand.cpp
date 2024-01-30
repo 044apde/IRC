@@ -75,9 +75,11 @@ CommandResponseParam PrivmsgCommand::execute(ServerParam &serverParam,
         senderSocketFd, this->replyMessage.errCannotSendToChan("", sendTarget));
   } else if (targetClient != NULL) {
     // 개인 메세지
-    commandResponse.addResponseMessage(
-        senderSocketFd, this->replyMessage.successPrivmsg(senderClientNickname,
-                                                          sendTarget, message));
+    // commandResponse.addResponseMessage(
+    //     senderSocketFd,
+    //     this->replyMessage.successPrivmsg(senderClientNickname,
+    //                                                       sendTarget,
+    //                                                       message));
     commandResponse.addResponseMessage(
         targetClient->getClientFd(),
         this->replyMessage.successPrivmsg(senderClientNickname, sendTarget,
@@ -88,6 +90,7 @@ CommandResponseParam PrivmsgCommand::execute(ServerParam &serverParam,
         targetChannel->getAllClientFd(),
         this->replyMessage.successPrivmsg(senderClientNickname, sendTarget,
                                           message));
+    commandResponse.removeTarget(senderSocketFd);
   }
   return commandResponse;
 }

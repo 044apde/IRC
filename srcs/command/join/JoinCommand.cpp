@@ -59,7 +59,7 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string& channelName = parameter[0];
   std::string channelKey;
-  if (parameter[1].empty() == false) {
+  if (parameter.size() == 2 && parameter[1].empty() == false) {
     channelKey = parameter[1];
   }
   Client* client = serverParam.getClient(senderSocketFd);
@@ -78,7 +78,9 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
       serverParam.addNewChannel(channelName, client);
       commandResponse.addResponseMessage(
           senderSocketFd,
-          this->replyMessage.successJoin(senderNickname, channelName));
+          this->replyMessage.successJoin(senderNickname, channelName) +
+              this->replyMessage.rplNamReply(senderNickname, channelName,
+                                             ":@" + senderNickname));
     }
   } else if (channel->isSetKeyChannel() == true &&
              (parameter.size() < 2 ||
@@ -106,14 +108,24 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
       commandResponse.addMultipleClientResponseMessage(
           channel->getAllClientFd(),
           this->replyMessage.successJoin(senderNickname, channelName));
+      serverParam.addClientAndChannelEachOther(client, channel);
+      std::string nicknameList = ":";
+
+      for (std::map<Client*, bool>::iterator it =
+               channel->getClientMap().begin();
+           it != channel->getClientMap().end(); ++it) {
+        nicknameList +=
+            (it->second == true ? "@" : "") + it->first->getNickname() + " ";
+      }
       commandResponse.addResponseMessage(
           senderSocketFd,
           this->replyMessage.successJoin(senderNickname, channelName) +
+              this->replyMessage.rplNamReply(senderNickname, channelName,
+                                             nicknameList) +
               (channel->getTopic().empty() == true
                    ? ""
-                   : this->replyMessage.rplTopic("", channelName, "",
+                   : this->replyMessage.rplTopic(channelName, "",
                                                  channel->getTopic())));
-      serverParam.addClientAndChannelEachOther(client, channel);
     }
   }
   return commandResponse;

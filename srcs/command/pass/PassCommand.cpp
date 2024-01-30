@@ -49,15 +49,15 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
   if (senderClient->getIsCheckPass() == true) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
+    commandResponse.addResponseMessage(-1, "");
+    serverParam.removeClient(senderSocketFd);
   } else if (password != serverParam.getServerPassword()) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errPasswdMismatch(""));
-  } else {
-    senderClient->setIsCheckPassTrue();
-  }
-  if (commandResponse.getClientResponseMessageMap().empty() == false) {
     commandResponse.addResponseMessage(-1, "");
     serverParam.removeClient(senderSocketFd);
+  } else {
+    senderClient->setIsCheckPassTrue();
   }
   return commandResponse;
 }

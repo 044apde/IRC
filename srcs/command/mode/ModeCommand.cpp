@@ -323,8 +323,8 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
     }
     commandResponse.addMultipleClientResponseMessage(
         channel->getAllClientFd(),
-        this->replyMessage.successMode(senderClient->getNickname(), modeString,
-                                       arguments));
+        this->replyMessage.successMode(senderClient->getNickname(), channelName,
+                                       modeString, arguments));
   }
   return commandResponse;
 }

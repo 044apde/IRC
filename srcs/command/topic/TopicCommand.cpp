@@ -77,12 +77,11 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   } else {
     if (channel->getTopic().empty() == true) {
       commandResponse.addResponseMessage(
-          senderSocketFd, this->replyMessage.rplNoTopic("", channelName));
+          senderSocketFd, this->replyMessage.rplNoTopic(channelName));
     } else {
       commandResponse.addResponseMessage(
-          senderSocketFd,
-          this->replyMessage.rplTopic("", channelName, changedTopic,
-                                      channel->getTopic()));
+          senderSocketFd, this->replyMessage.rplTopic(channelName, changedTopic,
+                                                      channel->getTopic()));
     }
   }
   return commandResponse;

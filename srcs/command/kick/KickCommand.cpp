@@ -76,6 +76,7 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
         channel->getAllClientFd(),
         this->replyMessage.successKick(senderNickname, channelName,
                                        targetNickname, commnet));
+    serverParam.removeClientAndChannelEachOther(kickTargetClient, channel);
   }
   return commandResponse;
 }
