@@ -21,7 +21,6 @@
 #include "../param/server_param/ServerParam.hpp"
 #include "../param/token_param/TokenParam.hpp"
 
-// 클래스 임시 선언
 class CommandInvoker;
 
 #define MINPORT 49152
