@@ -6,12 +6,15 @@ void Server::sendCommand(int targetFd) {
   std::vector<std::string> replyMessages;
   Client* client;
 
+  std::cout << "[manage reply]\n";
   client = serverParam.getClient(targetFd);
   replyMessages = client->popReplyMessages();
   for (size_t i = 0; i < replyMessages.size(); i++) {
     if (send(targetFd, replyMessages[i].c_str(), replyMessages[i].size(), 0) ==
         -1)
       client->pushReplyMessages(replyMessages[i]);
+    else
+      std::cout << "Send message: " << replyMessages[i];
   }
   return;
 }
@@ -254,9 +257,8 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
     } else {
       Client* client = serverParam.getClient(iter->first);
       client->pushReplyMessages(iter->second);
-      std::cout << "쓰기 이벤트 등록";
-      enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0,
-                       NULL);
+      enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ADD | EV_ONESHOT,
+                       0, 0, NULL);
     }
   }
   return;
@@ -323,10 +325,8 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
-      if (eventlist[i].filter == EVFILT_WRITE) {
-        std::cout << "클라이언트 " << targetFd << " 쓰기 이벤트 발생\n";
-        sendCommand(targetFd);
-      }
+      if (eventlist[i].filter == EVFILT_WRITE) sendCommand(targetFd);
+
       if (eventlist[i].filter == EVFILT_READ) manageRequest(targetFd, eventVec);
     }
   }
