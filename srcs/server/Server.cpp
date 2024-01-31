@@ -163,14 +163,11 @@ std::string Server::getMessage(int clientSocket) {
 void Server::disconnectClient(int clientSocket,
                               std::vector<struct kevent>& eventvec) {
   struct kevent temp;
-  EV_SET(&temp, clientSocket, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-  std::cout << "client '" << clientSocket << "' is offline\n";
+  EV_SET(&temp, clientSocket, EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0,
+         NULL);
+  std::cout << "disconnect '" << clientSocket << "\n";
   eventvec.push_back(temp);
-
-  // seonghle
-  std::cerr << "close socket fd : " << clientSocket << std::endl;
   close(clientSocket);
-  // 뭔가 추가적으로 해야할 일이 있음
   return;
 }
 
@@ -247,6 +244,21 @@ std::string Server::makeCombinedBuffer(std::string clientMessage,
   return combinedBuffer;
 }
 
+void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
+                                   std::vector<struct kevent>& eventvec,
+                                   int clientSocket) {
+  std::map<const int, const std::string>::const_iterator iter;
+
+  iter = cmdResParam.getClientResponseMessageMap().begin();
+  for (; iter != cmdResParam.getClientResponseMessageMap().end(); iter++) {
+    if (iter->first == -1) {
+      disconnectClient(clientSocket, eventvec);
+      continue;
+    }
+  }
+  return;
+}
+
 void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
                                  std::vector<struct kevent>& eventvec) {
   size_t i = 0;
@@ -273,6 +285,7 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
         std::cout << "param: " << params[i] << "\n";
       cmdresparam = commandInvoker.execute(
           serverParam, TokenParam(clientSocket, prefix, command, params));
+      // setClientReplyMessage();
       sendCommand(cmdresparam, clientSocket, eventvec);
       if (combinedBuffer.empty() == true) break;
       i = 0;

@@ -65,6 +65,9 @@ class Server {
   std::string makeCommand(std::string& clientMessage);
   std::vector<std::string> makeParams(std::string clientMessage);
   std::string makeCombinedBuffer(std::string clientMessage, int targetFD);
+  void setClientReplyMessage(CommandResponseParam cmdResParam,
+                             std::vector<struct kevent>& eventvec,
+                             int clientSocket);
 
  public:
   Server(int ac, char** av);
