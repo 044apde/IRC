@@ -99,3 +99,16 @@ const std::set<const int> Client::getAllChannelClientFd() const {
   }
   return allChannelClientFdSet;
 }
+
+std::vector<std::string> Client::popReplyMessages() {
+  std::vector<std::string> result;
+
+  result = this->replyMessages;
+  this->replyMessages.clear();
+  return result;
+}
+
+void Client::pushReplyMessages(std::string replyMessage) {
+  this->replyMessages.push_back(replyMessage);
+  return;
+}

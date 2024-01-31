@@ -8,7 +8,6 @@ int main(int ac, char** av) {
   try {
     server.run();
   } catch (const std::exception& e) {
-    // std::cerr << e.what() << '\n';
     std::cerr << typeid(e).name() << '\n';                 // seonghle
     std::cerr << "main exception : " << e.what() << '\n';  // seonghle
   }

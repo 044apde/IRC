@@ -37,8 +37,7 @@ class Server {
   ServerParam serverParam;
   CommandInvoker commandInvoker;
 
-  void sendCommand(CommandResponseParam& responseParam, int clientSocket,
-                   std::vector<struct kevent>& eventvec);
+  void sendCommand(int targetFd);
   Server();
   Server(const Server& obj);
   Server& operator=(const Server& obj);
@@ -65,6 +64,9 @@ class Server {
   std::string makeCommand(std::string& clientMessage);
   std::vector<std::string> makeParams(std::string clientMessage);
   std::string makeCombinedBuffer(std::string clientMessage, int targetFD);
+  void setClientReplyMessage(CommandResponseParam cmdResParam,
+                             std::vector<struct kevent>& eventvec,
+                             int clientSocket);
 
  public:
   Server(int ac, char** av);
