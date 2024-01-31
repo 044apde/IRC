@@ -50,7 +50,7 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
   if (isValidNickname(newNickname) == false) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errErroneusNickname(newNickname));
-    if (prevNickname.empty() == false) {
+    if (prevNickname.empty() == true) {
       commandResponse.addResponseMessage(-1, "");
       serverParam.removeClient(senderSocketFd);
     }

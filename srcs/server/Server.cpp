@@ -8,10 +8,6 @@ void Server::sendCommand(int targetFd) {
 
   std::cout << "[manage reply]\n";
   client = serverParam.getClient(targetFd);
-  // seonghle
-  if (client == NULL) {
-    return;
-  }
   replyMessages = client->popReplyMessages();
   for (size_t i = 0; i < replyMessages.size(); i++) {
     if (send(targetFd, replyMessages[i].c_str(), replyMessages[i].size(), 0) ==
@@ -85,7 +81,7 @@ Server::Server(int ac, char** av) {
     serverParam.setServerFd(serverFd);
     serverParam.setServerPassword(serverPassword);
   } catch (const std::exception& e) {
-    std::cerr << "Server start exception : " << e.what() << '\n';
+    std::cerr << "Server start exception : " << e.what() << '\n';  // seonghle
     exit(1);
   }
   return;
@@ -133,7 +129,7 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
                              (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
       -1)
     throw std::runtime_error("faild to accpet client");
-  fcntl(clientSocket, F_SETFL, O_NONBLOCK);
+  fcntl(clientSocket, F_SETFL, O_NONBLOCK);  // seonghle
   std::cout << "Accept client: " << clientSocket << "\n";
   serverParam.addNewClient(clientSocket);
   enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,
@@ -263,9 +259,9 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
       Client* client = serverParam.getClient(iter->first);
       if (client != NULL) {
         client->pushReplyMessages(iter->second);
-      }
-      enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ADD | EV_ONESHOT,
+        enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ADD | EV_ONESHOT,
                        0, 0, NULL);
+      }
     }
   }
   return;
@@ -273,7 +269,7 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
 
 void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
                                  std::vector<struct kevent>& eventvec) {
-  size_t i = 0;
+  int i = 0;
   Client* client = serverParam.getClient(clientSocket);
   std::string completeMessage;
   std::string prefix;
@@ -283,10 +279,11 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
 
   if (client == NULL)
     throw std::runtime_error("클라이언트를 불러오는데 실패했습니다.");
-  while (i <= combinedBuffer.size() - 1) {
+  while (i <= static_cast<int>(combinedBuffer.size()) - 1) {
     if (combinedBuffer[i] == '\n' && combinedBuffer[i - 1] == '\r') {
       try {
         completeMessage = combinedBuffer.substr(0, i - 1);
+        std::cout << "this : '" << completeMessage << "'\n";
         combinedBuffer = combinedBuffer.substr(i + 1);
         prefix = makePrefix(completeMessage);
         command = makeCommand(completeMessage);
@@ -296,13 +293,15 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
         setClientReplyMessage(cmdresparam, eventvec, clientSocket);
         if (combinedBuffer.empty() == true) break;
       } catch (std::exception& e) {
-        ;
+        std::cerr << e.what() << "\n";
       }
-      i = 0;
+        i = 0;
+      client->pushRemainRequestBuffer(combinedBuffer);
     } else {
       ++i;
     }
   }
+  client->pushRemainRequestBuffer(combinedBuffer);
   return;
 }
 
