@@ -239,7 +239,7 @@ std::string ReplyMessage::successKick(const std::string& senderNickname,
   if (comment.empty() == false) {
     comment = " " + comment;
   }
-  return ":" + senderNickname + "!" + username + "@" + host + "KICK " +
+  return ":" + senderNickname + "!" + username + "@" + host + " KICK " +
          channelName + " " + targetNickname + comment + "\r\n";
 }
 
@@ -264,9 +264,9 @@ std::string ReplyMessage::successNick(std::string senderNickname,
                                       const std::string& host,
                                       const std::string& newNickname) {
   if (senderNickname.empty() == false) {
-    senderNickname = ":" + senderNickname + " ";
+    senderNickname = ":" + senderNickname;
   }
-  return senderNickname + "!" + username + "@" + host + "NICK " + newNickname +
+  return senderNickname + "!" + username + "@" + host + " NICK " + newNickname +
          "\r\n";
 }
 
