@@ -215,9 +215,11 @@ std::string ReplyMessage::errChaNoPrivsNeeded(const std::string& username,
 
 std::string ReplyMessage::successInvite(const std::string& senderNickname,
                                         const std::string& channelName,
+                                        const std::string& host,
+                                        const std::string& username,
                                         const std::string& targetNickname) {
-  return ":" + senderNickname + " INVITE " + targetNickname + " " +
-         channelName + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " INVITE " +
+         targetNickname + " " + channelName + "\r\n";
 }
 
 std::string ReplyMessage::successJoin(const std::string& senderNickname,

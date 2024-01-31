@@ -79,6 +79,8 @@ class ReplyMessage {
                                   const std::string& channelName);
   std::string successInvite(const std::string& senderNickname,
                             const std::string& channelName,
+                            const std::string& host,
+                            const std::string& username,
                             const std::string& targetNickname);
   std::string successJoin(const std::string& senderNickname,
                           const std::string& username, const std::string& host,
