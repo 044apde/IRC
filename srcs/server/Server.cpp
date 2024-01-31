@@ -14,7 +14,7 @@ void Server::sendCommand(int targetFd) {
         -1)
       client->pushReplyMessages(replyMessages[i]);
     else
-      std::cout << "Send message: " << replyMessages[i];
+      std::cout << replyMessages[i];
   }
   return;
 }
@@ -278,20 +278,19 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
     throw std::runtime_error("클라이언트를 불러오는데 실패했습니다.");
   while (i <= combinedBuffer.size() - 1) {
     if (combinedBuffer[i] == '\n' && combinedBuffer[i - 1] == '\r') {
-      completeMessage = combinedBuffer.substr(0, i - 1);
-      std::cout << "complete messgae: '" << completeMessage << "'\n";
-      combinedBuffer = combinedBuffer.substr(i + 1);
-      prefix = makePrefix(completeMessage);
-      std::cout << "prefix: '" << prefix << "'\n";
-      command = makeCommand(completeMessage);
-      std::cout << "command: " << command << "'\n";
-      params = makeParams(completeMessage);
-      for (size_t i = 0; i < params.size(); i++)
-        std::cout << "param: " << params[i] << "\n";
-      cmdresparam = commandInvoker.execute(
-          serverParam, TokenParam(clientSocket, prefix, command, params));
-      setClientReplyMessage(cmdresparam, eventvec, clientSocket);
-      if (combinedBuffer.empty() == true) break;
+      try {
+        completeMessage = combinedBuffer.substr(0, i - 1);
+        combinedBuffer = combinedBuffer.substr(i + 1);
+        prefix = makePrefix(completeMessage);
+        command = makeCommand(completeMessage);
+        params = makeParams(completeMessage);
+        cmdresparam = commandInvoker.execute(
+            serverParam, TokenParam(clientSocket, prefix, command, params));
+        setClientReplyMessage(cmdresparam, eventvec, clientSocket);
+        if (combinedBuffer.empty() == true) break;
+      } catch (std::exception& e) {
+        ;
+      }
       i = 0;
     } else {
       ++i;
