@@ -129,8 +129,8 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   fcntl(clientSocket, F_SETFL, O_NONBLOCK);  // seonghle
   std::cout << "Accept client: " << clientSocket << "\n";
   serverParam.addNewClient(clientSocket);
-  enrollEventToVec(eventVec, clientSocket, EVFILT_READ | EVFILT_WRITE,
-                   EV_ADD | EV_CLEAR, 0, 0, NULL);
+  enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,
+                   NULL);
   return;
 }
 
