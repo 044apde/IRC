@@ -260,11 +260,14 @@ std::string ReplyMessage::successMode(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successNick(std::string senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& newNickname) {
   if (senderNickname.empty() == false) {
     senderNickname = ":" + senderNickname + " ";
   }
-  return senderNickname + "NICK " + newNickname + "\r\n";
+  return senderNickname + "!" + username + "@" + host + "NICK " + newNickname +
+         "\r\n";
 }
 
 std::string ReplyMessage::successPart(const std::string& senderNickname,

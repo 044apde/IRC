@@ -96,6 +96,7 @@ class ReplyMessage {
                           const std::string& modeString,
                           std::vector<std::string> argument);
   std::string successNick(std::string senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& newNickname);
   std::string successPart(const std::string& senderNickname,
                           const std::string& username, const std::string& host,
