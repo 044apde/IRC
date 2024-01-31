@@ -131,13 +131,11 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
                              (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
       -1)
     throw std::runtime_error("faild to accpet client");
-  // flag = fcntl(clientSocket, F_GETFL, 0);
-  // fcntl(clientSocket, F_SETFL, flag | O_NONBLOCK);
   fcntl(clientSocket, F_SETFL, O_NONBLOCK);  // seonghle
   std::cout << "Accept client: " << clientSocket << "\n";
   serverParam.addNewClient(clientSocket);
-  enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,
-                   NULL);
+  enrollEventToVec(eventVec, clientSocket, EVFILT_READ | EVFILT_WRITE,
+                   EV_ADD | EV_CLEAR, 0, 0, NULL);
   return;
 }
 
@@ -310,7 +308,9 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
-      manageRequest(targetFd, eventVec);
+      if (eventlist[i].flags & EVFILT_READ) manageRequest(targetFd, eventVec);
+      if (eventlist[i].flags & EVFILT_WRITE)
+        std::cout << targetFd << "소켓 쓰기 가능\n";
     }
   }
   return;
