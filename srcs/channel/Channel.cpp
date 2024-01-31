@@ -2,7 +2,12 @@
 
 Channel::Channel() : channelName("") {}
 
-Channel::Channel(const std::string& channelName) : channelName(channelName) {}
+Channel::Channel(const std::string& channelName) : channelName(channelName), 
+                                                    isInviteOnly(false),
+                                                    isSetTopicOpOnly(false),
+                                                    isSetKey(false),
+                                                    isSetMaxUser(false),
+                                                    maxUser(0) {}
 
 Channel::~Channel() {}
 

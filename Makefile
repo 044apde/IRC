@@ -1,7 +1,7 @@
 TARGET = ircserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
-SOURCES = main.cpp \
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+SOURCES = main.cpp \ 
 	srcs/channel/Channel.cpp \
 	srcs/client/Client.cpp \
 	srcs/command/invite/InviteCommand.cpp \
