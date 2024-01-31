@@ -37,8 +37,7 @@ class Server {
   ServerParam serverParam;
   CommandInvoker commandInvoker;
 
-  void sendCommand(CommandResponseParam& responseParam, int clientSocket,
-                   std::vector<struct kevent>& eventvec);
+  void sendCommand(int targetFd);
   Server();
   Server(const Server& obj);
   Server& operator=(const Server& obj);
