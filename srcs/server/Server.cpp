@@ -123,7 +123,6 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   int clientSocket;
   struct sockaddr_in clientAddr;
   socklen_t clientAddrLen = sizeof(clientAddr);
-  // int flag;
 
   if ((clientSocket = accept(serverParam.getServerFd(),
                              (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
