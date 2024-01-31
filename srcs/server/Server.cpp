@@ -254,7 +254,8 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
     } else {
       Client* client = serverParam.getClient(iter->first);
       client->pushReplyMessages(iter->second);
-      enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ONESHOT, 0, 0,
+      std::cout << "쓰기 이벤트 등록";
+      enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0,
                        NULL);
     }
   }
@@ -322,8 +323,11 @@ void Server::handleEvent(struct kevent* eventlist, int eventCount,
     if (targetFd == serverParam.getServerFd()) {
       acceptClient(eventVec);
     } else {
-      if (eventlist[i].flags & EVFILT_READ) manageRequest(targetFd, eventVec);
-      if (eventlist[i].flags & EVFILT_WRITE) sendCommand(targetFd);
+      if (eventlist[i].filter == EVFILT_WRITE) {
+        std::cout << "클라이언트 " << targetFd << " 쓰기 이벤트 발생\n";
+        sendCommand(targetFd);
+      }
+      if (eventlist[i].filter == EVFILT_READ) manageRequest(targetFd, eventVec);
     }
   }
   return;
