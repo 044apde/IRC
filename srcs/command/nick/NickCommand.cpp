@@ -57,8 +57,9 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
   } else if (serverParam.getClientByNickname(newNickname) != NULL) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errNicknameInUse("", newNickname));
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
+    // seonghle
+    // commandResponse.addResponseMessage(-1, "");
+    // serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setNickname(newNickname);
     commandResponse.addMultipleClientResponseMessage(

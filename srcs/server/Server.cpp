@@ -8,6 +8,10 @@ void Server::sendCommand(int targetFd) {
 
   std::cout << "[manage reply]\n";
   client = serverParam.getClient(targetFd);
+  // seonghle
+  if (client == NULL) {
+    return;
+  }
   replyMessages = client->popReplyMessages();
   for (size_t i = 0; i < replyMessages.size(); i++) {
     if (send(targetFd, replyMessages[i].c_str(), replyMessages[i].size(), 0) ==
@@ -81,7 +85,7 @@ Server::Server(int ac, char** av) {
     serverParam.setServerFd(serverFd);
     serverParam.setServerPassword(serverPassword);
   } catch (const std::exception& e) {
-    std::cerr << "Server start exception : " << e.what() << '\n';  // seonghle
+    std::cerr << "Server start exception : " << e.what() << '\n';
     exit(1);
   }
   return;
@@ -129,7 +133,7 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
                              (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
       -1)
     throw std::runtime_error("faild to accpet client");
-  fcntl(clientSocket, F_SETFL, O_NONBLOCK);  // seonghle
+  fcntl(clientSocket, F_SETFL, O_NONBLOCK);
   std::cout << "Accept client: " << clientSocket << "\n";
   serverParam.addNewClient(clientSocket);
   enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,

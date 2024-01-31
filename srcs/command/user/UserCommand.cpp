@@ -57,8 +57,9 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
   } else if (senderClient->getUsername().empty() == false) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
+    // seonghle
+    // commandResponse.addResponseMessage(-1, "");
+    // serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setUsername(username);
     senderClient->setHost(host);
