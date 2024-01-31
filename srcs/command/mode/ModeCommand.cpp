@@ -200,6 +200,8 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
   size_t argumentIndex = 2;
   Client *senderClient = serverParam.getClient(senderSocketFd);
   Channel *channel = serverParam.getChannel(channelName);
+  const std::string &senderUsername = senderClient->getUsername();
+  const std::string &senderHost = senderClient->getHost();
 
   if (senderClient == NULL) {
     commandResponse.addResponseMessage(senderSocketFd,
@@ -323,7 +325,8 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
     }
     commandResponse.addMultipleClientResponseMessage(
         channel->getAllClientFd(),
-        this->replyMessage.successMode(senderClient->getNickname(), channelName,
+        this->replyMessage.successMode(senderClient->getNickname(),
+                                       senderUsername, senderHost, channelName,
                                        modeString, arguments));
   }
   return commandResponse;

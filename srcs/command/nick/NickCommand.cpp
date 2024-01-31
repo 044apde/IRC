@@ -44,12 +44,16 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
   Client* senderClient = serverParam.getClient(senderSocketFd);
   const std::string prevNickname = senderClient->getNickname();
   const std::string newNickname = parameter[0];
+  const std::string& senderUsername = senderClient->getUsername();
+  const std::string& senderHost = senderClient->getHost();
 
   if (isValidNickname(newNickname) == false) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errErroneusNickname(newNickname));
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
+    if (prevNickname.empty() == false) {
+      commandResponse.addResponseMessage(-1, "");
+      serverParam.removeClient(senderSocketFd);
+    }
   } else if (serverParam.getClientByNickname(newNickname) != NULL) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errNicknameInUse("", newNickname));
@@ -59,7 +63,8 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
     senderClient->setNickname(newNickname);
     commandResponse.addMultipleClientResponseMessage(
         senderClient->getAllChannelClientFd(),
-        this->replyMessage.successNick(prevNickname, newNickname));
+        this->replyMessage.successNick(prevNickname, senderUsername, senderHost,
+                                       newNickname));
   }
   return commandResponse;
 }

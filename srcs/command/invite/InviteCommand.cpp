@@ -48,6 +48,8 @@ CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
   Client* senderClient = serverParam.getClient(senderSocketFd);
   Client* inviteTargetClient = serverParam.getClientByNickname(invitedNickname);
   Channel* channel = serverParam.getChannel(channelName);
+  const std::string& senderUsername = senderClient->getUsername();
+  const std::string& senderHost = senderClient->getHost();
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.addResponseMessage(senderSocketFd,
@@ -78,7 +80,8 @@ CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
     commandResponse.addResponseMessage(
         inviteTargetClient->getClientFd(),
         this->replyMessage.successInvite(senderClient->getNickname(),
-                                         channelName, invitedNickname));
+                                         channelName, senderHost,
+                                         senderUsername, invitedNickname));
   }
   return commandResponse;
 }

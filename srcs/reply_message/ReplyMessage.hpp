@@ -79,19 +79,24 @@ class ReplyMessage {
                                   const std::string& channelName);
   std::string successInvite(const std::string& senderNickname,
                             const std::string& channelName,
+                            const std::string& host,
+                            const std::string& username,
                             const std::string& targetNickname);
   std::string successJoin(const std::string& senderNickname,
                           const std::string& username, const std::string& host,
                           const std::string& channelName);
   std::string successKick(const std::string& senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& channelName,
                           const std::string& targetNickname,
                           std::string comment);
   std::string successMode(const std::string& senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& targetName,
                           const std::string& modeString,
                           std::vector<std::string> argument);
   std::string successNick(std::string senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& newNickname);
   std::string successPart(const std::string& senderNickname,
                           const std::string& username, const std::string& host,

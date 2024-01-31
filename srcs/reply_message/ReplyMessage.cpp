@@ -215,9 +215,11 @@ std::string ReplyMessage::errChaNoPrivsNeeded(const std::string& username,
 
 std::string ReplyMessage::successInvite(const std::string& senderNickname,
                                         const std::string& channelName,
+                                        const std::string& host,
+                                        const std::string& username,
                                         const std::string& targetNickname) {
-  return ":" + senderNickname + " INVITE " + targetNickname + " " +
-         channelName + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " INVITE " +
+         targetNickname + " " + channelName + "\r\n";
 }
 
 std::string ReplyMessage::successJoin(const std::string& senderNickname,
@@ -229,17 +231,21 @@ std::string ReplyMessage::successJoin(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successKick(const std::string& senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& channelName,
                                       const std::string& targetNickname,
                                       std::string comment) {
   if (comment.empty() == false) {
     comment = " " + comment;
   }
-  return ":" + senderNickname + " KICK " + channelName + " " + targetNickname +
-         comment + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " KICK " +
+         channelName + " " + targetNickname + comment + "\r\n";
 }
 
 std::string ReplyMessage::successMode(const std::string& senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& targetName,
                                       const std::string& modeString,
                                       std::vector<std::string> argument) {
@@ -249,16 +255,19 @@ std::string ReplyMessage::successMode(const std::string& senderNickname,
     argumentsString += " " + argument[i];
   }
 
-  return ":" + senderNickname + " MODE " + targetName + " " + modeString +
-         argumentsString + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " MODE " +
+         targetName + " " + modeString + argumentsString + "\r\n";
 }
 
 std::string ReplyMessage::successNick(std::string senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& newNickname) {
   if (senderNickname.empty() == false) {
-    senderNickname = ":" + senderNickname + " ";
+    senderNickname = ":" + senderNickname;
   }
-  return senderNickname + "NICK " + newNickname + "\r\n";
+  return senderNickname + "!" + username + "@" + host + " NICK " + newNickname +
+         "\r\n";
 }
 
 std::string ReplyMessage::successPart(const std::string& senderNickname,
