@@ -244,6 +244,8 @@ std::string ReplyMessage::successKick(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successMode(const std::string& senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& targetName,
                                       const std::string& modeString,
                                       std::vector<std::string> argument) {
@@ -253,8 +255,8 @@ std::string ReplyMessage::successMode(const std::string& senderNickname,
     argumentsString += " " + argument[i];
   }
 
-  return ":" + senderNickname + " MODE " + targetName + " " + modeString +
-         argumentsString + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " MODE " +
+         targetName + " " + modeString + argumentsString + "\r\n";
 }
 
 std::string ReplyMessage::successNick(std::string senderNickname,
