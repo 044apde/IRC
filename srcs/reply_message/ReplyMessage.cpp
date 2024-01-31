@@ -231,14 +231,16 @@ std::string ReplyMessage::successJoin(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successKick(const std::string& senderNickname,
+                                      const std::string& username,
+                                      const std::string& host,
                                       const std::string& channelName,
                                       const std::string& targetNickname,
                                       std::string comment) {
   if (comment.empty() == false) {
     comment = " " + comment;
   }
-  return ":" + senderNickname + " KICK " + channelName + " " + targetNickname +
-         comment + "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + "KICK " +
+         channelName + " " + targetNickname + comment + "\r\n";
 }
 
 std::string ReplyMessage::successMode(const std::string& senderNickname,

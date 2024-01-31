@@ -52,6 +52,8 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
   Client *senderClient = serverParam.getClient(senderSocketFd);
   Client *kickTargetClient = serverParam.getClientByNickname(targetNickname);
   const std::string &senderNickname = senderClient->getNickname();
+  const std::string &senderHost = senderClient->getHost();
+  const std::string &senderUsername = senderClient->getUsername();
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.addResponseMessage(senderSocketFd,
@@ -74,8 +76,9 @@ CommandResponseParam KickCommand::execute(ServerParam &serverParam,
   } else {
     commandResponse.addMultipleClientResponseMessage(
         channel->getAllClientFd(),
-        this->replyMessage.successKick(senderNickname, channelName,
-                                       targetNickname, commnet));
+        this->replyMessage.successKick(senderNickname, senderUsername,
+                                       senderHost, channelName, targetNickname,
+                                       commnet));
     serverParam.removeClientAndChannelEachOther(kickTargetClient, channel);
   }
   return commandResponse;

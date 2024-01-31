@@ -86,6 +86,7 @@ class ReplyMessage {
                           const std::string& username, const std::string& host,
                           const std::string& channelName);
   std::string successKick(const std::string& senderNickname,
+                          const std::string& username, const std::string& host,
                           const std::string& channelName,
                           const std::string& targetNickname,
                           std::string comment);
