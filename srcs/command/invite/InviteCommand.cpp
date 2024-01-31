@@ -48,6 +48,7 @@ CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
   Client* senderClient = serverParam.getClient(senderSocketFd);
   Client* inviteTargetClient = serverParam.getClientByNickname(invitedNickname);
   Channel* channel = serverParam.getChannel(channelName);
+  const std::string& senderNickname = senderClient->getNickname();
   const std::string& senderUsername = senderClient->getUsername();
   const std::string& senderHost = senderClient->getHost();
 
@@ -71,15 +72,15 @@ CommandResponseParam InviteCommand::execute(ServerParam& serverParam,
   } else if (channel->isClientInChannel(inviteTargetClient) == true) {
     commandResponse.addResponseMessage(
         senderSocketFd,
-        this->replyMessage.errUserOnChannel("", invitedNickname, channelName));
+        this->replyMessage.errUserOnChannel(invitedNickname, channelName));
   } else {
     channel->inviteClient(inviteTargetClient);
     commandResponse.addResponseMessage(
         senderSocketFd,
-        this->replyMessage.rplInviting("", invitedNickname, channelName));
+        this->replyMessage.rplInviting(invitedNickname, channelName));
     commandResponse.addResponseMessage(
         inviteTargetClient->getClientFd(),
-        this->replyMessage.successInvite(senderClient->getNickname(),
+        this->replyMessage.successInvite(senderNickname,
                                          channelName, senderHost,
                                          senderUsername, invitedNickname));
   }

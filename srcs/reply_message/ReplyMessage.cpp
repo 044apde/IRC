@@ -60,10 +60,9 @@ std::string ReplyMessage::rplTopic(const std::string& channelName,
          (curerntTopic.empty() == true ? changedTopic : curerntTopic) + "\r\n";
 }
 
-std::string ReplyMessage::rplInviting(const std::string& username,
-                                      const std::string& nickname,
+std::string ReplyMessage::rplInviting(const std::string& invitedNickname,
                                       const std::string& channelName) {
-  return "341 IRC42 " + username + " " + nickname + " " + channelName + "\r\n";
+  return "341 IRC42 " + invitedNickname + " " + channelName + "\r\n";
 }
 
 std::string ReplyMessage::rplNamReply(const std::string& targetNickname,
@@ -153,11 +152,9 @@ std::string ReplyMessage::errNotOnChannel(const std::string& username,
          " :You're not on that channel\r\n";
 }
 
-std::string ReplyMessage::errUserOnChannel(const std::string& username,
-                                           const std::string& nickname,
+std::string ReplyMessage::errUserOnChannel(const std::string& targetNickname,
                                            const std::string& channelName) {
-  return "443 " + username + " " + nickname + " " + channelName +
-         " :is already on channel\r\n";
+  return "443 " + targetNickname + " " + channelName + " :is already on channel\r\n";
 }
 
 std::string ReplyMessage::errNotRegisterd() {

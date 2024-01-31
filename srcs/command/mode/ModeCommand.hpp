@@ -22,7 +22,7 @@ class ModeCommand : public ACommand {
   bool isValidSignedChar(const std::string& modeString, const size_t& index);
   bool isValidMode(const char& modeChar);
   bool isValidModeString(const std::string& modeString);
-  bool isValidModeArgument(const std::vector<std::string>& parameter);
+  bool isValidModeArgument(const std::vector<std::string>& parameter, Channel* channel);
   bool isValidParamter(CommandResponseParam& commandResponse,
                        const TokenParam& tokenParam);
   size_t getArgumentSizeIndex(const std::string& argument);
