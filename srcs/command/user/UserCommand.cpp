@@ -54,7 +54,7 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
       senderClient->getNickname().empty() == true) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errNotRegisterd(senderNickname));
-    commandResponse.addResponseMessage(-2, "");
+    commandResponse.addTerminateClientAfterSendResponseMessage();
   } else if (senderClient->getUsername().empty() == false) {
     commandResponse.addResponseMessage(
         senderSocketFd,
