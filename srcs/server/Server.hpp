@@ -20,7 +20,7 @@
 #include "../param/command_response_param/CommandResponseParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
 #include "../param/token_param/TokenParam.hpp"
-// #include "../signal/signal.hpp"
+#include "../signal/signal.hpp"
 
 #define MINPORT 1024
 #define MAXPORT 65535
@@ -77,5 +77,7 @@ class Server {
 
   void run();
 };
+
+extern Server server;
 
 #endif

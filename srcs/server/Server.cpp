@@ -11,10 +11,16 @@ void Server::sendCommand(int targetFd) {
   replyMessages = client->popReplyMessages();
   for (size_t i = 0; i < replyMessages.size(); i++) {
     if (send(targetFd, replyMessages[i].c_str(), replyMessages[i].size(), 0) ==
-        -1)
+        -1) {
       client->pushReplyMessages(replyMessages[i]);
-    else
-      std::cout << replyMessages[i];
+    } else {
+      if (client->getDieFlag() == true) {
+        close(targetFd);
+        serverParam.removeClient(targetFd);
+      } else {
+        continue;
+      }
+    }
   }
   return;
 }
@@ -163,8 +169,10 @@ void Server::disconnectClient(int clientSocket,
          NULL);
   std::cout << "disconnect '" << clientSocket << "\n";
   eventvec.push_back(temp);
-  serverParam.removeClient(clientSocket);
-  close(clientSocket);
+  if (serverParam.getClient(clientSocket)->getIsCheckPass() == false) {
+    serverParam.removeClient(clientSocket);
+    close(clientSocket);
+  }
   return;
 }
 
@@ -250,7 +258,8 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
   for (; iter != cmdResParam.getClientResponseMessageMap().end(); iter++) {
     if (iter->first == -1) {
       disconnectClient(clientSocket, eventvec);
-      continue;
+    } else if (iter->first == -2) {
+      serverParam.getClient(clientSocket)->setDieFlag(true);
     } else {
       Client* client = serverParam.getClient(iter->first);
       if (client != NULL) {
