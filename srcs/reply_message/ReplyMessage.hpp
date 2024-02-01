@@ -20,60 +20,58 @@ class ReplyMessage {
   std::string rplYourHost(const std::string& senderNickname);
   std::string rplCreated(const std::string& senderNickname);
   std::string rplMyInfo(const std::string& senderNickname);
-  std::string rplNoTopic(const std::string& channelName);
-  std::string rplTopic(const std::string& channelName,
+  std::string rplNoTopic(const std::string& senderNickname,
+                         const std::string& channelName);
+  std::string rplTopic(const std::string& senderNickname,
+                       const std::string& channelName,
                        const std::string& changedTopic,
                        const std::string& curerntTopic);
-  std::string rplInviting(const std::string& invitedNickname,
+  std::string rplInviting(const std::string& senderNickname,
+                          const std::string& invitedNickname,
                           const std::string& channelName);
-  std::string rplNamReply(const std::string& targetNickname,
+  std::string rplNamReply(const std::string& senderNickname,
                           const std::string& channelName,
                           const std::string& nicknameList);
-  std::string errUnknownError(const std::string& command,
-                              const std::string& info);
-  std::string errNoSuchNick(const std::string& username,
+  std::string errNoSuchNick(const std::string& senderNickname,
                             const std::string& nickname);
-  std::string errNoSuchChannel(const std::string& username,
+  std::string errNoSuchChannel(const std::string& senderNickname,
                                const std::string& channelName);
-  std::string errCannotSendToChan(const std::string& username,
+  std::string errCannotSendToChan(const std::string& senderNickname,
                                   const std::string& channelName);
-  std::string errTooManyChannels(const std::string& username,
+  std::string errTooManyChannels(const std::string& senderNickname,
                                  const std::string& channelName);
-  std::string errTooManyTargets(const std::string& channelName);
-  std::string errNoOrigin(const std::string& username);
-  std::string errNoRecipient(const std::string& username,
+  std::string errNoOrigin(const std::string& senderNickname);
+  std::string errNoRecipient(const std::string& senderNickname,
                              const std::string& command);
-  std::string errNoTextToSend(const std::string& username);
-  std::string errInputTooLong(const std::string& username);
-  std::string errUnknownCommand(const std::string& username,
+  std::string errNoTextToSend(const std::string& senderNickname);
+  std::string errUnknownCommand(const std::string& senderNickname,
                                 const std::string& command);
-  std::string errNoNicknameGiven(const std::string& username);
-  std::string errErroneusNickname(const std::string& nickname);
-  std::string errNicknameInUse(const std::string& username,
+  std::string errNoNicknameGiven(const std::string& senderNickname);
+  std::string errErroneusNickname(const std::string& senderNickname,
+                                  const std::string& nickname);
+  std::string errNicknameInUse(const std::string& senderNickname,
                                const std::string& nickname);
-  std::string errUserNotInChannel(const std::string& username,
+  std::string errUserNotInChannel(const std::string& targetNickname,
                                   const std::string& nickname,
                                   const std::string& channelName);
-  std::string errNotOnChannel(const std::string& username,
+  std::string errNotOnChannel(const std::string& senderNickname,
                               const std::string& channelName);
   std::string errUserOnChannel(const std::string& targetNickname,
                                const std::string& channelName);
-  std::string errNotRegisterd();
-  std::string errNeedMoreParams(const std::string& username,
+  std::string errNotRegisterd(const std::string& senderNickname);
+  std::string errNeedMoreParams(const std::string& senderNickname,
                                 const std::string& command);
-  std::string errAlreadyRegistered(const std::string& username);
-  std::string errPasswdMismatch(const std::string& username);
-  std::string errKeySet(const std::string& username,
-                        const std::string& channelName);
-  std::string errChannelIsFull(const std::string& username,
+  std::string errAlreadyRegistered(const std::string& senderNickname);
+  std::string errPasswdMismatch(const std::string& senderNickname);
+  std::string errChannelIsFull(const std::string& senderNickname,
                                const std::string& channelName);
-  std::string errUnknownMode(const std::string& username,
+  std::string errUnknownMode(const std::string& senderNickname,
                              const std::string& modeString);
-  std::string errInviteOnlyChan(const std::string& username,
+  std::string errInviteOnlyChan(const std::string& senderNickname,
                                 const std::string& channelName);
-  std::string errBadChannelKey(const std::string& username,
+  std::string errBadChannelKey(const std::string& senderNickname,
                                const std::string& channelName);
-  std::string errChaNoPrivsNeeded(const std::string& username,
+  std::string errChaNoPrivsNeeded(const std::string& senderNickname,
                                   const std::string& channelName);
   std::string successInvite(const std::string& senderNickname,
                             const std::string& channelName,
@@ -104,6 +102,7 @@ class ReplyMessage {
                              const std::string& targetNickOrChannel,
                              const std::string& message);
   std::string successQuit(const std::string& senderNickname,
+                          const std::string& username, const std::string& host,
                           std::string reason);
   std::string successTopic(const std::string& senderNickname,
                            const std::string& channelName,
