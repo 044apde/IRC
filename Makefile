@@ -23,8 +23,8 @@ SOURCES = main.cpp \
 	srcs/param/token_param/TokenParam.cpp \
 	srcs/reply_message/ReplyMessage.cpp \
 	srcs/server/Server.cpp \
-	srcs/command/ACommand.cpp
-
+	srcs/command/ACommand.cpp \
+	srcs/signal/signal.cpp
 
 OBJ = $(SOURCES:.cpp=.o)
 

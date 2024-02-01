@@ -35,6 +35,7 @@ class ServerParam {
   Channel* getChannel(const std::string& channelName) const;
   void addClientAndChannelEachOther(Client* client, Channel* channel);
   void removeClientAndChannelEachOther(Client* client, Channel* channel);
+  std::map<int, Client*>& getClientMap();
 };
 
 #endif

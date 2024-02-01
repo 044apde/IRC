@@ -37,8 +37,6 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
     return commandResponse;
   }
 
@@ -51,12 +49,10 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
         senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
     // seonghle
     // commandResponse.addResponseMessage(-1, "");
-    // serverParam.removeClient(senderSocketFd);
   } else if (password != serverParam.getServerPassword()) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errPasswdMismatch(""));
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
+    commandResponse.addResponseMessage(-2, "");
   } else {
     senderClient->setIsCheckPassTrue();
   }

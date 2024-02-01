@@ -2,7 +2,8 @@
 
 Client::Client() : clientFd(-1), isCheckPass(false) {}
 
-Client::Client(const int& clientFd) : clientFd(clientFd), isCheckPass(false) {}
+Client::Client(const int& clientFd)
+    : clientFd(clientFd), isCheckPass(false), toDieFlag(false) {}
 
 Client::~Client() {}
 
@@ -18,6 +19,7 @@ Client& Client::operator=(const Client& other) {
     this->host = other.host;
     this->channelSet = other.channelSet;
     this->remainRequestBuffer = other.remainRequestBuffer;
+    this->toDieFlag = other.toDieFlag;
   }
   return *this;
 }
@@ -112,3 +114,10 @@ void Client::pushReplyMessages(std::string replyMessage) {
   this->replyMessages.push_back(replyMessage);
   return;
 }
+
+void Client::setDieFlag(bool flag) {
+  toDieFlag = flag;
+  return;
+};
+
+bool Client::getDieFlag() { return toDieFlag; }

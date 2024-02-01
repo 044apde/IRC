@@ -155,3 +155,5 @@ void ServerParam::removeClientAndChannelEachOther(Client* client,
   }
   return;
 }
+
+std::map<int, Client*>& ServerParam::getClientMap() { return clientMap; }

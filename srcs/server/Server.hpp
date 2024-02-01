@@ -20,10 +20,9 @@
 #include "../param/command_response_param/CommandResponseParam.hpp"
 #include "../param/server_param/ServerParam.hpp"
 #include "../param/token_param/TokenParam.hpp"
+#include "../signal/signal.hpp"
 
-class CommandInvoker;
-
-#define MINPORT 49152
+#define MINPORT 1024
 #define MAXPORT 65535
 #define PWD_LEN 4
 #define PENDING_QUEUE_SIZE 10
@@ -32,15 +31,15 @@ class CommandInvoker;
 #define SEVER_WAIT_TIME 10
 #define MESSAGE_MAX_LENGTH 512
 
+class CommandInvoker;
+
 class Server {
  private:
   ServerParam serverParam;
   CommandInvoker commandInvoker;
 
   void sendCommand(int targetFd);
-  Server();
   Server(const Server& obj);
-  Server& operator=(const Server& obj);
 
   int makeServerListening(int serverPort);
   int parseServerPort(char* portNum);
@@ -69,10 +68,16 @@ class Server {
                              int clientSocket);
 
  public:
+  Server& operator=(const Server& obj);
+  Server();
   Server(int ac, char** av);
   ~Server();
 
+  ServerParam& getServerParam();
+
   void run();
 };
+
+extern Server server;
 
 #endif
