@@ -19,7 +19,8 @@ class JoinCommand : public ACommand {
                            const std::string& channelKey) const;
   bool isClientChannelSizeOver(Client* client) const;
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   JoinCommand();

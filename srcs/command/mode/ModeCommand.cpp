@@ -51,8 +51,8 @@ bool ModeCommand::isValidModeString(const std::string &modeString) {
   return true;
 }
 
-bool ModeCommand::isValidModeArgument(
-    const std::vector<std::string> &parameter, Channel* channel) {
+bool ModeCommand::isValidModeArgument(const std::vector<std::string> &parameter,
+                                      Channel *channel) {
   const std::string &modeString = parameter[1];
   char signedChar = modeString[0];
   size_t argumentIndex = 2;
@@ -104,19 +104,23 @@ bool ModeCommand::isValidModeArgument(
 }
 
 bool ModeCommand::isValidParamter(CommandResponseParam &commandResponse,
-                                  const TokenParam &tokenParam) {
+                                  const TokenParam &tokenParam,
+                                  const std::string &senderNickname) {
   const std::vector<std::string> &parameter = tokenParam.getParameter();
 
   if (parameter.size() < 2) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+        this->replyMessage.errNeedMoreParams(senderNickname,
+                                             tokenParam.getCommand()));
     return false;
   }
-  if (isTrailing(parameter[0]) == true || isTrailing(parameter[1]) == true) {
+  if (isTrailing(parameter[0]) == true || parameter[0][0] != '#' ||
+      isTrailing(parameter[1]) == true) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+        this->replyMessage.errUnknownCommand(senderNickname,
+                                             tokenParam.getCommand()));
     return false;
   }
   if (parameter[0].empty() == false && parameter[0][0] != '#') {
@@ -125,7 +129,7 @@ bool ModeCommand::isValidParamter(CommandResponseParam &commandResponse,
   if (isValidModeString(parameter[1]) == false) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errUnknownMode("", parameter[1]));
+        this->replyMessage.errUnknownMode(senderNickname, parameter[1]));
     return false;
   }
   return true;
@@ -187,38 +191,44 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
                                           const TokenParam &tokenParam) {
   CommandResponseParam commandResponse;
   const std::vector<std::string> &parameter = tokenParam.getParameter();
+  const int &senderSocketFd = tokenParam.getSenderSocketFd();
+  Client *senderClient = serverParam.getClient(senderSocketFd);
+  const std::string &senderNickname = senderClient->getNickname();
 
-  if (isValidParamter(commandResponse, tokenParam) == false) {
+  if (isValidParamter(commandResponse, tokenParam, senderNickname) == false) {
     return commandResponse;
   }
 
   const std::string &channelName = parameter[0];
   Channel *channel = serverParam.getChannel(channelName);
-  if (isValidModeArgument(parameter, channel) == false) {
-
+  if (channel == NULL || isValidModeArgument(parameter, channel) == false) {
+    commandResponse.addResponseMessage(
+        senderSocketFd,
+        this->replyMessage.errUnknownMode(senderNickname, parameter[1]));
+    return commandResponse;
   }
 
-  const int &senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string &modeString = parameter[1];
   std::vector<std::string> arguments;
   size_t argumentIndex = 2;
-  Client *senderClient = serverParam.getClient(senderSocketFd);
   const std::string &senderUsername = senderClient->getUsername();
   const std::string &senderHost = senderClient->getHost();
 
   if (senderClient == NULL) {
-    commandResponse.addResponseMessage(senderSocketFd,
-                                       this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotRegisterd(senderNickname));
   } else if (channel == NULL) {
     commandResponse.addResponseMessage(
-        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
+        senderSocketFd,
+        this->replyMessage.errNoSuchChannel(senderNickname, channelName));
   } else if (channel->isClientInChannel(senderClient) == false) {
     commandResponse.addResponseMessage(
-        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
+        senderSocketFd,
+        this->replyMessage.errNotOnChannel(senderNickname, channelName));
   } else if (channel->isOpClient(senderClient) == false) {
     commandResponse.addResponseMessage(
         senderSocketFd,
-        this->replyMessage.errChaNoPrivsNeeded("", channelName));
+        this->replyMessage.errChaNoPrivsNeeded(senderNickname, channelName));
   } else {
     char signedChar = '\0';
     std::string keyArgument;
@@ -263,14 +273,14 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
           if (targetClient == NULL ||
               isRegisteredClient(targetClient) == false) {
             commandResponse.addResponseMessage(
-                senderSocketFd,
-                this->replyMessage.errNoSuchNick("", parameter[argumentIndex]));
+                senderSocketFd, this->replyMessage.errNoSuchNick(
+                                    senderNickname, parameter[argumentIndex]));
             return commandResponse;
           }
           if (channel->isClientInChannel(targetClient) == false) {
             commandResponse.addResponseMessage(
-                senderSocketFd,
-                this->replyMessage.errNotOnChannel("", channelName));
+                senderSocketFd, this->replyMessage.errNotOnChannel(
+                                    senderNickname, channelName));
             return commandResponse;
           }
           if (signedChar == '+') {
@@ -289,8 +299,8 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
             if (IsValidMaxUser(parameter[argumentIndex]) == false ||
                 digitMaxUser < channel->getUserCountInChannel()) {
               commandResponse.addResponseMessage(
-                  senderSocketFd,
-                  this->replyMessage.errUnknownMode("", modeString));
+                  senderSocketFd, this->replyMessage.errUnknownMode(
+                                      senderNickname, modeString));
               return commandResponse;
             }
             // channel->setMaxUser(digitMaxUser);

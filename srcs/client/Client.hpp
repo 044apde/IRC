@@ -20,7 +20,6 @@ class Client {
   std::set<Channel*> channelSet;
   std::string remainRequestBuffer;
   std::vector<std::string> replyMessages;
-  bool toDieFlag;
   Client();
 
  public:
@@ -48,8 +47,6 @@ class Client {
   const std::set<const int> getAllChannelClientFd() const;
   std::vector<std::string> popReplyMessages();
   void pushReplyMessages(std::string replyMessage);
-  void setDieFlag(bool flag);
-  bool getDieFlag();
 };
 
 #endif

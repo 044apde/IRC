@@ -16,7 +16,8 @@ class QuitCommand : public ACommand {
   QuitCommand(const QuitCommand& other);
   QuitCommand& operator=(const QuitCommand& other);
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   QuitCommand();

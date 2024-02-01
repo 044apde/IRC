@@ -23,6 +23,7 @@ class CommandResponseParam {
   const std::map<const int, const std::string>& getClientResponseMessageMap()
       const;
   void removeTarget(const int targetClientFd);
+  void addTerminateClientImmediateResponseMessage();
 };
 
 #endif

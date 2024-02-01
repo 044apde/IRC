@@ -17,7 +17,8 @@ class PartCommand : public ACommand {
   PartCommand(const PartCommand& other);
   PartCommand& operator=(const PartCommand& other);
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   PartCommand();

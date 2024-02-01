@@ -17,7 +17,8 @@ class InviteCommand : public ACommand {
   InviteCommand(const InviteCommand& other);
   InviteCommand& operator=(const InviteCommand& other);
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   InviteCommand();

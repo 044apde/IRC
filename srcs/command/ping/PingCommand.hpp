@@ -16,7 +16,8 @@ class PingCommand : public ACommand {
   PingCommand(const PingCommand& other);
   PingCommand& operator=(const PingCommand& other);
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   PingCommand();

@@ -15,7 +15,8 @@ class UserCommand : public ACommand {
   UserCommand(const UserCommand &other);
   UserCommand &operator=(const UserCommand &other);
   bool isValidParamter(CommandResponseParam &commandResponse,
-                       const TokenParam &tokenParam);
+                       const TokenParam &tokenParam,
+                       const std::string &senderNickname);
 
  public:
   UserCommand();

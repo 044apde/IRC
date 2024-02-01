@@ -5,19 +5,20 @@
 #include <string>
 #include <vector>
 
-#include "../ACommand.hpp"
 #include "../../channel/Channel.hpp"
 #include "../../client/Client.hpp"
 #include "../../param/command_response_param/CommandResponseParam.hpp"
 #include "../../param/server_param/ServerParam.hpp"
 #include "../../param/token_param/TokenParam.hpp"
+#include "../ACommand.hpp"
 
 class KickCommand : public ACommand {
  private:
   KickCommand(const KickCommand &other);
   KickCommand &operator=(const KickCommand &other);
   bool isValidParamter(CommandResponseParam &commandResponse,
-                       const TokenParam &tokenParam);
+                       const TokenParam &tokenParam,
+                       const std::string &senderNickname);
 
  public:
   KickCommand();

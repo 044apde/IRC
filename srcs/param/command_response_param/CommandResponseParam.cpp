@@ -42,3 +42,8 @@ void CommandResponseParam::removeTarget(const int targetClientFd) {
   this->clientResponseMessageMap.erase(targetClientFd);
   return;
 }
+
+void CommandResponseParam::addTerminateClientImmediateResponseMessage() {
+  this->clientResponseMessageMap.insert(std::make_pair(-1, ""));
+  return;
+}

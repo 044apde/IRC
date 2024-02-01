@@ -25,7 +25,8 @@ class ACommand {
   bool isRegisteredClient(Client* client);
   bool isTrailing(const std::string& str);
   virtual bool isValidParamter(CommandResponseParam& commandResponse,
-                               const TokenParam& tokenParam) = 0;
+                               const TokenParam& tokenParam,
+                               const std::string& senderNickname) = 0;
 
  public:
   virtual ~ACommand();

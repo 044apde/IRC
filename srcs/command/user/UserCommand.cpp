@@ -12,13 +12,15 @@ UserCommand& UserCommand::operator=(const UserCommand& other) {
 }
 
 bool UserCommand::isValidParamter(CommandResponseParam& commandResponse,
-                                  const TokenParam& tokenParam) {
+                                  const TokenParam& tokenParam,
+                                  const std::string& senderNickname) {
   const std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 4) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+        this->replyMessage.errNeedMoreParams(senderNickname,
+                                             tokenParam.getCommand()));
     return false;
   }
   if (parameter.size() > 4 || isTrailing(parameter[0]) == true ||
@@ -26,7 +28,8 @@ bool UserCommand::isValidParamter(CommandResponseParam& commandResponse,
       isTrailing(parameter[3]) == false) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+        this->replyMessage.errUnknownCommand(senderNickname,
+                                             tokenParam.getCommand()));
     return false;
   }
   return true;
@@ -36,26 +39,26 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
   int senderSocketFd = tokenParam.getSenderSocketFd();
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+  const std::string& senderNickname = senderClient->getNickname();
 
-  if (isValidParamter(commandResponse, tokenParam) == false) {
+  if (isValidParamter(commandResponse, tokenParam, senderNickname) == false) {
     return commandResponse;
   }
 
   const std::vector<std::string> parameter = tokenParam.getParameter();
   const std::string& username = parameter[0];
   const std::string& host = parameter[2];
-  Client* senderClient = serverParam.getClient(senderSocketFd);
 
   if (senderClient->getIsCheckPass() == false ||
       senderClient->getNickname().empty() == true) {
-    commandResponse.addResponseMessage(senderSocketFd,
-                                       this->replyMessage.errNotRegisterd());
-    commandResponse.addResponseMessage(-2, "");
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotRegisterd(senderNickname));
+    commandResponse.addTerminateClientImmediateResponseMessage();
   } else if (senderClient->getUsername().empty() == false) {
     commandResponse.addResponseMessage(
-        senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
-    // seonghle
-    // commandResponse.addResponseMessage(-1, "");
+        senderSocketFd,
+        this->replyMessage.errAlreadyRegistered(senderNickname));
   } else {
     senderClient->setUsername(username);
     senderClient->setHost(host);

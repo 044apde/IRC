@@ -17,7 +17,8 @@ class PrivmsgCommand : public ACommand {
   PrivmsgCommand(const PrivmsgCommand &other);
   PrivmsgCommand &operator=(const PrivmsgCommand &other);
   bool isValidParamter(CommandResponseParam &commandResponse,
-                       const TokenParam &tokenParam);
+                       const TokenParam &tokenParam,
+                       const std::string &senderNickname);
 
  public:
   PrivmsgCommand();
