@@ -111,14 +111,6 @@ int Server::makeKqueueFd() {
   return kqueueFd;
 }
 
-struct timespec Server::makeTimeout() {
-  struct timespec timeout;
-
-  timeout.tv_sec = SEVER_WAIT_TIME;
-  timeout.tv_nsec = 0;
-  return timeout;
-}
-
 void Server::acceptClient(std::vector<struct kevent>& eventVec) {
   int clientSocket;
   struct sockaddr_in clientAddr;

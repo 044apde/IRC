@@ -45,10 +45,8 @@ class Channel {
   bool isInviteOnlyChannel();
   bool isSetTopicOpOnlyChannel();
   bool isSetKeyChannel();
-  bool isKeyMatched(const std::string& key);
   bool isChannelFull();
   bool isClientInChannel(Client* client);
-  bool isClientInChannelByNickname(std::string nickname);
   bool isOpClient(Client* client);
   bool isClientInvited(Client* client);
   void addClient(Client* client);
@@ -58,7 +56,6 @@ class Channel {
   void setAllClientFd(std::set<const int>& clientFdSet);
   const std::set<const int> getAllClientFd();
   size_t getUserCountInChannel() const;
-  size_t getMaxUser() const;
   std::map<Client*, bool> getClientMap();
 };
 

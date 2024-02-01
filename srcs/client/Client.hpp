@@ -32,7 +32,6 @@ class Client {
   const std::string& getNickname() const;
   const std::string& getUsername() const;
   const std::string& getHost() const;
-  std::set<Channel*>& getChannelSet();
   void setIsCheckPassTrue();
   void setNickname(const std::string& nickname);
   void setUsername(const std::string& username);
@@ -40,7 +39,6 @@ class Client {
   void addChannel(Channel* channel);
   void removeChannel(Channel* channel);
   void removeAllChannel();
-  bool hasChannel(Channel* channel);
   size_t getChannelSetSize();
   void pushRemainRequestBuffer(const std::string& remainRequestBuffer);
   const std::string popRemainRequestBuffer();

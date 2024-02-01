@@ -32,8 +32,6 @@ const std::string& Client::getUsername() const { return this->username; }
 
 const std::string& Client::getHost() const { return this->host; }
 
-std::set<Channel*>& Client::getChannelSet() { return this->channelSet; }
-
 void Client::setIsCheckPassTrue() {
   this->isCheckPass = true;
   return;
@@ -67,13 +65,6 @@ void Client::removeChannel(Channel* channel) {
 void Client::removeAllChannel() {
   this->channelSet.clear();
   return;
-}
-
-bool Client::hasChannel(Channel* channel) {
-  if (this->channelSet.find(channel) == this->channelSet.end()) {
-    return false;
-  }
-  return true;
 }
 
 size_t Client::getChannelSetSize() { return this->channelSet.size(); }
