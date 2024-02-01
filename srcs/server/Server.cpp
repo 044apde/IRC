@@ -14,7 +14,8 @@ void Server::sendCommand(int targetFd) {
         -1) {
       client->pushReplyMessages(replyMessages[i]);
     } else {
-      if (client->getDieFlag() == true) {
+      std::cout << replyMessages[i];
+      if (client->getDieFlag() == true && i == replyMessages.size() - 1) {
         close(targetFd);
         serverParam.removeClient(targetFd);
       } else {

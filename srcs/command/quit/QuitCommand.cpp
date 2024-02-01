@@ -40,6 +40,5 @@ CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
       this->replyMessage.successQuit(senderNickname, reason));
   commandResponse.addResponseMessage(-1, "");
   commandResponse.removeTarget(senderSocketFd);
-  serverParam.removeClient(senderSocketFd);
   return commandResponse;
 }

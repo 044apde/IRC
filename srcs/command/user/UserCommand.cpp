@@ -38,8 +38,6 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
   int senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
     return commandResponse;
   }
 
@@ -52,14 +50,12 @@ CommandResponseParam UserCommand::execute(ServerParam& serverParam,
       senderClient->getNickname().empty() == true) {
     commandResponse.addResponseMessage(senderSocketFd,
                                        this->replyMessage.errNotRegisterd());
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
+    commandResponse.addResponseMessage(-2, "");
   } else if (senderClient->getUsername().empty() == false) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errAlreadyRegistered(""));
     // seonghle
     // commandResponse.addResponseMessage(-1, "");
-    // serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setUsername(username);
     senderClient->setHost(host);

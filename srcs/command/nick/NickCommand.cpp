@@ -35,8 +35,6 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
   const int& senderSocketFd = tokenParam.getSenderSocketFd();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
-    commandResponse.addResponseMessage(-1, "");
-    serverParam.removeClient(senderSocketFd);
     return commandResponse;
   }
 
@@ -51,15 +49,16 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errErroneusNickname(newNickname));
     if (prevNickname.empty() == true) {
-      commandResponse.addResponseMessage(-1, "");
-      // serverParam.removeClient(senderSocketFd);
+      commandResponse.addResponseMessage(-2, "");
     }
   } else if (serverParam.getClientByNickname(newNickname) != NULL) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errNicknameInUse("", newNickname));
+    if (prevNickname.empty() == true) {
+      commandResponse.addResponseMessage(-2, "");
+    }
     // seonghle
     // commandResponse.addResponseMessage(-1, "");
-    // serverParam.removeClient(senderSocketFd);
   } else {
     senderClient->setNickname(newNickname);
     commandResponse.addMultipleClientResponseMessage(
