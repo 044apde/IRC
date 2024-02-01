@@ -15,12 +15,6 @@ void Server::sendCommand(int targetFd) {
       client->pushReplyMessages(replyMessages[i]);
     } else {
       std::cout << replyMessages[i];
-      if (client->getDieFlag() == true && i == replyMessages.size() - 1) {
-        close(targetFd);
-        serverParam.removeClient(targetFd);
-      } else {
-        continue;
-      }
     }
   }
   return;
@@ -40,8 +34,8 @@ int Server::parseServerPort(char* portNum) {
   std::istringstream iss(portNum);
   unsigned long temp;
 
-  if ((iss >> temp) == false)
-    throw std::runtime_error("포트를 변환하는떼 실패했습니다.");
+  if (!(iss >> temp))
+    throw std::runtime_error("포트를 변환하는데 실패했습니다.");
   if (temp < MINPORT || temp > MAXPORT)
     throw std::runtime_error("유효한 포트 범위는 1024 ~ 65535입니다.");
   return static_cast<int>(temp);
@@ -170,10 +164,8 @@ void Server::disconnectClient(int clientSocket,
          NULL);
   std::cout << "disconnect '" << clientSocket << "\n";
   eventvec.push_back(temp);
-  if (serverParam.getClient(clientSocket)->getIsCheckPass() == false) {
-    serverParam.removeClient(clientSocket);
-    close(clientSocket);
-  }
+  serverParam.removeClient(clientSocket);
+  close(clientSocket);
   return;
 }
 
@@ -259,8 +251,6 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
   for (; iter != cmdResParam.getClientResponseMessageMap().end(); iter++) {
     if (iter->first == -1) {
       disconnectClient(clientSocket, eventvec);
-    } else if (iter->first == -2) {
-      serverParam.getClient(clientSocket)->setDieFlag(true);
     } else {
       Client* client = serverParam.getClient(iter->first);
       if (client != NULL) {

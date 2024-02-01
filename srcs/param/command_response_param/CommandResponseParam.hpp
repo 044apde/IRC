@@ -24,7 +24,6 @@ class CommandResponseParam {
       const;
   void removeTarget(const int targetClientFd);
   void addTerminateClientImmediateResponseMessage();
-  void addTerminateClientAfterSendResponseMessage();
 };
 
 #endif

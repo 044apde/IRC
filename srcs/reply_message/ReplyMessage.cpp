@@ -54,10 +54,9 @@ std::string ReplyMessage::rplNoTopic(const std::string& senderNickname,
 
 std::string ReplyMessage::rplTopic(const std::string& senderNickname,
                                    const std::string& channelName,
-                                   const std::string& changedTopic,
                                    const std::string& curerntTopic) {
-  return "332 " + senderNickname + " " + channelName + " :" +
-         (curerntTopic.empty() == true ? changedTopic : curerntTopic) + "\r\n";
+  return "332 " + senderNickname + " " + channelName + " " + curerntTopic +
+         "\r\n";
 }
 
 std::string ReplyMessage::rplInviting(const std::string& senderNickname,
@@ -298,8 +297,10 @@ std::string ReplyMessage::successQuit(const std::string& senderNickname,
 }
 
 std::string ReplyMessage::successTopic(const std::string& senderNickname,
+                                       const std::string& username,
+                                       const std::string& host,
                                        const std::string& channelName,
                                        const std::string& newTopic) {
-  return ":" + senderNickname + " TOPIC " + channelName + " " + newTopic +
-         "\r\n";
+  return ":" + senderNickname + "!" + username + "@" + host + " TOPIC " +
+         channelName + " " + newTopic + "\r\n";
 }

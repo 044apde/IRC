@@ -47,8 +47,3 @@ void CommandResponseParam::addTerminateClientImmediateResponseMessage() {
   this->clientResponseMessageMap.insert(std::make_pair(-1, ""));
   return;
 }
-
-void CommandResponseParam::addTerminateClientAfterSendResponseMessage() {
-  this->clientResponseMessageMap.insert(std::make_pair(-2, ""));
-  return;
-}

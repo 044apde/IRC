@@ -115,7 +115,8 @@ bool ModeCommand::isValidParamter(CommandResponseParam &commandResponse,
                                              tokenParam.getCommand()));
     return false;
   }
-  if (isTrailing(parameter[0]) == true || isTrailing(parameter[1]) == true) {
+  if (isTrailing(parameter[0]) == true || parameter[0][0] != '#' ||
+      isTrailing(parameter[1]) == true) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownCommand(senderNickname,
@@ -200,7 +201,11 @@ CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
 
   const std::string &channelName = parameter[0];
   Channel *channel = serverParam.getChannel(channelName);
-  if (isValidModeArgument(parameter, channel) == false) {
+  if (channel == NULL || isValidModeArgument(parameter, channel) == false) {
+    commandResponse.addResponseMessage(
+        senderSocketFd,
+        this->replyMessage.errUnknownMode(senderNickname, parameter[1]));
+    return commandResponse;
   }
 
   const std::string &modeString = parameter[1];

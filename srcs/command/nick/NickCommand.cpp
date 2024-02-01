@@ -52,17 +52,15 @@ CommandResponseParam NickCommand::execute(ServerParam& serverParam,
         senderSocketFd,
         this->replyMessage.errErroneusNickname(prevNickname, newNickname));
     if (prevNickname.empty() == true) {
-      commandResponse.addResponseMessage(-2, "");
+      commandResponse.addTerminateClientImmediateResponseMessage();
     }
   } else if (serverParam.getClientByNickname(newNickname) != NULL) {
     commandResponse.addResponseMessage(
         senderSocketFd,
         this->replyMessage.errNicknameInUse(prevNickname, newNickname));
     if (prevNickname.empty() == true) {
-      commandResponse.addResponseMessage(-2, "");
+      commandResponse.addTerminateClientImmediateResponseMessage();
     }
-    // seonghle
-    // commandResponse.addResponseMessage(-1, "");
   } else {
     senderClient->setNickname(newNickname);
     commandResponse.addMultipleClientResponseMessage(

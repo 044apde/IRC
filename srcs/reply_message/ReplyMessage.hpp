@@ -24,7 +24,6 @@ class ReplyMessage {
                          const std::string& channelName);
   std::string rplTopic(const std::string& senderNickname,
                        const std::string& channelName,
-                       const std::string& changedTopic,
                        const std::string& curerntTopic);
   std::string rplInviting(const std::string& senderNickname,
                           const std::string& invitedNickname,
@@ -105,6 +104,7 @@ class ReplyMessage {
                           const std::string& username, const std::string& host,
                           std::string reason);
   std::string successTopic(const std::string& senderNickname,
+                           const std::string& username, const std::string& host,
                            const std::string& channelName,
                            const std::string& newTopic);
 };

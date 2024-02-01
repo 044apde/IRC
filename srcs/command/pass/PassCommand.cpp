@@ -52,12 +52,10 @@ CommandResponseParam PassCommand::execute(ServerParam& serverParam,
     commandResponse.addResponseMessage(
         senderSocketFd,
         this->replyMessage.errAlreadyRegistered(senderNickname));
-    // seonghle
-    // commandResponse.addResponseMessage(-1, "");
   } else if (password != serverParam.getServerPassword()) {
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errPasswdMismatch(senderNickname));
-    commandResponse.addResponseMessage(-2, "");
+    commandResponse.addTerminateClientImmediateResponseMessage();
   } else {
     senderClient->setIsCheckPassTrue();
   }

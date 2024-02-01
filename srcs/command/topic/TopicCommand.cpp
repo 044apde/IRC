@@ -51,8 +51,15 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   std::string changedTopic;
   if (parameter.size() == 2) {
     changedTopic = parameter[1];
+
+    size_t newLineCharIndex = changedTopic.find('\n');
+    if (newLineCharIndex != std::string::npos) {
+      changedTopic = changedTopic.substr(0, newLineCharIndex);
+    }
   }
   Channel* channel = serverParam.getChannel(channelName);
+  const std::string& username = senderClient->getUsername();
+  const std::string& host = senderClient->getHost();
 
   if (isRegisteredClient(senderClient) == false) {
     commandResponse.addResponseMessage(
@@ -66,7 +73,7 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
     commandResponse.addResponseMessage(
         senderSocketFd,
         this->replyMessage.errNotOnChannel(senderNickname, channelName));
-  } else if (parameter.size() > 1) {
+  } else if (parameter.size() > 1 && changedTopic.empty() == false) {
     if (channel->isSetTopicOpOnlyChannel() == true &&
         serverParam.getChannel(channelName)->isOpClient(senderClient) ==
             false) {
@@ -77,8 +84,8 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
       channel->setTopic(changedTopic);
       commandResponse.addMultipleClientResponseMessage(
           channel->getAllClientFd(),
-          this->replyMessage.successTopic(senderNickname, channelName,
-                                          changedTopic));
+          this->replyMessage.successTopic(senderNickname, username, host,
+                                          channelName, changedTopic));
     }
   } else {
     if (channel->getTopic().empty() == true) {
@@ -88,7 +95,7 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
     } else {
       commandResponse.addResponseMessage(
           senderSocketFd,
-          this->replyMessage.rplTopic(senderNickname, channelName, changedTopic,
+          this->replyMessage.rplTopic(senderNickname, channelName,
                                       channel->getTopic()));
     }
   }

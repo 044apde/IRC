@@ -135,7 +135,7 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
               (channel->getTopic().empty() == true
                    ? ""
                    : this->replyMessage.rplTopic(senderNickname, channelName,
-                                                 "", channel->getTopic())));
+                                                 channel->getTopic())));
     }
   }
   return commandResponse;
