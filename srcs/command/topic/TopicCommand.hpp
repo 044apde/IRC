@@ -17,7 +17,8 @@ class TopicCommand : public ACommand {
   TopicCommand(const TopicCommand& other);
   TopicCommand& operator=(const TopicCommand& other);
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   TopicCommand();

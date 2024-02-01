@@ -14,19 +14,22 @@ TopicCommand& TopicCommand::operator=(const TopicCommand& other) {
 }
 
 bool TopicCommand::isValidParamter(CommandResponseParam& commandResponse,
-                                   const TokenParam& tokenParam) {
+                                   const TokenParam& tokenParam,
+                                   const std::string& senderNickname) {
   std::vector<std::string> parameter = tokenParam.getParameter();
 
   if (parameter.size() < 1) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errNeedMoreParams("", tokenParam.getCommand()));
+        this->replyMessage.errNeedMoreParams(senderNickname,
+                                             tokenParam.getCommand()));
     return false;
   } else if (parameter.size() > 2 || isTrailing(parameter[0]) == true ||
              (parameter.size() == 2 && isTrailing(parameter[1]) == false)) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
-        this->replyMessage.errUnknownCommand("", tokenParam.getCommand()));
+        this->replyMessage.errUnknownCommand(senderNickname,
+                                             tokenParam.getCommand()));
     return false;
   }
   return true;
@@ -35,14 +38,15 @@ bool TopicCommand::isValidParamter(CommandResponseParam& commandResponse,
 CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
                                            const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
+  const int& senderSocketFd = tokenParam.getSenderSocketFd();
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+  const std::string& senderNickname = senderClient->getNickname();
 
-  if (isValidParamter(commandResponse, tokenParam) == false) {
+  if (isValidParamter(commandResponse, tokenParam, senderNickname) == false) {
     return commandResponse;
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
-  const int& senderSocketFd = tokenParam.getSenderSocketFd();
-  Client* senderClient = serverParam.getClient(senderSocketFd);
   const std::string& channelName = parameter[0];
   std::string changedTopic;
   if (parameter.size() == 2) {
@@ -51,37 +55,41 @@ CommandResponseParam TopicCommand::execute(ServerParam& serverParam,
   Channel* channel = serverParam.getChannel(channelName);
 
   if (isRegisteredClient(senderClient) == false) {
-    commandResponse.addResponseMessage(senderSocketFd,
-                                       this->replyMessage.errNotRegisterd());
+    commandResponse.addResponseMessage(
+        senderSocketFd, this->replyMessage.errNotRegisterd(senderNickname));
   } else if (channel == NULL) {
     commandResponse.addResponseMessage(
-        senderSocketFd, this->replyMessage.errNoSuchChannel("", channelName));
+        senderSocketFd,
+        this->replyMessage.errNoSuchChannel(senderNickname, channelName));
   } else if (serverParam.getChannel(channelName)
                  ->isClientInChannel(senderClient) == false) {
     commandResponse.addResponseMessage(
-        senderSocketFd, this->replyMessage.errNotOnChannel("", channelName));
+        senderSocketFd,
+        this->replyMessage.errNotOnChannel(senderNickname, channelName));
   } else if (parameter.size() > 1) {
     if (channel->isSetTopicOpOnlyChannel() == true &&
         serverParam.getChannel(channelName)->isOpClient(senderClient) ==
             false) {
       commandResponse.addResponseMessage(
           senderSocketFd,
-          this->replyMessage.errChaNoPrivsNeeded("", channelName));
+          this->replyMessage.errChaNoPrivsNeeded(senderNickname, channelName));
     } else {
       channel->setTopic(changedTopic);
       commandResponse.addMultipleClientResponseMessage(
           channel->getAllClientFd(),
-          this->replyMessage.successTopic(senderClient->getNickname(),
-                                          channelName, changedTopic));
+          this->replyMessage.successTopic(senderNickname, channelName,
+                                          changedTopic));
     }
   } else {
     if (channel->getTopic().empty() == true) {
       commandResponse.addResponseMessage(
-          senderSocketFd, this->replyMessage.rplNoTopic(channelName));
+          senderSocketFd,
+          this->replyMessage.rplNoTopic(senderNickname, channelName));
     } else {
       commandResponse.addResponseMessage(
-          senderSocketFd, this->replyMessage.rplTopic(channelName, changedTopic,
-                                                      channel->getTopic()));
+          senderSocketFd,
+          this->replyMessage.rplTopic(senderNickname, channelName, changedTopic,
+                                      channel->getTopic()));
     }
   }
   return commandResponse;

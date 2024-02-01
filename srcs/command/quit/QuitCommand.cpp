@@ -12,32 +12,36 @@ QuitCommand& QuitCommand::operator=(const QuitCommand& other) {
 }
 
 bool QuitCommand::isValidParamter(CommandResponseParam& commandResponse,
-                                  const TokenParam& tokenParam) {
+                                  const TokenParam& tokenParam,
+                                  const std::string& senderNickname) {
   static_cast<void>(commandResponse);
   static_cast<void>(tokenParam);
+  static_cast<void>(senderNickname);
   return true;
 }
 
 CommandResponseParam QuitCommand::execute(ServerParam& serverParam,
                                           const TokenParam& tokenParam) {
   CommandResponseParam commandResponse;
+  int senderSocketFd = tokenParam.getSenderSocketFd();
+  Client* senderClient = serverParam.getClient(senderSocketFd);
+  const std::string& senderNickname = senderClient->getNickname();
 
-  if (isValidParamter(commandResponse, tokenParam) == false) {
+  if (isValidParamter(commandResponse, tokenParam, senderNickname) == false) {
     return commandResponse;
   }
 
   std::vector<std::string> parameter = tokenParam.getParameter();
-  int senderSocketFd = tokenParam.getSenderSocketFd();
   std::string reason;
   if (parameter.size() == 1) {
     reason = parameter[0];
   }
-  Client* senderClient = serverParam.getClient(senderSocketFd);
-  const std::string& senderNickname = senderClient->getNickname();
+  const std::string& username = senderClient->getUsername();
+  const std::string& host = senderClient->getHost();
 
   commandResponse.addMultipleClientResponseMessage(
       senderClient->getAllChannelClientFd(),
-      this->replyMessage.successQuit(senderNickname, reason));
+      this->replyMessage.successQuit(senderNickname, username, host, reason));
   commandResponse.addResponseMessage(-1, "");
   commandResponse.removeTarget(senderSocketFd);
   return commandResponse;
