@@ -38,22 +38,19 @@ class Server {
   ServerParam serverParam;
   CommandInvoker commandInvoker;
 
-  void sendCommand(int targetFd);
   Server(const Server& obj);
-
+  void sendCommand(int targetFd);
   int makeServerListening(int serverPort);
   int parseServerPort(char* portNum);
   std::string parseServerPwd(char* pwdNum);
   int makeKqueueFd();
   struct timespec makeTimeout();
-
   void acceptClient(std::vector<struct kevent>& eventVec);
   void handleEvent(struct kevent* eventlist, int eventCount,
                    std::vector<struct kevent>& eventVec);
   void enrollEventToVec(std::vector<struct kevent>& eventVec, uintptr_t ident,
                         int16_t filter, uint16_t flags, uint32_t fflags,
                         intptr_t data, void* udata);
-
   void manageRequest(int targetFd, std::vector<struct kevent>& eventvec);
   std::string getMessage(int clientSocket);
   void disconnectClient(int clientSocket, std::vector<struct kevent>& eventvec);
@@ -74,7 +71,6 @@ class Server {
   ~Server();
 
   ServerParam& getServerParam();
-
   void run();
 };
 
