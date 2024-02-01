@@ -128,7 +128,7 @@ void Server::acceptClient(std::vector<struct kevent>& eventVec) {
                              (struct sockaddr*)&clientAddr, &clientAddrLen)) ==
       -1)
     throw std::runtime_error("faild to accpet client");
-  fcntl(clientSocket, F_SETFL, O_NONBLOCK);  // seonghle
+  fcntl(clientSocket, F_SETFL, O_NONBLOCK);
   std::cout << "Accept client: " << clientSocket << "\n";
   serverParam.addNewClient(clientSocket);
   enrollEventToVec(eventVec, clientSocket, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0,

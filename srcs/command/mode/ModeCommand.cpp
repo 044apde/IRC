@@ -34,7 +34,6 @@ bool ModeCommand::isValidMode(const char &modeChar) {
   return true;
 }
 
-// 모드가 아닌 문자면서 부호가 아니거나, 부호 앞에 또 부호가 있으면 false
 bool ModeCommand::isValidModeString(const std::string &modeString) {
   if (modeString.size() == 0 || modeString.size() == 1) {
     return false;

@@ -98,7 +98,6 @@ bool ServerParam::removeChannel(const std::string channelName) {
     delete it->second;
     it->second = NULL;
     return true;
-    // this->channelMap.erase(deletedChannelName);
   }
   return false;
 }
