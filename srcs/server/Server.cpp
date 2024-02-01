@@ -90,7 +90,7 @@ Server::Server(int ac, char** av) {
     serverParam.setServerFd(serverFd);
     serverParam.setServerPassword(serverPassword);
   } catch (const std::exception& e) {
-    std::cerr << "Server start exception : " << e.what() << '\n';  // seonghle
+    std::cerr << "Server start exception : " << e.what() << '\n';
     exit(1);
   }
   return;
