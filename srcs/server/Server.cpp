@@ -25,7 +25,7 @@ Server::Server(const Server& obj) {
 }
 
 Server& Server::operator=(const Server& obj) {
-  static_cast<void>(obj);
+  serverParam = obj.serverParam;
   return *this;
 }
 
@@ -36,7 +36,7 @@ int Server::parseServerPort(char* portNum) {
   if ((iss >> temp) == false)
     throw std::runtime_error("포트를 변환하는떼 실패했습니다.");
   if (temp < MINPORT || temp > MAXPORT)
-    throw std::runtime_error("유효한 포트 범위는 49152 ~ 65535입니다.");
+    throw std::runtime_error("유효한 포트 범위는 1024 ~ 65535입니다.");
   return static_cast<int>(temp);
 }
 
@@ -55,8 +55,10 @@ std::string Server::parseServerPwd(char* pwdNum) {
 int Server::makeServerListening(int serverPort) {
   int serverSocket;
   struct sockaddr_in serverAddr;
+  int option = 1;
 
   serverSocket = socket(PF_INET, SOCK_STREAM, 0);
+  setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
   memset(&serverAddr, 0, sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -87,10 +89,7 @@ Server::Server(int ac, char** av) {
   return;
 }
 
-Server::~Server() {
-  std::cout << "서버가 종료되었습니다." << std::endl;
-  return;
-}
+Server::~Server() { return; }
 
 void Server::enrollEventToVec(std::vector<struct kevent>& eventVec,
                               uintptr_t ident, int16_t filter, uint16_t flags,
@@ -256,8 +255,8 @@ void Server::setClientReplyMessage(CommandResponseParam cmdResParam,
       Client* client = serverParam.getClient(iter->first);
       if (client != NULL) {
         client->pushReplyMessages(iter->second);
-        enrollEventToVec(eventvec, iter->first, EVFILT_WRITE, EV_ADD | EV_ONESHOT,
-                       0, 0, NULL);
+        enrollEventToVec(eventvec, iter->first, EVFILT_WRITE,
+                         EV_ADD | EV_ONESHOT, 0, 0, NULL);
       }
     }
   }
@@ -362,3 +361,5 @@ void Server::run() {
   close(kqueueFd);
   return;
 }
+
+ServerParam& Server::getServerParam() { return serverParam; }
