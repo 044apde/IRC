@@ -95,9 +95,7 @@ CommandResponseParam JoinCommand::execute(ServerParam& serverParam,
     commandResponse.addResponseMessage(
         senderSocketFd, this->replyMessage.errChannelIsFull("", channelName));
   } else if (channel->isClientInChannel(client) == true) {
-    commandResponse.addResponseMessage(
-        senderSocketFd,
-        this->replyMessage.errUserOnChannel("", senderNickname, channelName));
+    return commandResponse;
   } else if (channel->isInviteOnlyChannel() == true &&
              channel->isClientInvited(client) == false) {
     commandResponse.addResponseMessage(

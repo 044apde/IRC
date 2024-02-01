@@ -164,9 +164,7 @@ void Server::disconnectClient(int clientSocket,
          NULL);
   std::cout << "disconnect '" << clientSocket << "\n";
   eventvec.push_back(temp);
-  //  serverParam.getClient(clientSocket)->pushReplyMessages(""); OR
   serverParam.removeClient(clientSocket);
-  //  close(socket);
   close(clientSocket);
   return;
 }
@@ -279,6 +277,9 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
   if (client == NULL)
     throw std::runtime_error("클라이언트를 불러오는데 실패했습니다.");
   while (i <= static_cast<int>(combinedBuffer.size()) - 1) {
+    if (serverParam.getClient(clientSocket) == NULL) {
+      return;
+    }
     if (combinedBuffer[i] == '\n' && combinedBuffer[i - 1] == '\r') {
       try {
         completeMessage = combinedBuffer.substr(0, i - 1);
@@ -294,8 +295,7 @@ void Server::handleCombindBuffer(std::string combinedBuffer, int clientSocket,
       } catch (std::exception& e) {
         std::cerr << e.what() << "\n";
       }
-        i = 0;
-      client->pushRemainRequestBuffer(combinedBuffer);
+      i = 0;
     } else {
       ++i;
     }

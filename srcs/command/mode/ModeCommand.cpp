@@ -52,7 +52,7 @@ bool ModeCommand::isValidModeString(const std::string &modeString) {
 }
 
 bool ModeCommand::isValidModeArgument(
-    const std::vector<std::string> &parameter) {
+    const std::vector<std::string> &parameter, Channel* channel) {
   const std::string &modeString = parameter[1];
   char signedChar = modeString[0];
   size_t argumentIndex = 2;
@@ -64,14 +64,14 @@ bool ModeCommand::isValidModeArgument(
     }
     switch (modeString[i]) {
       case 'k':
-        if (signedChar == '-') {
-          continue;
-        }
         if (signedChar == '+' &&
             (parameter.size() <= argumentIndex ||
              isTrailing(parameter[argumentIndex]) == true ||
              parameter[argumentIndex].empty() == true)) {
           return false;
+        }
+        if (signedChar == '-' && channel->isSetKeyChannel() == false) {
+          continue;
         }
         argumentIndex++;
         break;
@@ -122,8 +122,7 @@ bool ModeCommand::isValidParamter(CommandResponseParam &commandResponse,
   if (parameter[0].empty() == false && parameter[0][0] != '#') {
     return false;
   }
-  if (isValidModeString(parameter[1]) == false ||
-      isValidModeArgument(parameter) == false) {
+  if (isValidModeString(parameter[1]) == false) {
     commandResponse.addResponseMessage(
         tokenParam.getSenderSocketFd(),
         this->replyMessage.errUnknownMode("", parameter[1]));
@@ -187,19 +186,23 @@ size_t ModeCommand::getMaxUserParameter(const std::string &argument) {
 CommandResponseParam ModeCommand::execute(ServerParam &serverParam,
                                           const TokenParam &tokenParam) {
   CommandResponseParam commandResponse;
+  const std::vector<std::string> &parameter = tokenParam.getParameter();
 
   if (isValidParamter(commandResponse, tokenParam) == false) {
     return commandResponse;
   }
 
-  const int &senderSocketFd = tokenParam.getSenderSocketFd();
-  const std::vector<std::string> &parameter = tokenParam.getParameter();
   const std::string &channelName = parameter[0];
+  Channel *channel = serverParam.getChannel(channelName);
+  if (isValidModeArgument(parameter, channel) == false) {
+
+  }
+
+  const int &senderSocketFd = tokenParam.getSenderSocketFd();
   const std::string &modeString = parameter[1];
   std::vector<std::string> arguments;
   size_t argumentIndex = 2;
   Client *senderClient = serverParam.getClient(senderSocketFd);
-  Channel *channel = serverParam.getChannel(channelName);
   const std::string &senderUsername = senderClient->getUsername();
   const std::string &senderHost = senderClient->getHost();
 

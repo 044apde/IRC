@@ -24,8 +24,7 @@ class ReplyMessage {
   std::string rplTopic(const std::string& channelName,
                        const std::string& changedTopic,
                        const std::string& curerntTopic);
-  std::string rplInviting(const std::string& username,
-                          const std::string& nickname,
+  std::string rplInviting(const std::string& invitedNickname,
                           const std::string& channelName);
   std::string rplNamReply(const std::string& targetNickname,
                           const std::string& channelName,
@@ -57,8 +56,7 @@ class ReplyMessage {
                                   const std::string& channelName);
   std::string errNotOnChannel(const std::string& username,
                               const std::string& channelName);
-  std::string errUserOnChannel(const std::string& username,
-                               const std::string& nickname,
+  std::string errUserOnChannel(const std::string& targetNickname,
                                const std::string& channelName);
   std::string errNotRegisterd();
   std::string errNeedMoreParams(const std::string& username,
