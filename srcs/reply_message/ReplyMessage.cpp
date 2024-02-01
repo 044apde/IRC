@@ -132,10 +132,10 @@ std::string ReplyMessage::errNicknameInUse(const std::string& senderNickname,
          " :Nickname is already in use\r\n";
 }
 
-std::string ReplyMessage::errUserNotInChannel(const std::string& targetNickname,
-                                              const std::string& nickname,
+std::string ReplyMessage::errUserNotInChannel(const std::string& senderNickname,
+                                              const std::string& targetNickname,
                                               const std::string& channelName) {
-  return "441 " + targetNickname + " " + nickname + " " + channelName +
+  return "441 " + senderNickname + " " + targetNickname + " " + channelName +
          " :They aren't on that channel\r\n";
 }
 

@@ -51,8 +51,8 @@ class ReplyMessage {
                                   const std::string& nickname);
   std::string errNicknameInUse(const std::string& senderNickname,
                                const std::string& nickname);
-  std::string errUserNotInChannel(const std::string& targetNickname,
-                                  const std::string& nickname,
+  std::string errUserNotInChannel(const std::string& senderNickname,
+                                  const std::string& targetNickname,
                                   const std::string& channelName);
   std::string errNotOnChannel(const std::string& senderNickname,
                               const std::string& channelName);
