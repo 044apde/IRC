@@ -17,7 +17,8 @@ class NickCommand : public ACommand {
   NickCommand(const NickCommand &other);
   NickCommand &operator=(const NickCommand &other);
   bool isValidParamter(CommandResponseParam &commandResponse,
-                       const TokenParam &tokenParam);
+                       const TokenParam &tokenParam,
+                       const std::string &senderNickname);
 
  public:
   NickCommand();

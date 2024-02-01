@@ -15,7 +15,8 @@ class PassCommand : public ACommand {
   PassCommand(const PassCommand& other);
   PassCommand& operator=(const PassCommand& other);
   bool isValidParamter(CommandResponseParam& commandResponse,
-                       const TokenParam& tokenParam);
+                       const TokenParam& tokenParam,
+                       const std::string& senderNickname);
 
  public:
   PassCommand();
