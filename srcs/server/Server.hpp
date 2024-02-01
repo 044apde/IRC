@@ -44,7 +44,6 @@ class Server {
   int parseServerPort(char* portNum);
   std::string parseServerPwd(char* pwdNum);
   int makeKqueueFd();
-  struct timespec makeTimeout();
   void acceptClient(std::vector<struct kevent>& eventVec);
   void handleEvent(struct kevent* eventlist, int eventCount,
                    std::vector<struct kevent>& eventVec);
