@@ -21,7 +21,6 @@ class TokenParam {
   TokenParam& operator=(const TokenParam& other);
   ~TokenParam();
   const int& getSenderSocketFd() const;
-  const std::string& getPrefix() const;
   const std::string& getCommand() const;
   const std::vector<std::string>& getParameter() const;
 };

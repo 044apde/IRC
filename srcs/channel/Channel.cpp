@@ -2,12 +2,13 @@
 
 Channel::Channel() : channelName("") {}
 
-Channel::Channel(const std::string& channelName) : channelName(channelName), 
-                                                    isInviteOnly(false),
-                                                    isSetTopicOpOnly(false),
-                                                    isSetKey(false),
-                                                    isSetMaxUser(false),
-                                                    maxUser(0) {}
+Channel::Channel(const std::string& channelName)
+    : channelName(channelName),
+      isInviteOnly(false),
+      isSetTopicOpOnly(false),
+      isSetKey(false),
+      isSetMaxUser(false),
+      maxUser(0) {}
 
 Channel::~Channel() {}
 
@@ -102,13 +103,6 @@ bool Channel::isSetTopicOpOnlyChannel() { return this->isSetTopicOpOnly; }
 
 bool Channel::isSetKeyChannel() { return this->isSetKey; }
 
-bool Channel::isKeyMatched(const std::string& key) {
-  if (this->key == key) {
-    return true;
-  }
-  return false;
-}
-
 bool Channel::isChannelFull() {
   if (this->isSetMaxUser == true && this->clientMap.size() >= this->maxUser) {
     return true;
@@ -121,16 +115,6 @@ bool Channel::isClientInChannel(Client* client) {
     return false;
   }
   return true;
-}
-
-bool Channel::isClientInChannelByNickname(std::string nickname) {
-  for (std::map<Client*, bool>::iterator it = this->clientMap.begin();
-       it != this->clientMap.end(); it++) {
-    if (it->first != NULL && it->first->getNickname() == nickname) {
-      return true;
-    }
-  }
-  return false;
 }
 
 bool Channel::isOpClient(Client* client) {
@@ -195,7 +179,5 @@ const std::set<const int> Channel::getAllClientFd() {
 }
 
 size_t Channel::getUserCountInChannel() const { return this->clientMap.size(); }
-
-size_t Channel::getMaxUser() const { return this->maxUser; }
 
 std::map<Client*, bool> Channel::getClientMap() { return this->clientMap; }

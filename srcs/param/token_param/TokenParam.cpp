@@ -31,8 +31,6 @@ const int& TokenParam::getSenderSocketFd() const {
   return this->senderSocketFd;
 }
 
-const std::string& TokenParam::getPrefix() const { return this->prefix; }
-
 const std::string& TokenParam::getCommand() const { return this->command; }
 
 const std::vector<std::string>& TokenParam::getParameter() const {
