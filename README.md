@@ -2,7 +2,7 @@
 
 ❌ U CAN'T USE ON LINUX 
 
-DEV LOG [링크](https://maroon-face-0e4.notion.site/IRC-server-Socket-TCP-IP-RFC-IRC-0ea29959831848ff91ee8da86da4f85a?pvs=4)
+[DEV LOG 링크](https://maroon-face-0e4.notion.site/IRC-server-Socket-TCP-IP-RFC-IRC-0ea29959831848ff91ee8da86da4f85a?pvs=4)
 
 
 **[Info]**  
