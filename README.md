@@ -15,6 +15,3 @@ LINUX에서 사용하기 위해서는 이벤트 알림 API를 select OR epoll로
 **[Usage]**  
 make  
 ./irc [port] [pwd]  
-
-BSD OS가 제공하는 KQUEUE 커널 이벤트 알림 API가 사용되었습니다.  
-LINUX에서 사용하기 위해서는 이벤트 알림 API를 select OR epoll로 변경해야합니다.  
