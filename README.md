@@ -7,8 +7,8 @@ LINUX에서 사용하기 위해서는 이벤트 알림 API를 select OR epoll로
 
 **[Usage]**  
 make
-./irc [port] [pwd]
+./irc [port] [pwd]   
 
 **[Usage]**  
 BUILD SYSTEM: intel mac os  
-[more info]((https://www.notion.so/kkshin0442/f45989f98b924dc38d8d706cdeadc05b?p=0ea29959831848ff91ee8da86da4f85a&pm=s))
+[more info](https://www.notion.so/kkshin0442/f45989f98b924dc38d8d706cdeadc05b?p=0ea29959831848ff91ee8da86da4f85a&pm=s)
