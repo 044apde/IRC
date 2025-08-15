@@ -6,8 +6,8 @@ BSD OS가 제공하는 KQUEUE 커널 이벤트 알림 API가 사용되었습니�
 LINUX에서 사용하기 위해서는 이벤트 알림 API를 select OR epoll로 변경해야합니다.
 
 **[Usage]**  
-make
-./irc [port] [pwd]   
+make  
+./irc [port(클라이언트가 접근할 포트)] [pwd(ICR 서버가 사용할 비밀번호)]   
 
 **[Usage]**  
 BUILD SYSTEM: intel mac os  
