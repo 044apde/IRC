@@ -1,5 +1,3 @@
-[DEV LOG 링크](https://maroon-face-0e4.notion.site/IRC-server-Socket-TCP-IP-RFC-IRC-0ea29959831848ff91ee8da86da4f85a?pvs=4)
-
 **[Info]**  
 RFC IRC 기반 서버 프로그램입니다.  
 단일 서버를 제공합니다.  
@@ -13,3 +11,4 @@ make
 
 **[Usage]**
 BUILD SYSTEM: intel mac os
+[more info]([https://maroon-face-0e4.notion.site/IRC-server-Socket-TCP-IP-RFC-IRC-0ea29959831848ff91ee8da86da4f85a?pvs=4](https://www.notion.so/kkshin0442/f45989f98b924dc38d8d706cdeadc05b?p=0ea29959831848ff91ee8da86da4f85a&pm=s))
